@@ -22,18 +22,26 @@ export const CreateTenant = () => {
         onClick={() => {
           console.log("TEST");
           mutate({
-            name: "Mason",
-            email: new Date().toISOString(),
-            password: "rest",
-            username: new Date().toISOString(),
-            website: "whtwa",
-            dbUrl: "URL",
+            tenant: {
+              companyName: "Mason",
+              dbUrl: "",
+            },
+            user: {
+              firstName: "Mason",
+              lastName: "Stenquist",
+              email: `mason.sten+${new Date().toISOString()}@gmail.com`,
+            },
+            password: "rush2112",
           });
         }}
       >
         Create
       </button>
-      <button onClick={() => update({ id: 1, data: { website: "New" } })}>
+      <button
+        onClick={() =>
+          update({ id: 2, data: { companyName: new Date().toISOString() } })
+        }
+      >
         Update
       </button>
     </div>

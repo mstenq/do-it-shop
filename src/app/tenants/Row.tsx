@@ -1,5 +1,6 @@
 import type { Tenant } from "@/server/db/tenant-schema";
 import { api } from "@/trpc/react";
+import Link from "next/link";
 
 export const Row = ({ tenant }: { tenant: Tenant }) => {
   const utils = api.useUtils();
@@ -13,7 +14,14 @@ export const Row = ({ tenant }: { tenant: Tenant }) => {
   });
   return (
     <tr>
-      <td>{tenant.id}</td>
+      <td>
+        <Link
+          className="text-blue-700 hover:underline"
+          href={`/tenants/${tenant.id}`}
+        >
+          {tenant.id} - {tenant.companyName}
+        </Link>
+      </td>
       <td>{tenant.dbUrl}</td>
       <td>{tenant.updatedAt}</td>
       <td>

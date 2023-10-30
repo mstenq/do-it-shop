@@ -8,14 +8,19 @@ import { getDB } from "@/server/db/db";
 import { dbMigrate } from "@/server/db/db-migrate";
 import {
   insertTenantSchema,
+  insertUserSchema,
+  tenantAccess,
   tenants,
   updateTenantSchema,
+  users,
 } from "@/server/db/tenant-schema";
 import { TRPCError } from "@trpc/server";
-import { eq, is } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { createTursoDB, createTursoToken, deleteTursoDB } from "./turso";
 import fs from "fs";
+import { cookies } from "next/headers";
+import { decrypt, encrypt, hashPassword } from "@/server/utils";
 
 const isLocalFile = env.DATABASE_TENANT_URL.startsWith("file:");
 
@@ -25,14 +30,21 @@ export const tenantRouter = createTRPCRouter({
   }),
 
   createTenant: protectedProcedure
-    .input(insertTenantSchema)
+    .input(
+      z.object({
+        tenant: insertTenantSchema,
+        user: insertUserSchema,
+        password: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Create record in shared tenant db
-      const [record] = await ctx.tenantDb
+      const [newTenant] = await ctx.tenantDb
         .insert(tenants)
-        .values(input)
-        .returning({ newId: tenants.id });
-      if (!record?.newId) {
+        .values(input.tenant)
+        .returning({ id: tenants.id });
+
+      if (!newTenant?.id) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           cause: "Could not create tenant record",
@@ -43,9 +55,9 @@ export const tenantRouter = createTRPCRouter({
       let url = "";
 
       if (isLocalFile) {
-        url = `file:db/tenant-${record.newId}.sqlite`;
+        url = `file:db/tenant-${newTenant.id}.sqlite`;
       } else {
-        const database = await createTursoDB(record.newId);
+        const database = await createTursoDB(newTenant.id);
         url = `libsql://${database.Hostname}`;
       }
 
@@ -53,14 +65,39 @@ export const tenantRouter = createTRPCRouter({
       await ctx.tenantDb
         .update(tenants)
         .set({ dbUrl: url })
-        .where(eq(tenants.id, record.newId));
+        .where(eq(tenants.id, newTenant.id));
 
       // get authToken
-      const authToken = isLocalFile
-        ? undefined
-        : await createTursoToken(record.newId);
-      console.log({ authToken });
+      const authToken = isLocalFile ? "" : await createTursoToken(newTenant.id);
       const db = getDB({ url, authToken });
+
+      // Creat user record in global shared DB
+      const passwordHash = hashPassword(input.password, newTenant.id);
+      const [newUser] = await ctx.tenantDb
+        .insert(users)
+        .values({ ...input.user, passwordHash, salt: `${newTenant.id}` })
+        .returning({ id: users.id });
+
+      if (!newUser) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          cause: "Could not create user record",
+        });
+      }
+
+      // Create tenantAccess record to store hashed token
+      const { encrypted: accessTokenHash, iv } = encrypt(
+        authToken,
+        input.password,
+      );
+      await ctx.tenantDb.insert(tenantAccess).values({
+        userId: newUser.id,
+        tenantId: newTenant.id,
+        iv,
+        accessTokenHash,
+      });
+
+      // Migrate new db
       await dbMigrate(db);
     }),
 

@@ -1,5 +1,5 @@
 --> statement-breakpoint
-CREATE TRIGGER [UPDATE_DT]
+CREATE TRIGGER [UPDATE_TABLENAME_TS]
     AFTER UPDATE ON table_name FOR EACH ROW
     WHEN OLD.updated_at = NEW.updated_at OR OLD.updated_at IS NULL
 BEGIN
