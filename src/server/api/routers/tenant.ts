@@ -12,13 +12,15 @@ import {
   updateTenantSchema,
 } from "@/server/db/tenant-schema";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, is } from "drizzle-orm";
 import { z } from "zod";
 import { createTursoDB, createTursoToken, deleteTursoDB } from "./turso";
+import fs from "fs";
+
+const isLocalFile = env.DATABASE_TENANT_URL.startsWith("file:");
 
 export const tenantRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
     return ctx.tenantDb.select().from(tenants);
   }),
 
@@ -39,7 +41,7 @@ export const tenantRouter = createTRPCRouter({
 
       // get database URL via turso api or simply generating a string for local dev
       let url = "";
-      const isLocalFile = env.DATABASE_TENANT_URL.startsWith("file:");
+
       if (isLocalFile) {
         url = `file:db/tenant-${record.newId}.sqlite`;
       } else {
@@ -74,7 +76,11 @@ export const tenantRouter = createTRPCRouter({
   deleteTenant: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteTursoDB(input.id);
+      if (isLocalFile) {
+        fs.unlinkSync(`db/tenant-${input.id}.sqlite`);
+      } else {
+        await deleteTursoDB(input.id);
+      }
       await ctx.tenantDb.delete(tenants).where(eq(tenants.id, input.id));
     }),
 });

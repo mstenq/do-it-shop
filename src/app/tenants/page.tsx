@@ -14,9 +14,10 @@ export default function Home() {
         <table className="pretty-table">
           <thead>
             <tr>
-              <th>name</th>
+              <th>ID</th>
               <th>url</th>
-              <th>updated</th>
+              <th>Updated</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
