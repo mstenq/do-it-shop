@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   index,
   integer,
@@ -28,6 +28,10 @@ export const tenants = sqliteTable(
     nameIdx: index("name_idx").on(tenants.companyName),
   }),
 );
+
+export const tenantRelations = relations(tenants, ({ many }) => ({
+  tenantAccess: many(tenantAccess),
+}));
 
 export const insertTenantSchema = createInsertSchema(tenants).omit({
   id: true,
@@ -68,6 +72,10 @@ export const users = sqliteTable(
     emailIdx: uniqueIndex("email_idx").on(users.email),
   }),
 );
+
+export const userRelations = relations(users, ({ many }) => ({
+  tenantAccess: many(tenantAccess),
+}));
 
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -110,8 +118,23 @@ export const tenantAccess = sqliteTable(
   (tenantAccess) => ({
     tenantId: index("tenant_idx").on(tenantAccess.tenantId),
     userId: index("user_idx").on(tenantAccess.userId),
+    uniqueTenantAndUser: uniqueIndex("tenant_user_idx").on(
+      tenantAccess.tenantId,
+      tenantAccess.userId,
+    ),
   }),
 );
+
+export const tenantAccessRelations = relations(tenantAccess, ({ one }) => ({
+  tenant: one(tenants, {
+    fields: [tenantAccess.tenantId],
+    references: [tenants.id],
+  }),
+  user: one(users, {
+    fields: [tenantAccess.userId],
+    references: [users.id],
+  }),
+}));
 
 export const insertTenantAccessSchema = createInsertSchema(tenantAccess).omit({
   id: true,

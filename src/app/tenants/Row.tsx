@@ -15,10 +15,7 @@ export const Row = ({ tenant }: { tenant: Tenant }) => {
   return (
     <tr>
       <td>
-        <Link
-          className="text-blue-700 hover:underline"
-          href={`/tenants/${tenant.id}`}
-        >
+        <Link className=" hover:underline" href={`/tenants/${tenant.id}`}>
           {tenant.id} - {tenant.companyName}
         </Link>
       </td>

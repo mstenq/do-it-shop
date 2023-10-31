@@ -1,9 +1,22 @@
 import "@/styles/globals.css";
 
-import { GeistSans, GeistMono } from "geist/font";
+import { GeistMono, GeistSans } from "geist/font";
+import {
+  Layers,
+  Search,
+  Bell,
+  Gauge,
+  Users,
+  CircleDollarSign,
+  ListChecks,
+  Settings,
+} from "lucide-react";
 import { headers } from "next/headers";
 
+import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { TRPCReactProvider } from "@/trpc/react";
+import Link from "next/link";
 
 export const metadata = {
   title: "Create T3 App",
@@ -20,7 +33,54 @@ export default function RootLayout({
     <html lang="en">
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
       <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
-        <TRPCReactProvider headers={headers()}>{children}</TRPCReactProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TRPCReactProvider headers={headers()}>
+            <div className="flex bg-gray-100 dark:bg-gray-900">
+              <div className="min-h-screen min-w-[300px] max-w-[300px] p-8">
+                <div className="flex items-center gap-2 pb-10 font-bold">
+                  <Layers />
+                  Do It Shop Manager
+                </div>
+                <nav className="flex flex-col gap-4 pb-10">
+                  <Link href="/" className="flex items-center gap-2">
+                    <Search className="w-4" /> Search
+                  </Link>
+                  <Link href="/" className="flex items-center gap-2">
+                    <Bell className="w-4" /> Notifications
+                  </Link>
+                </nav>
+                <nav className="flex flex-col gap-4">
+                  <Link href="/" className="flex items-center gap-2">
+                    <Gauge className="w-4" /> Dashboard
+                  </Link>
+                  <Link href="/" className="flex items-center gap-2">
+                    <Users className="w-4" /> Employees
+                  </Link>
+                  <Link href="/" className="flex items-center gap-2">
+                    <CircleDollarSign className="w-4" /> Payroll
+                  </Link>
+                  <Link href="/" className="flex items-center gap-2">
+                    <ListChecks className="w-4" /> Tasks
+                  </Link>
+                  <Link href="/" className="flex items-center gap-2">
+                    <Settings className="w-4" /> Settings
+                  </Link>
+                </nav>
+              </div>
+              <div className="flex-grow pt-1.5">
+                <div className=" bg-background max-h-[calc(100vh-0.375rem)] min-h-[calc(100vh-0.375rem)] overflow-y-scroll rounded-tl-lg ring-1 ring-slate-700/10">
+                  <div className="container flex justify-between pt-8">
+                    <h1 className="text-2xl font-extrabold">
+                      Jack&rsquo;s Do It Shop
+                    </h1>
+                    <DarkModeToggle />
+                  </div>
+                  <div>{children}</div>
+                </div>
+              </div>
+            </div>
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

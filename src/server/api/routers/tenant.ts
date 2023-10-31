@@ -14,13 +14,13 @@ import {
   updateTenantSchema,
   users,
 } from "@/server/db/tenant-schema";
+import { encrypt, hashPassword } from "@/server/utils";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
-import { createTursoDB, createTursoToken, deleteTursoDB } from "./turso";
 import fs from "fs";
 import { cookies } from "next/headers";
-import { decrypt, encrypt, hashPassword } from "@/server/utils";
+import { z } from "zod";
+import { createTursoDB, createTursoToken, deleteTursoDB } from "./turso";
 
 const isLocalFile = env.DATABASE_TENANT_URL.startsWith("file:");
 
@@ -29,7 +29,7 @@ export const tenantRouter = createTRPCRouter({
     return ctx.tenantDb.select().from(tenants);
   }),
 
-  createTenant: protectedProcedure
+  createTenant: publicProcedure
     .input(
       z.object({
         tenant: insertTenantSchema,
@@ -76,7 +76,11 @@ export const tenantRouter = createTRPCRouter({
       const [newUser] = await ctx.tenantDb
         .insert(users)
         .values({ ...input.user, passwordHash, salt: `${newTenant.id}` })
-        .returning({ id: users.id });
+        .returning({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        });
 
       if (!newUser) {
         throw new TRPCError({
@@ -99,6 +103,17 @@ export const tenantRouter = createTRPCRouter({
 
       // Migrate new db
       await dbMigrate(db);
+
+      // Create user session
+      const session = {
+        user: newUser,
+        tenants: [{ tenant: newTenant, dbUrl: url, authToken }],
+      };
+
+      cookies().set("session", JSON.stringify(session), {
+        httpOnly: true,
+        secure: true,
+      });
     }),
 
   updateTenant: protectedProcedure

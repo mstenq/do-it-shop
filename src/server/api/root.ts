@@ -3,6 +3,7 @@ import { createTRPCRouter } from "@/server/api/trpc";
 import { tenantRouter } from "./routers/tenant";
 import { tursoRouter } from "./routers/turso";
 import { userRouter } from "./routers/users";
+import { tenantAccessRouter } from "./routers/tenantAccess";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   tenant: tenantRouter,
   turso: tursoRouter,
   user: userRouter,
+  tenantAccess: tenantAccessRouter,
 });
 
 // export type definition of API

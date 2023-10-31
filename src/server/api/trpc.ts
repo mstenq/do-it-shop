@@ -8,7 +8,9 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type NextRequest } from "next/server";
+import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { cookies } from "next/headers";
+import { type NextRequest, type NextResponse } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { getTenantDB } from "../db/tenant-db";
@@ -21,8 +23,8 @@ import { getTenantDB } from "../db/tenant-db";
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
-interface CreateContextOptions {
-  headers: Headers;
+interface CreateInnerContextOptions extends Partial<CreateNextContextOptions> {
+  session: { user: string } | null;
 }
 
 /**
@@ -35,12 +37,17 @@ interface CreateContextOptions {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-export const createInnerTRPCContext = (opts: CreateContextOptions) => {
-  const session = { user: "Mason Stenquist" };
+export const createInnerTRPCContext = (opts: { req: NextRequest }) => {
+  const sessionString = (cookies().get("session") ?? "null") as string;
+
+  const session = JSON.parse(sessionString);
+
+  console.log("session", session);
 
   return {
     session,
-    headers: opts.headers,
+    req: opts.req,
+    // res: opts.res,
     tenantDb: getTenantDB(),
   };
 };
@@ -51,12 +58,19 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (opts: { req: NextRequest }) => {
+export const createTRPCContext = (opts: {
+  req: NextRequest;
+  res: NextResponse;
+}) => {
   // Fetch stuff that depends on the request
-
-  return createInnerTRPCContext({
-    headers: opts.req.headers,
-  });
+  const sessionString = cookies().get("session")?.value ?? "null";
+  const session = JSON.parse(sessionString);
+  return {
+    session,
+    req: opts.req,
+    res: opts.res,
+    tenantDb: getTenantDB(),
+  };
 };
 
 /**
