@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "5e2e12cd-e82a-4e8c-bad7-513823808128",
+  "id": "480575ba-fb61-4c9c-8500-7034a97dc1e5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tenant_access": {
@@ -18,14 +18,14 @@
           "name": "tenant_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "iv": {
@@ -73,6 +73,14 @@
             "user_id"
           ],
           "isUnique": false
+        },
+        "tenant_user_idx": {
+          "name": "tenant_user_idx",
+          "columns": [
+            "tenant_id",
+            "user_id"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {

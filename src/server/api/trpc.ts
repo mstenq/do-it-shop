@@ -7,13 +7,20 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC, TRPCError } from "@trpc/server";
-import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { type Session } from "@/schemas/sessionSchema";
+import {
+  experimental_standaloneMiddleware,
+  initTRPC,
+  TRPCError,
+} from "@trpc/server";
 import { cookies } from "next/headers";
 import { type NextRequest, type NextResponse } from "next/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
+import { getDB } from "../db/db";
 import { getTenantDB } from "../db/tenant-db";
+import { getDbCredentialsFromSession } from "../utils/getDbCredentialsFromSession";
+import { getUserSession } from "../utils/userSession";
 
 /**
  * 1. CONTEXT
@@ -22,10 +29,6 @@ import { getTenantDB } from "../db/tenant-db";
  *
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
-
-interface CreateInnerContextOptions extends Partial<CreateNextContextOptions> {
-  session: { user: string } | null;
-}
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -58,18 +61,27 @@ export const createInnerTRPCContext = (opts: { req: NextRequest }) => {
  *
  * @see https://trpc.io/docs/context
  */
+export type TRPCContext = ReturnType<typeof createTRPCContext>;
 export const createTRPCContext = (opts: {
   req: NextRequest;
   res: NextResponse;
 }) => {
-  // Fetch stuff that depends on the request
-  const sessionString = cookies().get("session")?.value ?? "null";
-  const session = JSON.parse(sessionString);
+  const session = getUserSession();
+
+  // Configure users database client
+  const dbCredentials = getDbCredentialsFromSession(session);
+  let db: null | ReturnType<typeof getDB> = null;
+  if (dbCredentials) {
+    const { url, authToken } = dbCredentials;
+    db = getDB({ url, authToken });
+  }
+
   return {
     session,
     req: opts.req,
     res: opts.res,
     tenantDb: getTenantDB(),
+    db,
   };
 };
 
@@ -120,16 +132,43 @@ export const publicProcedure = t.procedure;
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
+  console.log(ctx.session);
   // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-  if (!ctx.session || !ctx.session.user) {
+  if (!ctx.session || !ctx.session.user || !ctx.db) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: ctx.session,
+      db: ctx.db,
     },
   });
+});
+
+/** Reusable middleware that enforces user has access to requested tenant. */
+export const tenantAccessMiddleware = experimental_standaloneMiddleware<{
+  ctx: {
+    session: Session;
+  };
+  input: unknown;
+  // 'meta', not defined here, defaults to 'object | undefined'
+}>().create((opts) => {
+  const inputSchema = z.object({
+    tenantId: z.number(),
+  });
+  const input = inputSchema.parse(opts.input);
+  if (
+    !opts.ctx.session.user.tenantAccess
+      .map((a) => a.tenantId)
+      .includes(input.tenantId)
+  ) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Not allowed",
+    });
+  }
+  return opts.next();
 });
 
 /**

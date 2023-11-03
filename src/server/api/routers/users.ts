@@ -2,53 +2,65 @@ import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
+  tenantAccessMiddleware,
 } from "@/server/api/trpc";
-import { TRPCError } from "@trpc/server";
 import { tenantAccess, users } from "@/server/db/tenant-schema";
-import { decrypt, verifyPassword } from "@/server/utils";
+import { verifyPassword } from "@/server/utils";
+import {
+  createNewUserMutation,
+  createUserSchema,
+} from "@/server/utils/createNewUser";
+import { createUserSession } from "@/server/utils/userSession";
+import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
-  getUser: protectedProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      const [user, access] = await Promise.all([
-        ctx.tenantDb.query.users.findFirst({
-          columns: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-          where: eq(users.id, Number(input)),
-        }),
-        ctx.tenantDb.query.tenantAccess.findMany({
-          columns: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-            tenantId: true,
-            userId: true,
-            accessTokenHash: true,
-          },
-          where: eq(tenantAccess.userId, Number(input)),
-        }),
-      ]);
+  get: protectedProcedure.input(z.number()).query(async ({ ctx, input }) => {
+    const [user, access] = await Promise.all([
+      ctx.tenantDb.query.users.findFirst({
+        columns: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        where: eq(users.id, input),
+      }),
+      ctx.tenantDb.query.tenantAccess.findMany({
+        columns: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          tenantId: true,
+          userId: true,
+          accessTokenHash: true,
+        },
+        where: eq(tenantAccess.userId, Number(input)),
+        with: {
+          tenant: true,
+        },
+      }),
+    ]);
 
-      return { ...user, tenantAccess: access };
-    }),
+    return { ...user, tenantAccess: access };
+  }),
+
+  create: protectedProcedure
+    .input(createUserSchema)
+    .use(tenantAccessMiddleware)
+    .mutation(createNewUserMutation),
 
   login: publicProcedure
     .input(
       z.object({
         tenantId: z.number().optional(),
-        email: z.string().email(),
+        email: z.string(),
         password: z.string(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const user = await ctx.tenantDb.query.users.findFirst({
         where: eq(users.email, input.email),
         with: {
@@ -72,12 +84,15 @@ export const userRouter = createTRPCRouter({
         });
       }
 
-      // decrypt all tenantAccess.accessTokenHash
-      const decryptedTenantAccess = user?.tenantAccess.map((access) => {
-        return {
-          ...access,
-          authToken: decrypt(access.accessTokenHash, user.id, access.iv),
-        };
-      });
+      // Create User Session
+      await createUserSession(user.id, input.tenantId);
+    }),
+
+  switchTenant: protectedProcedure
+    .input(z.object({ tenantId: z.number() }))
+    .use(tenantAccessMiddleware)
+    .mutation(async ({ ctx, input }) => {
+      await createUserSession(ctx.session.user.id, input.tenantId);
+      return { id: input.tenantId };
     }),
 });

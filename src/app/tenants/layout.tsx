@@ -9,6 +9,7 @@ export default function Home({ children }: { children: React.ReactNode }) {
 
   return (
     <main>
+      {children}
       <div className="container p-8">
         <CreateTenant />
         <table className="pretty-table">
@@ -27,7 +28,6 @@ export default function Home({ children }: { children: React.ReactNode }) {
           </tbody>
         </table>
       </div>
-      {children}
     </main>
   );
 }

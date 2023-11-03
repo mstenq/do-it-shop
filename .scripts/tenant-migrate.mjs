@@ -13,7 +13,7 @@ export const db = drizzle(client);
 async function main() {
   try {
     await migrate(db, {
-      migrationsFolder: "src/server/db/tenant-migrations",
+      migrationsFolder: "public/tenant-migrations",
     });
     console.log("Tables migrated!");
     process.exit(0);

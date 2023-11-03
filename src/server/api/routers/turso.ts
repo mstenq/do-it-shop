@@ -1,6 +1,10 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { env } from "process";
+import { sql } from "drizzle-orm";
+import { cwd } from "process";
 import { z } from "zod";
+import fs from "fs";
+import { env } from "@/env.mjs";
+import { dbMigrate } from "@/server/db/db-migrate";
 
 const tursoFetch = async (url: string, options?: RequestInit) => {
   const res = await fetch(`${env.TURSO_API_URL}${url}`, {
@@ -77,4 +81,51 @@ export const tursoRouter = createTRPCRouter({
   createDBAuthToken: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => createTursoToken(input.id)),
+
+  currentDBVersion: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const dbVersionQuery = await ctx.db.get(
+        sql`SELECT count(*) as version FROM "__drizzle_migrations"`,
+      );
+
+      const parsedDbVersion = z
+        .object({ version: z.number() })
+        .safeParse(dbVersionQuery);
+
+      if (!parsedDbVersion.success) {
+        return null;
+      }
+
+      return parsedDbVersion.data.version;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }),
+
+  latestDBVersion: protectedProcedure.query(() => {
+    console.log("CWD", cwd());
+    try {
+      const file = fs.readFileSync(
+        cwd() + "/public/migrations/meta/_journal.json",
+        "utf-8",
+      );
+
+      const parsedFile = z
+        .object({ entries: z.array(z.object({ idx: z.number() })) })
+        .safeParse(JSON.parse(file));
+
+      if (!parsedFile.success) {
+        return null;
+      }
+      return parsedFile.data.entries.length;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }),
+
+  migrateDB: protectedProcedure.mutation(async ({ ctx }) => {
+    return await dbMigrate(ctx.db);
+  }),
 });

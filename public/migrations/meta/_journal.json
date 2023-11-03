@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1698898853019,
+      "tag": "0000_busy_vindicator",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1698898946809,
+      "tag": "0001_minor_korath",
+      "breakpoints": true
+    }
+  ]
+}

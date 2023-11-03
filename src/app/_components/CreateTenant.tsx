@@ -4,9 +4,11 @@ import { api } from "@/trpc/react";
 
 export const CreateTenant = () => {
   const utils = api.useUtils();
-  const { mutate } = api.tenant.createTenant.useMutation({
-    onSettled() {
+  const { mutate: register } = api.tenant.register.useMutation({
+    onSettled(data) {
       utils.tenant.getAll.invalidate().catch(console.error);
+      // Hard reload just to ensure cookies are refreshed
+      window.location.replace("/tenants/" + data?.tenant.id);
     },
   });
 
@@ -20,10 +22,9 @@ export const CreateTenant = () => {
     <div>
       <button
         onClick={() => {
-          console.log("TEST");
-          mutate({
+          register({
             tenant: {
-              companyName: "Mason",
+              companyName: "The Test Company",
               dbUrl: "",
             },
             user: {
@@ -35,9 +36,10 @@ export const CreateTenant = () => {
           });
         }}
       >
-        Create
+        Register
       </button>
       <button
+        className="ml-2"
         onClick={() =>
           update({ id: 2, data: { companyName: new Date().toISOString() } })
         }

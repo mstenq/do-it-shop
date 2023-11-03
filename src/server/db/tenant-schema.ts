@@ -60,6 +60,7 @@ export const users = sqliteTable(
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
     passwordHash: text("password_hash").notNull(),
+    role: text("role").notNull().default("user"),
     salt: text("salt").notNull(),
     createdAt: text("created_at")
       .notNull()
@@ -104,8 +105,12 @@ export const tenantAccess = sqliteTable(
   "tenant_access",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    tenantId: integer("tenant_id").references(() => tenants.id),
-    userId: integer("user_id").references(() => users.id),
+    tenantId: integer("tenant_id")
+      .references(() => tenants.id)
+      .notNull(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
     iv: text("iv").notNull(),
     accessTokenHash: text("access_token_hash").notNull(),
     createdAt: text("created_at")

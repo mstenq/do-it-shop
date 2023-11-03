@@ -10,6 +10,8 @@ import {
   CircleDollarSign,
   ListChecks,
   Settings,
+  FolderInput,
+  Hammer,
 } from "lucide-react";
 import { headers } from "next/headers";
 
@@ -17,6 +19,10 @@ import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { TRPCReactProvider } from "@/trpc/react";
 import Link from "next/link";
+import { OrganizationSwitcher } from "@/components/OrganizationSwitcher";
+import { getUserSession } from "@/server/utils/userSession";
+import { api } from "@/trpc/server";
+import { DbUpdater } from "@/components/DbUpdater";
 
 export const metadata = {
   title: "Create T3 App",
@@ -24,11 +30,14 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = getUserSession();
+  const currentVersion = await api.turso.currentDBVersion.query();
+  const latestVersion = await api.turso.latestDBVersion.query();
   return (
     <html lang="en">
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
@@ -37,9 +46,16 @@ export default function RootLayout({
           <TRPCReactProvider headers={headers()}>
             <div className="flex bg-gray-100 dark:bg-gray-900">
               <div className="min-h-screen min-w-[300px] max-w-[300px] p-8">
-                <div className="flex items-center gap-2 pb-10 font-bold">
-                  <Layers />
+                <div className="flex items-center gap-2 pb-4 font-bold">
+                  <Hammer />
                   Do It Shop Manager
+                </div>
+                <div className="text-muted-foreground flex items-center gap-2 pb-4 text-xs">
+                  <span>v.{currentVersion}</span>
+                  <DbUpdater
+                    latestVersion={latestVersion}
+                    currentVersion={currentVersion}
+                  />
                 </div>
                 <nav className="flex flex-col gap-4 pb-10">
                   <Link href="/" className="flex items-center gap-2">
@@ -50,7 +66,10 @@ export default function RootLayout({
                   </Link>
                 </nav>
                 <nav className="flex flex-col gap-4">
-                  <Link href="/" className="flex items-center gap-2">
+                  <Link
+                    href="/"
+                    className="text-primary flex items-center gap-2 dark:text-violet-400 "
+                  >
                     <Gauge className="w-4" /> Dashboard
                   </Link>
                   <Link href="/" className="flex items-center gap-2">
@@ -58,6 +77,9 @@ export default function RootLayout({
                   </Link>
                   <Link href="/" className="flex items-center gap-2">
                     <CircleDollarSign className="w-4" /> Payroll
+                  </Link>
+                  <Link href="/projects" className="flex items-center gap-2">
+                    <FolderInput className="w-4" /> Projects
                   </Link>
                   <Link href="/" className="flex items-center gap-2">
                     <ListChecks className="w-4" /> Tasks
@@ -73,7 +95,10 @@ export default function RootLayout({
                     <h1 className="text-2xl font-extrabold">
                       Jack&rsquo;s Do It Shop
                     </h1>
-                    <DarkModeToggle />
+                    <div className="flex items-center gap-2">
+                      <DarkModeToggle />
+                      <OrganizationSwitcher session={session} />
+                    </div>
                   </div>
                   <div>{children}</div>
                 </div>

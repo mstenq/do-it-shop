@@ -1,8 +1,10 @@
 CREATE TABLE `projects` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`first_name` text NOT NULL,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`project_name` text NOT NULL,
+	`description` text,
+	`due_date` integer,
+	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
 CREATE TRIGGER [UPDATE_PROJECTS_TS]
