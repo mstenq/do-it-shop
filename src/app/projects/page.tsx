@@ -1,17 +1,11 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Form } from "@/components/form/Form";
+import { FormInput } from "@/components/form/FormInput";
+import { Button, SubmitButton } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { insertProjectSchema } from "@/server/db/schema";
 import { api } from "@/trpc/react";
-import { newDate } from "@/utils/dateUtils";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { isDate, newDate } from "@/utils/dateUtils";
 import { useState } from "react";
 
 export default function Projects() {
@@ -100,53 +94,43 @@ export default function Projects() {
       </div>
       <Dialog open={isOpen} onOpenChange={(value) => setIsOpen(value)}>
         <DialogContent>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              createProject({
-                projectName: formState.projectName,
-                dueDate: newDate(formState.dueDate).getTime(),
-              });
+          <Form
+            schema={insertProjectSchema}
+            defaultValues={{ projectName: "" }}
+            onSubmit={async (data) => {
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+              console.log("data", data);
             }}
           >
-            <DialogHeader>
-              <DialogTitle>Login</DialogTitle>
-              <DialogDescription>Login as user</DialogDescription>
-            </DialogHeader>
-
-            <div className="flex flex-col gap-4">
-              <Label>Email</Label>
-              <Input
-                type="text"
-                placeholder="Project Name"
-                value={formState.projectName}
-                onChange={(e) =>
-                  setFormState((p) => ({ ...p, projectName: e.target.value }))
-                }
-              />
-            </div>
-            <div className="flex flex-col gap-4">
-              <Label>Due Date</Label>
-              <Input
-                type="date"
-                placeholder="Due Date"
-                value={formState.dueDate}
-                onChange={(e) =>
-                  setFormState((p) => ({ ...p, dueDate: e.target.value }))
-                }
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Create</Button>
-            </DialogFooter>
-          </form>
+            {(form) => (
+              <>
+                <FormInput
+                  label="Project Name"
+                  control={form.control}
+                  name="projectName"
+                  description="How you want to refer to this project"
+                />
+                <FormInput
+                  label="Due Date"
+                  min={new Date().toISOString().split("T")[0]}
+                  type="date"
+                  control={form.control}
+                  name="dueDate"
+                  description="The date the project is due"
+                />
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <SubmitButton>Create Project</SubmitButton>
+                </DialogFooter>
+              </>
+            )}
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,8 +1,9 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-
-import { cn } from "@/utils"
+import { cn } from "@/utils";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
+import { useFormContext } from "react-hook-form";
+import { Spinner } from "@/assets/icons";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -30,27 +31,59 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot : "button";
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
       />
-    )
-  }
-)
-Button.displayName = "Button"
+    );
+  },
+);
 
-export { Button, buttonVariants }
+Button.displayName = "Button";
+
+const SubmitButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ children, ...props }, ref) => {
+    const { formState } = useFormContext();
+    return (
+      <Button
+        ref={ref}
+        {...props}
+        type="submit"
+        disabled={formState.isSubmitting || props.disabled}
+      >
+        <span
+          className={cn(
+            "-ml-1 mr-2 overflow-hidden transition-all duration-300",
+            formState.isSubmitting ? "w-5 scale-100" : "w-0 scale-0",
+          )}
+        >
+          <Spinner
+            className={cn(
+              "transition-all delay-200 duration-500",
+              formState.isSubmitting ? "opacity-100" : "opacity-0",
+            )}
+          />
+        </span>
+        {children}
+      </Button>
+    );
+  },
+);
+
+SubmitButton.displayName = "SubmitButton";
+
+export { Button, SubmitButton, buttonVariants };

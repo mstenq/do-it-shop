@@ -1,9 +1,15 @@
 export type MaybeDate = Date | string | number | undefined;
 
+/**
+ * @deprecated - use dayjs instead
+ */
 export const isDate = (date: MaybeDate): date is Date => {
   return date instanceof Date && !isNaN(date.getTime());
 };
 
+/**
+ * @deprecated - use dayjs instead
+ */
 export const newDate = (date: MaybeDate) => {
   let parsedDate: MaybeDate = undefined;
   if (typeof date === "string" && !date.includes("T")) {

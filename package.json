@@ -29,6 +29,7 @@
     "@trpc/server": "^10.37.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dayjs": "^1.11.10",
     "drizzle-orm": "^0.28.5",
     "drizzle-zod": "^0.5.1",
     "geist": "^1.0.0",
