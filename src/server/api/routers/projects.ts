@@ -10,6 +10,7 @@ export const projectsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(insertProjectSchema)
     .mutation(async ({ ctx, input }) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return ctx.db.insert(projects).values(input).returning();
     }),
 

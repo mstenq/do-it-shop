@@ -5,19 +5,19 @@ import { Button, SubmitButton } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { insertProjectSchema } from "@/server/db/schema";
 import { api } from "@/trpc/react";
-import { isDate, newDate } from "@/utils/dateUtils";
 import { useState } from "react";
 
 export default function Projects() {
   const [isOpen, setIsOpen] = useState(false);
 
   const utils = api.useUtils();
-  const { mutate: createProject } = api.projects.create.useMutation({
+  const { mutateAsync: createProject } = api.projects.create.useMutation({
     onSuccess: () => {
       setIsOpen(false);
       utils.projects.all.invalidate().catch((e) => console.error(e));
     },
   });
+
   const { mutate: deleteProject } = api.projects.delete.useMutation({
     onSuccess: () => {
       utils.projects.all.invalidate().catch((e) => console.error(e));
@@ -28,30 +28,13 @@ export default function Projects() {
     suspense: true,
   });
 
-  const [formState, setFormState] = useState({ projectName: "", dueDate: "" });
-
   return (
     <div className="container p-8">
       <div className="">
         <div className="flex justify-between py-4">
           <h2 className="text-lg">Projects</h2>
           <div className="flex gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setIsOpen(true)}
-              //   onClick={() => {
-              //     createUser({
-              //       tenantId: Number(params.tenantId),
-              //       user: {
-              //         firstName: "John",
-              //         lastName: "Doe",
-              //         email: `mason.sten+${new Date().toISOString()}@gmail.com`,
-              //       },
-              //       password: "rush2112",
-              //     });
-              //   }}
-            >
+            <Button variant="default" size="sm" onClick={() => setIsOpen(true)}>
               Create Project
             </Button>
           </div>
@@ -97,10 +80,7 @@ export default function Projects() {
           <Form
             schema={insertProjectSchema}
             defaultValues={{ projectName: "" }}
-            onSubmit={async (data) => {
-              await new Promise((resolve) => setTimeout(resolve, 5000));
-              console.log("data", data);
-            }}
+            onSubmit={createProject}
           >
             {(form) => (
               <>
