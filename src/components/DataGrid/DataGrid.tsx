@@ -1,48 +1,52 @@
 import { cn } from "@/utils";
-import { memo, useMemo, type ReactNode } from "react";
-import { Pagination, type PaginationProps } from "./Pagination";
+import { memo, useMemo, type ReactNode, useState, useEffect } from "react";
+import { Pagination } from "@/components/Pagination";
+import { useQueryProps } from "@/hooks";
+import { SortHeader } from "./SortHeader";
 
-type MaybeId = {
+export type MaybeId = {
   id?: string | number;
 };
 
-export type Columns<T extends MaybeId> = Array<Column<T>>;
-type Column<T extends MaybeId> = {
+export type Columns<T extends MaybeId, SortOptions> = Array<
+  Column<T, SortOptions>
+>;
+
+export type Column<T extends MaybeId, SortOptions> = {
   sharedClassName?: string;
   header?: ReactNode;
   fallback?: ReactNode;
+  sortKey?: SortOptions;
   cell: (item: T) => ReactNode;
 };
 
 type GridProps<T extends MaybeId> = {
   data: T[];
-  columns: Column<T>[];
+  queryKey: string;
+  columns: Column<T, unknown>[];
   loading?: boolean;
   gridTemplate?: string;
   stickyHeader?: boolean;
   headerClass?: string;
   rowClass?: string;
-  sort?: {
-    sortBy: string;
-    sortDirection: string;
-    setSortBy: (sortBy: string) => void;
-    setSortDirection: (sortDirection: string) => void;
-  };
-  pagination?: PaginationProps;
+  totalFound: number | undefined;
 };
 
-const _Grid = <T extends MaybeId>({
+const _DataGrid = <T extends MaybeId>({
   data,
+  queryKey,
   columns,
   loading = false,
   gridTemplate = "default-grid",
   headerClass,
   stickyHeader = true,
   rowClass,
-  sort,
-  pagination,
+  totalFound,
 }: GridProps<T>) => {
   console.log("RENDER GRID");
+  const [found, setFound] = useState(totalFound);
+  const [lastDataLength, setLastDataLength] = useState<number | undefined>();
+  const { pagination, sort } = useQueryProps({ queryKey });
 
   const hasColumnFallback = useMemo(
     () => columns.some((column) => column.fallback),
@@ -53,6 +57,19 @@ const _Grid = <T extends MaybeId>({
     () => columns.some((column) => column.header),
     [columns],
   );
+
+  useEffect(() => {
+    // smooth out the transition from count to new count by ignoreing undefines between renders
+    if (totalFound === undefined) return;
+    setFound(totalFound);
+  }, [totalFound]);
+
+  useEffect(() => {
+    // smooth out the skeleton loader by using last seen render count
+    if (data.length && data.length > 0) {
+      setLastDataLength(data?.length);
+    }
+  }, [data]);
 
   return (
     <div className="divide-y @container">
@@ -67,13 +84,7 @@ const _Grid = <T extends MaybeId>({
           )}
         >
           {columns.map((column, i) => (
-            <button
-              key={i}
-              className={cn("text-left", column.sharedClassName)}
-              onClick={() => sort?.setSortBy("name")}
-            >
-              {column.header}
-            </button>
+            <SortHeader key={i} column={column} sort={sort} />
           ))}
         </div>
       )}
@@ -86,15 +97,17 @@ const _Grid = <T extends MaybeId>({
       {/* Skeleton Loader */}
       {loading &&
         hasColumnFallback &&
-        Array.from(Array(pagination?.limit ?? 10).keys()).map((_, i) => (
-          <div className={cn(gridTemplate, rowClass)} key={i}>
-            {columns.map((column, i) => (
-              <div key={i} className={column.sharedClassName}>
-                {column.fallback}
-              </div>
-            ))}
-          </div>
-        ))}
+        Array.from(Array(lastDataLength ?? pagination?.limit ?? 10).keys()).map(
+          (_, i) => (
+            <div className={cn(gridTemplate, rowClass)} key={i}>
+              {columns.map((column, i) => (
+                <div key={i} className={column.sharedClassName}>
+                  {column.fallback}
+                </div>
+              ))}
+            </div>
+          ),
+        )}
 
       {/* Render List */}
       {!loading &&
@@ -112,14 +125,14 @@ const _Grid = <T extends MaybeId>({
 
       {pagination && (
         <div className="flex items-center justify-between py-4">
-          <p className="text-sm text-muted-foreground">
-            {pagination?.total} found
-          </p>
-          <Pagination {...pagination} />
+          {typeof found === "number" && (
+            <p className="text-sm text-muted-foreground">{found} found</p>
+          )}
+          <Pagination {...pagination} total={found} />
         </div>
       )}
     </div>
   );
 };
 
-export const Grid = memo(_Grid) as typeof _Grid;
+export const DataGrid = memo(_DataGrid) as typeof _DataGrid;

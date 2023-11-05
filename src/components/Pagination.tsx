@@ -29,18 +29,13 @@ export function Pagination({
   setSkip,
   setLimit,
 }: PaginationProps) {
+  console.log({ skip, total, limit });
   const totalRef = useRef(0);
 
   const limitValue = limit ?? 0;
 
   const page = Math.ceil(skip / limitValue) + 1;
   const pageCount = Math.ceil(totalRef.current / limitValue);
-
-  useEffect(() => {
-    if (page > pageCount) {
-      setSkip(0);
-    }
-  }, [pageCount, page, setSkip]);
 
   const noTotal = total === undefined;
   if (!noTotal) {

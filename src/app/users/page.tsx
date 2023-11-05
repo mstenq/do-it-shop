@@ -1,5 +1,5 @@
 "use client";
-import { Grid, type Columns } from "@/components/Grid";
+import { DataGrid, type Columns } from "@/components/DataGrid";
 import { Skeleton } from "@/components/Skeleton";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useQueryProps } from "@/hooks";
@@ -9,7 +9,7 @@ import { type api as server } from "@/trpc/server";
 
 type User = Awaited<ReturnType<typeof server.user.all.query>>["users"][number];
 
-const columns: Columns<User> = [
+const columns: Columns<User, "name" | "email" | "role" | "lastUpdated"> = [
   {
     sharedClassName: "row-span-2 @3xl:row-span-1",
     fallback: <Skeleton.Circle />,
@@ -19,18 +19,21 @@ const columns: Columns<User> = [
     header: "Name",
     sharedClassName: "font-semibold text-accent-foreground",
     fallback: <Skeleton.Text wordCount={2} />,
+    sortKey: "name",
     cell: (user) => `${user.firstName} ${user.lastName}`,
   },
   {
     header: "Email",
     sharedClassName: "",
     fallback: <Skeleton.Text wordCount={4} />,
+    sortKey: "email",
     cell: (user) => user.email,
   },
   {
     header: "Role",
     sharedClassName: "text-right",
     fallback: <Skeleton.Text wordCount={1} />,
+    sortKey: "role",
     cell: (user) => (
       <p className="hidden font-semibold capitalize text-accent-foreground @sm:block @3xl:font-normal @3xl:text-muted-foreground">
         {user.role}
@@ -39,8 +42,9 @@ const columns: Columns<User> = [
   },
   {
     header: "Last Updated",
-    sharedClassName: "hidden text-right @sm:block",
-    fallback: <Skeleton.Text wordCount={2} />,
+    sharedClassName: "text-right",
+    // fallback: <Skeleton.Text wordCount={2} />,
+    sortKey: "lastUpdated",
     cell: (user) => (
       <p className="hidden text-right @sm:block ">
         <span className="inline @3xl:hidden">updated</span>{" "}
@@ -72,14 +76,16 @@ export default function UsersPage() {
   return (
     <div className="container">
       <h1 className="text-xl">Users</h1>
-      <Grid
+      <DataGrid
+        queryKey="users"
         data={users}
         columns={columns}
         loading={isLoading}
         gridTemplate="user-grid"
         headerClass="hidden @3xl:grid"
-        sort={sort}
-        pagination={{ ...pagination, total: data?.totalFound ?? 0 }}
+        totalFound={data?.totalFound ?? undefined}
+        // sort={sort}
+        // pagination={{ ...pagination, total: data?.totalFound ?? 0 }}
       />
     </div>
   );

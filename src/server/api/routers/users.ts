@@ -42,7 +42,7 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      // await devWait(1000);
+      await devWait(1000);
 
       const orderBy = sortOptions[input.sortBy].map((col) =>
         input.sortDirection === "asc" ? asc(col) : desc(col),
@@ -74,7 +74,6 @@ export const userRouter = createTRPCRouter({
           .limit(input.limit)
           .offset(input.skip),
       ]);
-      console.log(desc(users.id));
       return {
         totalFound: allResults?.[0]?.found ?? 0,
         users: results,

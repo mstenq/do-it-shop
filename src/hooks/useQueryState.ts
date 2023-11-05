@@ -1,50 +1,60 @@
-import { startTransition, useCallback, useEffect, useState } from "react";
-import { useSearchParams, usePathname } from "next/navigation";
 import { querySub } from "@/utils/queryKeySub";
-import { useCustomRouter } from "./useCustomRouter";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryChangeQueue } from "./useQueryChangeQue";
 
 type QueryStateOptions<T> = {
-  formatValue?: (value: string) => T;
+  key: string;
+  validator: (...args: unknown[]) => T;
 };
 
-export const useQueryState = <T>(
-  key: string,
-  defaultValue: string | number | boolean,
-  options: QueryStateOptions<T> = { formatValue: (value) => value as T },
-) => {
-  const pathname = usePathname();
-  const router = useCustomRouter();
+type QueryStateReturn<T> = [T, (newValue: T) => void];
+
+export const useQueryState = <T>({
+  key,
+  validator,
+}: QueryStateOptions<T>): QueryStateReturn<T> => {
   const searchParams = useSearchParams();
-  const urlValue = searchParams.get(key);
-  const [value, setValue] = useState(urlValue ?? "");
+  const currentSearchParam = searchParams.get(key);
+  const validatedCurrent = validator(currentSearchParam);
+  const [value, setValue] = useState<T>(validatedCurrent);
+  const isFirstRun = useRef(true);
+
+  const enqueuQueryChange = useQueryChangeQueue();
+
+  const changeValue = useCallback(
+    (newValue: T) => {
+      if (String(newValue) === currentSearchParam && newValue === value) return;
+      console.log("CHANGE VALUE", key, newValue, value, currentSearchParam);
+
+      enqueuQueryChange(key, String(newValue));
+    },
+    [value, key, currentSearchParam, enqueuQueryChange],
+  );
 
   useEffect(() => {
-    const unsubscribe = querySub.onChange(key, (value) => {
-      setValue(value);
+    const unsubscribe = querySub.onChange(key, (newValue) => {
+      // Do String comparison of values, to avoid unnecessary rerenders
+      if (String(value) === String(newValue)) return;
+
+      const validatedNewValue = validator(newValue);
+      setValue(validatedNewValue);
     });
 
     return () => {
       unsubscribe();
     };
-  }, [key]);
+  }, [key, validator, value, changeValue]);
 
-  const changeValue = useCallback(
-    (newValue: string | number | boolean) => {
-      if (String(newValue) === String(value)) return;
-      router.replace(`${pathname}?${key}=${newValue.toString()}`);
-      setTimeout(() => {
-        setValue(newValue.toString());
-      }, 0);
-    },
-    [key, pathname, router, value],
-  );
-
+  // On First Run Make Sure Query params Are Set
   useEffect(() => {
-    if (urlValue === null) {
-      console.log("SET DEFAULT VALUE", key, defaultValue, urlValue);
-      changeValue(defaultValue?.toString() ?? "");
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
     }
-  }, [urlValue, defaultValue, value, key, changeValue]);
+    if (String(currentSearchParam) === String(value)) return;
+    enqueuQueryChange(key, String(value));
+  }, [currentSearchParam, value, key, enqueuQueryChange]);
 
-  return [options.formatValue!(value), changeValue] as const;
+  return [value, changeValue];
 };

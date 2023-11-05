@@ -1,23 +1,19 @@
+import { getChangedKeys } from "@/utils/getChangedKeys";
+import { type QueryObj } from "@/utils/getQueryObjFromHref";
 import { querySub } from "@/utils/queryKeySub";
 import { useRouter, useSearchParams } from "next/navigation";
 
-type Options = {
-  keepSearchParams: false | "all" | string[];
+type CustomerRouterOptions = {
+  searchParams: QueryObj;
+  keepSearchParams?: false | "all" | string[];
   scroll?: boolean;
 };
 
-const getQueryObjFromHref = (href: string) => {
-  const url = new URL(href, window.location.origin);
-  const searchParams = new URLSearchParams(url.search);
-  const queryObj = Object.fromEntries(searchParams);
-
-  return queryObj;
-};
-
 const filterQueryObj = (
-  queryObj: Record<string, string>,
+  queryObj: QueryObj,
   searchParamsToKeep: false | "all" | string[],
 ) => {
+  // keep none of the original query params
   if (searchParamsToKeep === false) return {};
 
   // Return All
@@ -31,31 +27,6 @@ const filterQueryObj = (
   );
 };
 
-const getChangedQueryKeys = (
-  originalQueryObj: Record<string, string>,
-  newQueryObj: Record<string, string>,
-) => {
-  // Get keys that have changed
-  const changedNewKeys = Object.keys(newQueryObj).filter(
-    (key) => originalQueryObj[key] !== newQueryObj[key],
-  );
-  const changedOldKeys = Object.keys(originalQueryObj).filter(
-    (key) => newQueryObj[key] !== originalQueryObj[key],
-  );
-  const changedKeys = [...new Set([...changedNewKeys, ...changedOldKeys])];
-  return changedKeys;
-};
-
-const dispatchQueryChangeEvents = (
-  originalQueryObj: Record<string, string>,
-  newQueryObj: Record<string, string>,
-) => {
-  const changedKeys = getChangedQueryKeys(originalQueryObj, newQueryObj);
-  changedKeys.forEach((key) => {
-    querySub.dispatch(key, newQueryObj[key] ?? "");
-  });
-};
-
 export const useCustomRouter = () => {
   const searchParams = useSearchParams();
   const originalQueryObj = Object.fromEntries(searchParams);
@@ -66,18 +37,22 @@ export const useCustomRouter = () => {
 
   const createNewNavigate =
     (nav: typeof push) =>
-    (
-      href: string,
-      options: undefined | Options = { keepSearchParams: "all" },
-    ): void => {
-      const newQueryObj = getQueryObjFromHref(href);
+    (href: string, options?: undefined | CustomerRouterOptions): void => {
+      // Ensure searchParams are sent as an object
+      if (href.includes("?")) {
+        throw new Error(
+          "useCustomRouter: href should not include query params. Use options.searchParams instead.",
+        );
+      }
+
+      //   const newQueryObj = getQueryObjFromHref(href);
       const filteredQueryObj = filterQueryObj(
         originalQueryObj,
-        options?.keepSearchParams,
+        options?.keepSearchParams ?? "all",
       );
 
       // Construct new href
-      const mergedQueryObj = { ...filteredQueryObj, ...newQueryObj };
+      const mergedQueryObj = { ...filteredQueryObj, ...options?.searchParams };
       const originalURL = new URL(href, window.location.origin);
       const originalHref = originalURL.pathname;
       const newHref = `${originalHref}?${new URLSearchParams(
@@ -85,7 +60,11 @@ export const useCustomRouter = () => {
       ).toString()}`;
 
       nav(newHref, { scroll: options?.scroll ?? true });
-      dispatchQueryChangeEvents(originalQueryObj, mergedQueryObj);
+
+      const changedKeys = getChangedKeys(originalQueryObj, mergedQueryObj);
+      changedKeys.forEach((key) => {
+        querySub.dispatch(key, mergedQueryObj[key] ?? "");
+      });
     };
 
   return {
