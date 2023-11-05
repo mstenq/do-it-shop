@@ -6,7 +6,7 @@ import {
   type UseFormReturn,
 } from "react-hook-form/dist/types/form";
 import { type ZodType } from "zod";
-import { ShadForm } from "../ui/form";
+import { FormProvider } from "../ui/form";
 
 type FormProps<T extends FieldValues = FieldValues> = {
   schema: ZodType<T>;
@@ -15,7 +15,7 @@ type FormProps<T extends FieldValues = FieldValues> = {
   children: (form: UseFormReturn<T, unknown, undefined>) => ReactNode;
 };
 
-export const Form = <T extends FieldValues = FieldValues>({
+export const _Form = <T extends FieldValues = FieldValues>({
   schema,
   defaultValues,
   children,
@@ -28,10 +28,10 @@ export const Form = <T extends FieldValues = FieldValues>({
     defaultValues,
   });
   return (
-    <ShadForm {...form}>
+    <FormProvider {...form}>
       <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="">
         {children(form)}
       </form>
-    </ShadForm>
+    </FormProvider>
   );
 };

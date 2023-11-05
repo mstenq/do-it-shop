@@ -1,28 +1,28 @@
 import "@/styles/globals.css";
+import "@/styles/grids.css";
 
 import { GeistMono, GeistSans } from "geist/font";
 import {
-  Layers,
-  Search,
   Bell,
-  Gauge,
-  Users,
   CircleDollarSign,
-  ListChecks,
-  Settings,
   FolderInput,
+  Gauge,
   Hammer,
+  ListChecks,
+  Search,
+  Settings,
+  Users,
 } from "lucide-react";
 import { headers } from "next/headers";
 
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { TRPCReactProvider } from "@/trpc/react";
-import Link from "next/link";
-import { OrganizationSwitcher } from "@/components/OrganizationSwitcher";
-import { getUserSession } from "@/server/utils/userSession";
-import { api } from "@/trpc/server";
 import { DbUpdater } from "@/components/DbUpdater";
+import { OrganizationSwitcher } from "@/components/OrganizationSwitcher";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { getUserSession } from "@/server/utils/userSession";
+import { TRPCReactProvider } from "@/trpc/react";
+import { api } from "@/trpc/server";
+import Link from "next/link";
 
 export const metadata = {
   title: "Create T3 App",
@@ -46,58 +46,60 @@ export default async function RootLayout({
           <TRPCReactProvider headers={headers()}>
             <div className="flex bg-gray-100 dark:bg-gray-900">
               <div className="min-h-screen min-w-[300px] max-w-[300px] p-8">
-                <div className="flex items-center gap-2 pb-4 font-bold">
-                  <Hammer />
-                  Do It Shop Manager
+                <div className="sticky top-8">
+                  <div className="flex items-center gap-2 pb-4 font-bold">
+                    <Hammer />
+                    Do It Shop Manager
+                  </div>
+                  <div className="flex items-center gap-2 pb-4 text-xs text-muted-foreground">
+                    <span>v.{currentVersion}</span>
+                    <DbUpdater
+                      latestVersion={latestVersion}
+                      currentVersion={currentVersion}
+                    />
+                  </div>
+                  <nav className="flex flex-col gap-4 pb-10">
+                    <Link href="/" className="flex items-center gap-2">
+                      <Search className="w-4" /> Search
+                    </Link>
+                    <Link href="/" className="flex items-center gap-2">
+                      <Bell className="w-4" /> Notifications
+                    </Link>
+                  </nav>
+                  <nav className="flex flex-col gap-4">
+                    <Link
+                      href="/"
+                      className="flex items-center gap-2 text-primary dark:text-violet-400 "
+                    >
+                      <Gauge className="w-4" /> Dashboard
+                    </Link>
+                    <Link href="/users" className="flex items-center gap-2">
+                      <Users className="w-4" /> Users
+                    </Link>
+                    <Link href="/" className="flex items-center gap-2">
+                      <CircleDollarSign className="w-4" /> Payroll
+                    </Link>
+                    <Link href="/projects" className="flex items-center gap-2">
+                      <FolderInput className="w-4" /> Projects
+                    </Link>
+                    <Link href="/" className="flex items-center gap-2">
+                      <ListChecks className="w-4" /> Tasks
+                    </Link>
+                    <Link href="/" className="flex items-center gap-2">
+                      <Settings className="w-4" /> Settings
+                    </Link>
+                  </nav>
                 </div>
-                <div className="text-muted-foreground flex items-center gap-2 pb-4 text-xs">
-                  <span>v.{currentVersion}</span>
-                  <DbUpdater
-                    latestVersion={latestVersion}
-                    currentVersion={currentVersion}
-                  />
-                </div>
-                <nav className="flex flex-col gap-4 pb-10">
-                  <Link href="/" className="flex items-center gap-2">
-                    <Search className="w-4" /> Search
-                  </Link>
-                  <Link href="/" className="flex items-center gap-2">
-                    <Bell className="w-4" /> Notifications
-                  </Link>
-                </nav>
-                <nav className="flex flex-col gap-4">
-                  <Link
-                    href="/"
-                    className="text-primary flex items-center gap-2 dark:text-violet-400 "
-                  >
-                    <Gauge className="w-4" /> Dashboard
-                  </Link>
-                  <Link href="/" className="flex items-center gap-2">
-                    <Users className="w-4" /> Employees
-                  </Link>
-                  <Link href="/" className="flex items-center gap-2">
-                    <CircleDollarSign className="w-4" /> Payroll
-                  </Link>
-                  <Link href="/projects" className="flex items-center gap-2">
-                    <FolderInput className="w-4" /> Projects
-                  </Link>
-                  <Link href="/" className="flex items-center gap-2">
-                    <ListChecks className="w-4" /> Tasks
-                  </Link>
-                  <Link href="/" className="flex items-center gap-2">
-                    <Settings className="w-4" /> Settings
-                  </Link>
-                </nav>
               </div>
               <div className="flex-grow pt-1.5">
-                <div className=" bg-background max-h-[calc(100vh-0.375rem)] min-h-[calc(100vh-0.375rem)] overflow-y-scroll rounded-tl-lg ring-1 ring-slate-700/10">
+                <div className=" min-h-[calc(100vh-0.375rem)] rounded-tl-lg bg-background ring-1 ring-slate-700/10">
                   <div className="container flex justify-between pt-8">
                     <h1 className="text-2xl font-extrabold">
                       Jack&rsquo;s Do It Shop
                     </h1>
                     <div className="flex items-center gap-2">
-                      <DarkModeToggle />
                       <OrganizationSwitcher session={session} />
+                      <DarkModeToggle />
                     </div>
                   </div>
                   <div>{children}</div>

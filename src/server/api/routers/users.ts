@@ -1,3 +1,4 @@
+import { env } from "@/env.mjs";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -12,10 +13,74 @@ import {
 } from "@/server/utils/createNewUser";
 import { createUserSession } from "@/server/utils/userSession";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, sql, desc, asc } from "drizzle-orm";
 import { z } from "zod";
 
+const devWait = async (ms: number) => {
+  if (env.NODE_ENV !== "development") {
+    return;
+  }
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const sortOptions = {
+  name: [users.firstName, users.lastName],
+  email: [users.email],
+  role: [users.role, users.firstName],
+  lastUpdated: [users.updatedAt],
+};
+export const SortUser = z.enum(["name", "email", "role", "lastUpdated"]);
+export const SortDirection = z.enum(["asc", "desc"]);
 export const userRouter = createTRPCRouter({
+  all: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().positive(),
+        skip: z.number(),
+        sortBy: SortUser.default("name"),
+        sortDirection: SortDirection.default("asc"),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // await devWait(1000);
+
+      const orderBy = sortOptions[input.sortBy].map((col) =>
+        input.sortDirection === "asc" ? asc(col) : desc(col),
+      );
+
+      const [allResults, results] = await Promise.all([
+        ctx.tenantDb
+          .select({
+            found: sql<number>`COUNT(*)`,
+          })
+          .from(users)
+          .innerJoin(tenantAccess, eq(tenantAccess.userId, users.id))
+          .where(eq(tenantAccess.tenantId, ctx.session.currentTenantId)),
+
+        ctx.tenantDb
+          .select({
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            role: users.role,
+            email: users.email,
+            createdAt: users.createdAt,
+            updatedAt: users.updatedAt,
+          })
+          .from(users)
+          .innerJoin(tenantAccess, eq(tenantAccess.userId, users.id))
+          .where(eq(tenantAccess.tenantId, ctx.session.currentTenantId))
+          .orderBy(...orderBy)
+          .limit(input.limit)
+          .offset(input.skip),
+      ]);
+      console.log(desc(users.id));
+      return {
+        totalFound: allResults?.[0]?.found ?? 0,
+        users: results,
+      };
+    }),
+
   get: protectedProcedure.input(z.number()).query(async ({ ctx, input }) => {
     const [user, access] = await Promise.all([
       ctx.tenantDb.query.users.findFirst({

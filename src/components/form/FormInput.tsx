@@ -1,11 +1,11 @@
 import { type ReactNode } from "react";
 import {
-  ShadFormControl,
-  ShadFormDescription,
-  ShadFormField,
-  ShadFormItem,
-  ShadFormLabel,
-  ShadFormMessage,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "../ui/form";
 import { Input, type InputProps } from "../ui/input";
 import {
@@ -24,7 +24,7 @@ type FormInputProps<
   description?: ReactNode;
 } & InputProps;
 
-export const FormInput = <
+export const _FormInput = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
@@ -35,22 +35,20 @@ export const FormInput = <
   ...inputProps
 }: FormInputProps<TFieldValues, TName>) => {
   return (
-    <ShadFormField
+    <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <ShadFormItem>
-          {label && <ShadFormLabel>{label}</ShadFormLabel>}
-          {description && (
-            <ShadFormDescription>{description}</ShadFormDescription>
-          )}
-          <ShadFormControl>
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormControl>
             <Input {...inputProps} {...field} />
-          </ShadFormControl>
+          </FormControl>
           <div className="min-h-[16px]">
-            <ShadFormMessage />
+            <FormMessage />
           </div>
-        </ShadFormItem>
+        </FormItem>
       )}
     />
   );

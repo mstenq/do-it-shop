@@ -20,7 +20,12 @@ export default function TenantDetail({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const utils = api.useUtils();
-  const { data: tenant } = api.tenant.getById.useQuery(Number(params.tenantId));
+  const { data: tenant } = api.tenant.getById.useQuery(
+    Number(params.tenantId),
+    {
+      suspense: true,
+    },
+  );
   const { data: tenantAccess } = api.tenantAccess.getByTenantId.useQuery(
     Number(params.tenantId),
     {

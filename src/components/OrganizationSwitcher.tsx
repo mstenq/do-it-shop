@@ -1,11 +1,11 @@
 "use client";
 
 import { type Session } from "@/schemas/sessionSchema";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
 import { api } from "@/trpc/react";
-import { ArrowRightLeft, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/utils";
+import { ArrowRightLeft, Check } from "lucide-react";
+import { Button } from "./ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 type OrganizationSwitcherProps = {
   session: Session | null;
@@ -14,7 +14,6 @@ type OrganizationSwitcherProps = {
 export const OrganizationSwitcher = ({
   session,
 }: OrganizationSwitcherProps) => {
-  console.log({ session });
   const userId = session?.user.id;
   const { data: user, isLoading } = api.user.get.useQuery(userId ?? -1, {
     enabled: Boolean(userId),
@@ -27,9 +26,9 @@ export const OrganizationSwitcher = ({
   });
 
   const { mutate: switchTenant } = api.user.switchTenant.useMutation({
-    onSuccess(_data, variables) {
+    onSuccess() {
       //router refresh is not refreshing tokens access in root layout
-      window.location.replace("/tenants/" + variables.tenantId);
+      window.location.reload();
     },
   });
 
@@ -43,7 +42,7 @@ export const OrganizationSwitcher = ({
             <div className="text-sm">
               {session.user.firstName} {session.user.lastName}
             </div>
-            <div className="text-muted-foreground text-xs font-thin">Admin</div>
+            <div className="text-xs font-thin text-muted-foreground">Admin</div>
           </div>
         </Button>
       </PopoverTrigger>
@@ -51,7 +50,7 @@ export const OrganizationSwitcher = ({
         {isLoading && <div>Loading...</div>}
         {user && (
           <div>
-            <p className="text-muted-foreground p-2 text-xs">
+            <p className="p-2 text-xs text-muted-foreground">
               SWITCH ORGANIZATIONS
             </p>
             <div className="space-y-2">
@@ -67,15 +66,15 @@ export const OrganizationSwitcher = ({
                 >
                   <div className="flex-grow">
                     <div>{access?.tenant.companyName}</div>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="text-xs text-muted-foreground">
                       {access?.tenant?.dbUrl}
                     </p>
                   </div>
                   <div>
                     {session.currentTenantId !== access.tenantId ? (
-                      <ArrowRightLeft className="text-muted-foreground group-hover:text-primary mr-2 w-4 transition-all delay-75 duration-500" />
+                      <ArrowRightLeft className="mr-2 w-4 text-muted-foreground transition-all delay-75 duration-500 group-hover:text-primary" />
                     ) : (
-                      <Check className="text-primary group-hover:text-primary mr-2 w-4 transition-all delay-75 duration-500 dark:group-hover:text-white" />
+                      <Check className="mr-2 w-4 text-primary transition-all delay-75 duration-500 group-hover:text-primary dark:group-hover:text-white" />
                     )}
                   </div>
                 </button>

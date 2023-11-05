@@ -13,8 +13,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/utils";
 
-const ShadForm = FormProvider;
-
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
@@ -26,7 +24,7 @@ const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue,
 );
 
-const ShadFormField = <
+const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
@@ -70,7 +68,7 @@ const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
-const ShadFormItem = React.forwardRef<
+const FormItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
@@ -82,9 +80,9 @@ const ShadFormItem = React.forwardRef<
     </FormItemContext.Provider>
   );
 });
-ShadFormItem.displayName = "FormItem";
+FormItem.displayName = "FormItem";
 
-const ShadFormLabel = React.forwardRef<
+const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
@@ -99,9 +97,9 @@ const ShadFormLabel = React.forwardRef<
     />
   );
 });
-ShadFormLabel.displayName = "FormLabel";
+FormLabel.displayName = "FormLabel";
 
-const ShadFormControl = React.forwardRef<
+const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
@@ -122,9 +120,9 @@ const ShadFormControl = React.forwardRef<
     />
   );
 });
-ShadFormControl.displayName = "FormControl";
+FormControl.displayName = "FormControl";
 
-const ShadFormDescription = React.forwardRef<
+const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
@@ -139,9 +137,9 @@ const ShadFormDescription = React.forwardRef<
     />
   );
 });
-ShadFormDescription.displayName = "FormDescription";
+FormDescription.displayName = "FormDescription";
 
-const ShadFormMessage = React.forwardRef<
+const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
@@ -163,15 +161,15 @@ const ShadFormMessage = React.forwardRef<
     </p>
   );
 });
-ShadFormMessage.displayName = "FormMessage";
+FormMessage.displayName = "FormMessage";
 
 export {
-  ShadForm,
-  ShadFormControl,
-  ShadFormDescription,
-  ShadFormField,
-  ShadFormItem,
-  ShadFormLabel,
-  ShadFormMessage,
+  FormProvider,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
   useFormField,
 };

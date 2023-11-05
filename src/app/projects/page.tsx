@@ -1,6 +1,5 @@
 "use client";
-import { Form } from "@/components/form/Form";
-import { FormInput } from "@/components/form/FormInput";
+import { Form } from "@/components/form";
 import { Button, SubmitButton } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { insertProjectSchema } from "@/server/db/schema";
@@ -79,18 +78,18 @@ export default function Projects() {
         <DialogContent>
           <Form
             schema={insertProjectSchema}
-            defaultValues={{ projectName: "" }}
+            defaultValues={{ projectName: "", dueDate: "" }}
             onSubmit={createProject}
           >
             {(form) => (
               <>
-                <FormInput
+                <Form.Input
                   label="Project Name"
                   control={form.control}
                   name="projectName"
                   description="How you want to refer to this project"
                 />
-                <FormInput
+                <Form.Input
                   label="Due Date"
                   min={new Date().toISOString().split("T")[0]}
                   type="date"

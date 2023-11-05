@@ -54,3 +54,7 @@ export const decrypt = (
   decrypted += decipher.final("utf8");
   return decrypted;
 };
+
+export const md5 = (text: string) => {
+  return crypto.createHash("md5").update(text).digest("hex");
+};

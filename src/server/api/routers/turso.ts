@@ -1,4 +1,8 @@
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { sql } from "drizzle-orm";
 import { cwd } from "process";
 import { z } from "zod";
@@ -82,7 +86,11 @@ export const tursoRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => createTursoToken(input.id)),
 
-  currentDBVersion: protectedProcedure.query(async ({ ctx }) => {
+  currentDBVersion: publicProcedure.query(async ({ ctx }) => {
+    // Only check if we have a db connection
+    if (!ctx.db) {
+      return null;
+    }
     try {
       const dbVersionQuery = await ctx.db.get(
         sql`SELECT count(*) as version FROM "__drizzle_migrations"`,
@@ -103,7 +111,7 @@ export const tursoRouter = createTRPCRouter({
     }
   }),
 
-  latestDBVersion: protectedProcedure.query(() => {
+  latestDBVersion: publicProcedure.query(() => {
     console.log("CWD", cwd());
     try {
       const file = fs.readFileSync(
