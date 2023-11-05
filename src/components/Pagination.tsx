@@ -29,7 +29,6 @@ export function Pagination({
   setSkip,
   setLimit,
 }: PaginationProps) {
-  console.log({ skip, total, limit });
   const totalRef = useRef(0);
 
   const limitValue = limit ?? 0;
