@@ -1,7 +1,6 @@
 import { cn } from "@/utils";
-import { useMemo, type ReactNode, memo } from "react";
-import { Pagination } from "./Pagination";
-import { useQueryState } from "@/hooks";
+import { memo, useMemo, type ReactNode } from "react";
+import { Pagination, type PaginationProps } from "./Pagination";
 
 type MaybeId = {
   id?: string | number;
@@ -19,32 +18,31 @@ type GridProps<T extends MaybeId> = {
   data: T[];
   columns: Column<T>[];
   loading?: boolean;
-  queryKey?: string;
-  totalFound?: number;
   gridTemplate?: string;
   stickyHeader?: boolean;
   headerClass?: string;
   rowClass?: string;
+  sort?: {
+    sortBy: string;
+    sortDirection: string;
+    setSortBy: (sortBy: string) => void;
+    setSortDirection: (sortDirection: string) => void;
+  };
+  pagination?: PaginationProps;
 };
 
 const _Grid = <T extends MaybeId>({
   data,
   columns,
   loading = false,
-  queryKey,
-  totalFound,
   gridTemplate = "default-grid",
   headerClass,
   stickyHeader = true,
   rowClass,
+  sort,
+  pagination,
 }: GridProps<T>) => {
   console.log("RENDER GRID");
-  const [skip, setSkip] = useQueryState("skip" + queryKey, 0, {
-    formatValue: (v: string) => Number(v),
-  });
-  const [limit, setLimit] = useQueryState<number>("limit" + queryKey, 10, {
-    formatValue: (v: string) => Number(v),
-  });
 
   const hasColumnFallback = useMemo(
     () => columns.some((column) => column.fallback),
@@ -69,9 +67,13 @@ const _Grid = <T extends MaybeId>({
           )}
         >
           {columns.map((column, i) => (
-            <div key={i} className={column.sharedClassName}>
+            <button
+              key={i}
+              className={cn("text-left", column.sharedClassName)}
+              onClick={() => sort?.setSortBy("name")}
+            >
               {column.header}
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -84,7 +86,7 @@ const _Grid = <T extends MaybeId>({
       {/* Skeleton Loader */}
       {loading &&
         hasColumnFallback &&
-        Array.from(Array(limit).keys()).map((_, i) => (
+        Array.from(Array(pagination?.limit ?? 10).keys()).map((_, i) => (
           <div className={cn(gridTemplate, rowClass)} key={i}>
             {columns.map((column, i) => (
               <div key={i} className={column.sharedClassName}>
@@ -108,16 +110,14 @@ const _Grid = <T extends MaybeId>({
           );
         })}
 
-      <div className="flex items-center justify-between py-4">
-        <p className="text-sm text-muted-foreground">{totalFound} found</p>
-        <Pagination
-          skip={Number(skip)}
-          limit={limit}
-          total={totalFound}
-          setSkip={setSkip}
-          setLimit={setLimit}
-        />
-      </div>
+      {pagination && (
+        <div className="flex items-center justify-between py-4">
+          <p className="text-sm text-muted-foreground">
+            {pagination?.total} found
+          </p>
+          <Pagination {...pagination} />
+        </div>
+      )}
     </div>
   );
 };

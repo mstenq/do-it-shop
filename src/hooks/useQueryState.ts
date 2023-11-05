@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { startTransition, useCallback, useEffect, useState } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { querySub } from "@/utils/queryKeySub";
 import { useCustomRouter } from "./useCustomRouter";
@@ -30,19 +30,21 @@ export const useQueryState = <T>(
 
   const changeValue = useCallback(
     (newValue: string | number | boolean) => {
-      console.log("changeValue", newValue, value);
       if (String(newValue) === String(value)) return;
-      setValue(newValue.toString());
       router.replace(`${pathname}?${key}=${newValue.toString()}`);
+      setTimeout(() => {
+        setValue(newValue.toString());
+      }, 0);
     },
     [key, pathname, router, value],
   );
 
   useEffect(() => {
     if (urlValue === null) {
+      console.log("SET DEFAULT VALUE", key, defaultValue, urlValue);
       changeValue(defaultValue?.toString() ?? "");
     }
-  }, [urlValue, defaultValue, value, changeValue]);
+  }, [urlValue, defaultValue, value, key, changeValue]);
 
   return [options.formatValue!(value), changeValue] as const;
 };

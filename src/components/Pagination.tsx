@@ -4,8 +4,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Button } from "./ui/button";
-import { useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -13,15 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { useQueryState } from "@/hooks";
 
-interface PaginationProps {
+export type PaginationProps = {
   skip: number;
   total: number | undefined;
   limit: number | undefined;
   setSkip: (skip: number) => void;
   setLimit: (limit: number) => void;
-}
+};
 
 export function Pagination({
   skip,
@@ -32,17 +31,23 @@ export function Pagination({
 }: PaginationProps) {
   const totalRef = useRef(0);
 
-  if (!limit) return null;
+  const limitValue = limit ?? 0;
+
+  const page = Math.ceil(skip / limitValue) + 1;
+  const pageCount = Math.ceil(totalRef.current / limitValue);
+
+  useEffect(() => {
+    if (page > pageCount) {
+      setSkip(0);
+    }
+  }, [pageCount, page, setSkip]);
 
   const noTotal = total === undefined;
   if (!noTotal) {
     totalRef.current = total;
   }
-  const page = Math.ceil(skip / limit) + 1;
-  const pageCount = Math.ceil(totalRef.current / limit);
 
-  if (page > pageCount) setSkip(0);
-
+  if (!limit) return null;
   if (totalRef.current === 0) return null;
   return (
     <div className="flex items-center justify-between px-2">
