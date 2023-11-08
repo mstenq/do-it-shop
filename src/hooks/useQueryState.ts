@@ -1,7 +1,7 @@
 import { querySub } from "@/utils/queryKeySub";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useQueryChangeQueue } from "./useQueryChangeQue";
+import { useQueryChangeQueue } from "./useQueryChangeQueue";
 
 type QueryStateOptions<T> = {
   key: string;

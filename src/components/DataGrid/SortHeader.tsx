@@ -1,44 +1,11 @@
+import { type SortProps } from "@/hooks";
 import { cn } from "@/utils";
 import { type Column, type MaybeId } from "./DataGrid";
-import {
-  ChevronUpIcon,
-  ChevronsUpDownIcon,
-  ChevronsUpIcon,
-} from "lucide-react";
+import { SortIndicator } from "./SortIndicator";
 
 type SortHeaderProps<T extends MaybeId> = {
   column: Column<T, unknown>;
-  sort: {
-    sortBy: string;
-    setSortBy: (sortBy: string) => void;
-    sortDirection: "asc" | "desc";
-    setSortDirection: (sortDirection: "asc" | "desc") => void;
-  };
-};
-
-type SortIndicatorProps = {
-  currentSortBy: string;
-  currentSortDirection: "asc" | "desc";
-  sortKey: unknown;
-};
-const SortIndicator = ({
-  currentSortBy,
-  currentSortDirection,
-  sortKey,
-}: SortIndicatorProps) => {
-  if (typeof sortKey !== "string") return null;
-
-  if (currentSortBy === sortKey) {
-    return (
-      <ChevronUpIcon
-        className={cn(
-          "w-3 transition-all duration-300",
-          currentSortDirection === "asc" && "rotate-180",
-        )}
-      />
-    );
-  }
-  return <ChevronsUpDownIcon className="w-3" />;
+  sort: SortProps;
 };
 
 export const SortHeader = <T extends MaybeId>({
@@ -75,7 +42,6 @@ export const SortHeader = <T extends MaybeId>({
         currentSortDirection={sort.sortDirection}
         sortKey={column.sortKey}
       />
-      {/* <ChevronsUpDownIcon className="w-3" /> */}
     </button>
   );
 };

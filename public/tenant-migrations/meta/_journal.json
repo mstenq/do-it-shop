@@ -15,6 +15,20 @@
       "when": 1698816498938,
       "tag": "0001_same_nebula",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1699314272635,
+      "tag": "0002_purple_eternals",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1699314489442,
+      "tag": "0003_panoramic_miss_america",
+      "breakpoints": true
     }
   ]
 }

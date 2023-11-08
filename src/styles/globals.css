@@ -58,6 +58,20 @@
   }
 }
 
+@layer utitliy {
+  .scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .scroll::-webkit-scrollbar-track {
+    @apply bg-gray-50 dark:bg-gray-800;
+  }
+
+  .scroll::-webkit-scrollbar-thumb {
+    @apply rounded bg-gray-300 dark:bg-gray-700;
+  }
+}
+
 table.pretty-table {
   @apply w-full table-auto border-collapse overflow-hidden rounded text-sm ring-1 ring-slate-200 dark:ring-slate-900;
 }

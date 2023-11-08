@@ -1,8 +1,9 @@
 import { cn } from "@/utils";
 import { memo, useMemo, type ReactNode, useState, useEffect } from "react";
 import { Pagination } from "@/components/Pagination";
-import { useQueryProps } from "@/hooks";
+import { usePaginationSortProps } from "@/hooks";
 import { SortHeader } from "./SortHeader";
+import { MobileSorter } from "./MobileSorter";
 
 export type MaybeId = {
   id?: string | number;
@@ -23,11 +24,11 @@ export type Column<T extends MaybeId, SortOptions> = {
 type GridProps<T extends MaybeId> = {
   data: T[];
   queryKey: string;
+  toolbar?: ReactNode;
   columns: Column<T, unknown>[];
   loading?: boolean;
   gridTemplate?: string;
-  stickyHeader?: boolean;
-  headerClass?: string;
+  sticky?: boolean;
   rowClass?: string;
   totalFound: number | undefined;
 };
@@ -35,18 +36,17 @@ type GridProps<T extends MaybeId> = {
 const _DataGrid = <T extends MaybeId>({
   data,
   queryKey,
+  toolbar,
   columns,
   loading = false,
   gridTemplate = "default-grid",
-  headerClass,
-  stickyHeader = true,
+  sticky = true,
   rowClass,
   totalFound,
 }: GridProps<T>) => {
-  console.log("RENDER GRID");
   const [found, setFound] = useState(totalFound);
   const [lastDataLength, setLastDataLength] = useState<number | undefined>();
-  const { pagination, sort } = useQueryProps({ queryKey });
+  const { pagination, sort } = usePaginationSortProps({ queryKey });
 
   const hasColumnFallback = useMemo(
     () => columns.some((column) => column.fallback),
@@ -72,22 +72,24 @@ const _DataGrid = <T extends MaybeId>({
   }, [data]);
 
   return (
-    <div className="divide-y @container">
+    <div className="@container">
       {/* Headers */}
-      {hasHeaders && (
-        <div
-          className={cn(
-            "font-bold text-accent-foreground",
-            stickyHeader && "sticky top-0 z-10 bg-card/60 backdrop-blur",
-            gridTemplate,
-            headerClass,
-          )}
-        >
-          {columns.map((column, i) => (
-            <SortHeader key={i} column={column} sort={sort} />
-          ))}
-        </div>
-      )}
+      <div className={cn("border-b bg-card ", sticky && "sticky top-0 z-10")}>
+        {toolbar && <div className="p-3">{toolbar}</div>}
+        <MobileSorter sort={sort} columns={columns} />
+        {hasHeaders && (
+          <div
+            className={cn(
+              "hidden border-t font-bold text-accent-foreground @2xl:grid",
+              gridTemplate,
+            )}
+          >
+            {columns.map((column, i) => (
+              <SortHeader key={i} column={column} sort={sort} />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Regular Loader */}
       {loading && !hasColumnFallback && (
@@ -95,10 +97,11 @@ const _DataGrid = <T extends MaybeId>({
       )}
 
       {/* Skeleton Loader */}
-      {loading &&
-        hasColumnFallback &&
-        Array.from(Array(lastDataLength ?? pagination?.limit ?? 10).keys()).map(
-          (_, i) => (
+      {loading && hasColumnFallback && (
+        <div className="divide-y">
+          {Array.from(
+            Array(lastDataLength ?? pagination?.limit ?? 10).keys(),
+          ).map((_, i) => (
             <div className={cn(gridTemplate, rowClass)} key={i}>
               {columns.map((column, i) => (
                 <div key={i} className={column.sharedClassName}>
@@ -106,28 +109,46 @@ const _DataGrid = <T extends MaybeId>({
                 </div>
               ))}
             </div>
-          ),
-        )}
+          ))}
+        </div>
+      )}
 
       {/* Render List */}
-      {!loading &&
-        data.map((item, i) => {
-          return (
-            <div key={item.id ?? i} className={cn(gridTemplate, rowClass)}>
-              {columns.map((column, i) => (
-                <div key={i} className={cn("truncate", column.sharedClassName)}>
-                  {column.cell(item)}
-                </div>
-              ))}
-            </div>
-          );
-        })}
+      <div className="divide-y">
+        {!loading &&
+          data.map((item, i) => {
+            return (
+              <div
+                key={item.id ?? i}
+                className={cn("", gridTemplate, rowClass)}
+              >
+                {columns.map((column, i) => (
+                  <div
+                    key={i}
+                    className={cn("truncate", column.sharedClassName)}
+                  >
+                    {column.cell(item)}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+      </div>
 
       {pagination && (
-        <div className="flex items-center justify-between py-4">
-          {typeof found === "number" && (
-            <p className="text-sm text-muted-foreground">{found} found</p>
+        <div
+          className={cn(
+            "flex items-center justify-between border-t bg-card py-4",
+            sticky && "sticky bottom-0",
           )}
+        >
+          <div className="hidden px-4 @lg:block">
+            {typeof found === "number" && (
+              <p className="text-sm text-muted-foreground">
+                {found}&nbsp;found
+              </p>
+            )}
+          </div>
           <Pagination {...pagination} total={found} />
         </div>
       )}

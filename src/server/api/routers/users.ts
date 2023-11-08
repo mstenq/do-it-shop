@@ -11,9 +11,22 @@ import {
   createNewUserMutation,
   createUserSchema,
 } from "@/server/utils/createNewUser";
+import { QueryOption, generateDbQuery } from "@/server/utils/generateDbQuery";
 import { createUserSession } from "@/server/utils/userSession";
 import { TRPCError } from "@trpc/server";
-import { eq, sql, desc, asc } from "drizzle-orm";
+import {
+  eq,
+  sql,
+  desc,
+  asc,
+  and,
+  like,
+  or,
+  type Column,
+  type SQLWrapper,
+  type SQL,
+} from "drizzle-orm";
+import { type SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { z } from "zod";
 
 const devWait = async (ms: number) => {
@@ -39,13 +52,66 @@ export const userRouter = createTRPCRouter({
         skip: z.number(),
         sortBy: SortUser.default("name"),
         sortDirection: SortDirection.default("asc"),
+        search: z.string().optional(),
+        roles: z
+          .array(z.enum(["system_admin", "user"]))
+          .catch([])
+          .optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      await devWait(1000);
+      //await devWait(1000);
 
       const orderBy = sortOptions[input.sortBy].map((col) =>
         input.sortDirection === "asc" ? asc(col) : desc(col),
+      );
+
+      const queryOptions: QueryOption[] = [
+        {
+          columns: [tenantAccess.tenantId],
+          values: [ctx.session.currentTenantId],
+          filterType: eq,
+        },
+      ];
+
+      if (input.search) {
+        queryOptions.push({
+          columns: [
+            sql.raw(`${users.firstName.name} || ' ' || ${users.lastName.name}`),
+            users.email,
+          ],
+          values: [`%${input.search}%`],
+          filterType: like,
+        });
+      }
+
+      if (Array.isArray(input.roles) && input.roles.length > 0) {
+        queryOptions.push({
+          columns: [users.role],
+          values: input.roles,
+          filterType: eq,
+        });
+      }
+      const filterQuery = generateDbQuery(...queryOptions);
+      console.log("*****************************************");
+      console.log(
+        ctx.tenantDb
+          .select({
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            role: users.role,
+            email: users.email,
+            createdAt: users.createdAt,
+            updatedAt: users.updatedAt,
+          })
+          .from(users)
+          .innerJoin(tenantAccess, eq(tenantAccess.userId, users.id))
+          .where(filterQuery)
+          .orderBy(...orderBy)
+          .limit(input.limit)
+          .offset(input.skip)
+          .toSQL(),
       );
 
       const [allResults, results] = await Promise.all([
@@ -55,7 +121,7 @@ export const userRouter = createTRPCRouter({
           })
           .from(users)
           .innerJoin(tenantAccess, eq(tenantAccess.userId, users.id))
-          .where(eq(tenantAccess.tenantId, ctx.session.currentTenantId)),
+          .where(filterQuery),
 
         ctx.tenantDb
           .select({
@@ -69,11 +135,12 @@ export const userRouter = createTRPCRouter({
           })
           .from(users)
           .innerJoin(tenantAccess, eq(tenantAccess.userId, users.id))
-          .where(eq(tenantAccess.tenantId, ctx.session.currentTenantId))
+          .where(filterQuery)
           .orderBy(...orderBy)
           .limit(input.limit)
           .offset(input.skip),
       ]);
+
       return {
         totalFound: allResults?.[0]?.found ?? 0,
         users: results,

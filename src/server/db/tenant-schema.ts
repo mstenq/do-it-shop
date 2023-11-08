@@ -71,6 +71,12 @@ export const users = sqliteTable(
   },
   (users) => ({
     emailIdx: uniqueIndex("email_idx").on(users.email),
+    firstNameIdx: index("first_name_idx").on(users.firstName),
+    lastNameIdx: index("last_name_idx").on(users.lastName),
+    firstNameLastNameIdx: index("first_name_last_name_idx").on(
+      users.firstName,
+      users.lastName,
+    ),
   }),
 );
 

@@ -1,12 +1,33 @@
 import { z } from "zod";
 import { useQueryState } from "./useQueryState";
 
-type UseQueryProps = {
+type UsePaginationSortProps = {
   availableFilters?: string[];
   queryKey: string;
 };
 
-export const useQueryProps = ({ queryKey }: UseQueryProps) => {
+export type SortProps = {
+  sortBy: string;
+  sortDirection: "asc" | "desc";
+  setSortBy: (sortBy: string) => void;
+  setSortDirection: (sortDirection: "asc" | "desc") => void;
+};
+
+export type PaginationProps = {
+  skip: number;
+  limit: number;
+  setSkip: (skip: number) => void;
+  setLimit: (limit: number) => void;
+};
+
+type UsePaginationSortReturn = {
+  sort: SortProps;
+  pagination: PaginationProps;
+};
+
+export const usePaginationSortProps = ({
+  queryKey,
+}: UsePaginationSortProps): UsePaginationSortReturn => {
   const [sortBy, setSortBy] = useQueryState<string>({
     key: queryKey + "-sortBy",
     validator: (value) =>

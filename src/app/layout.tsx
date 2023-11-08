@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import "@/styles/grids.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { GeistMono, GeistSans } from "geist/font";
 import {
@@ -19,6 +20,7 @@ import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { DbUpdater } from "@/components/DbUpdater";
 import { OrganizationSwitcher } from "@/components/OrganizationSwitcher";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { env } from "@/env.mjs";
 import { getUserSession } from "@/server/utils/userSession";
 import { TRPCReactProvider } from "@/trpc/react";
 import { api } from "@/trpc/server";
@@ -58,6 +60,7 @@ export default async function RootLayout({
                       currentVersion={currentVersion}
                     />
                   </div>
+
                   <nav className="flex flex-col gap-4 pb-10">
                     <Link href="/" className="flex items-center gap-2">
                       <Search className="w-4" /> Search
@@ -90,10 +93,15 @@ export default async function RootLayout({
                     </Link>
                   </nav>
                 </div>
+
+                <div className="mt-96 flex items-center justify-between gap-2">
+                  <DarkModeToggle />
+                  <OrganizationSwitcher session={session} />
+                </div>
               </div>
-              <div className="flex-grow pt-1.5">
-                <div className=" min-h-[calc(100vh-0.375rem)] rounded-tl-lg bg-background ring-1 ring-slate-700/10">
-                  <div className="container flex justify-between pt-8">
+              <div className="flex-grow">
+                <div className="min-h-screen bg-background ring-1 ring-slate-700/10">
+                  {/* <div className="flex justify-between px-4 pt-8">
                     <h1 className="text-2xl font-extrabold">
                       Jack&rsquo;s Do It Shop
                     </h1>
@@ -101,11 +109,17 @@ export default async function RootLayout({
                       <OrganizationSwitcher session={session} />
                       <DarkModeToggle />
                     </div>
-                  </div>
+                  </div> */}
                   <div>{children}</div>
                 </div>
               </div>
             </div>
+            {env.NODE_ENV === "development" && (
+              <ReactQueryDevtools
+                initialIsOpen={false}
+                buttonPosition="bottom-left"
+              />
+            )}
           </TRPCReactProvider>
         </ThemeProvider>
       </body>
