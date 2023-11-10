@@ -20,7 +20,7 @@ type User = Awaited<ReturnType<typeof server.user.all.query>>["users"][number];
 
 const columns: Columns<User, "name" | "email" | "role" | "lastUpdated"> = [
   {
-    sharedClassName: "row-span-2 @3xl:row-span-1",
+    sharedClassName: "row-span-2 @2xl:row-span-1",
     fallback: <Skeleton.Circle />,
     cell: (user) => <UserAvatar className="" user={user} />,
   },
@@ -51,7 +51,7 @@ const columns: Columns<User, "name" | "email" | "role" | "lastUpdated"> = [
     fallback: <Skeleton.Text wordCount={1} />,
     sortKey: "role",
     cell: (user) => (
-      <p className="hidden font-semibold capitalize text-accent-foreground @sm:block @3xl:font-normal @3xl:text-muted-foreground">
+      <p className="hidden font-semibold capitalize text-accent-foreground @sm:block @2xl:font-normal @2xl:text-muted-foreground">
         {user.role}
       </p>
     ),
@@ -63,7 +63,7 @@ const columns: Columns<User, "name" | "email" | "role" | "lastUpdated"> = [
     sortKey: "lastUpdated",
     cell: (user) => (
       <p className="hidden text-right @sm:block ">
-        <span className="inline @3xl:hidden">updated</span>{" "}
+        <span className="inline @2xl:hidden">updated</span>{" "}
         {dayjs.utc(user.updatedAt).fromNow()}{" "}
       </p>
     ),
@@ -106,7 +106,7 @@ export default function UsersPageLayout({ children }: PropsWithChildren) {
       <div
         className={cn(
           "scroll h-screen w-full overflow-y-auto",
-          pathname !== "/users" && " hidden w-[350px] resize-x 2xl:block",
+          pathname !== "/users" && " hidden w-full max-w-[350px] 2xl:block",
         )}
       >
         {pathname === "/users" && (

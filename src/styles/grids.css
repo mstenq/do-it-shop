@@ -5,7 +5,7 @@
   }
 
   .user-grid {
-    @apply grid grid-flow-col grid-cols-[50px_1fr] items-center gap-1 p-3 text-sm text-muted-foreground;
+    @apply grid grid-flow-col grid-cols-[50px_1fr_0_0] items-center gap-1 p-3 text-sm text-muted-foreground;
     @apply @sm:grid-cols-[60px_1fr_140px];
     @apply @2xl:grid-flow-row @2xl:grid-cols-[60px_2fr_3fr_120px_140px];
   }

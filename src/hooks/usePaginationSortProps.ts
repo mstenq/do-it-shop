@@ -49,7 +49,7 @@ export const usePaginationSortProps = ({
 
   const [limit, setLimit] = useQueryState({
     key: queryKey + "-limit",
-    validator: (value) => z.coerce.number().positive().catch(10).parse(value),
+    validator: (value) => z.coerce.number().positive().catch(20).parse(value),
   });
 
   const sort = { sortBy, sortDirection, setSortBy, setSortDirection };

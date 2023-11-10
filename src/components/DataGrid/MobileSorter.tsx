@@ -1,16 +1,15 @@
+import { type SortProps } from "@/hooks";
 import { useMemo } from "react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { type Columns, type MaybeId } from "./DataGrid";
-import { type SortProps } from "@/hooks";
 import { SortIndicator } from "./SortIndicator";
 
 type MobileSorterProps<T extends MaybeId> = {
