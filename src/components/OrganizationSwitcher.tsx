@@ -38,7 +38,7 @@ export const OrganizationSwitcher = ({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost">
-          <div className="py-2 text-right">
+          <div className="py-2 text-left">
             <div className="text-sm">
               {session.user.firstName} {session.user.lastName}
             </div>
@@ -46,7 +46,7 @@ export const OrganizationSwitcher = ({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent side="bottom" align="end" className="w-80">
+      <PopoverContent side="top" align="start" className="w-80">
         {isLoading && <div>Loading...</div>}
         {user && (
           <div>

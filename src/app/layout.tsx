@@ -3,28 +3,14 @@ import "@/styles/grids.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { GeistMono, GeistSans } from "geist/font";
-import {
-  Bell,
-  CircleDollarSign,
-  FolderInput,
-  Gauge,
-  Hammer,
-  ListChecks,
-  Search,
-  Settings,
-  Users,
-} from "lucide-react";
 import { headers } from "next/headers";
 
-import { DarkModeToggle } from "@/components/DarkModeToggle";
-import { DbUpdater } from "@/components/DbUpdater";
-import { OrganizationSwitcher } from "@/components/OrganizationSwitcher";
+import { MainNav } from "@/components/MainNav";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { env } from "@/env.mjs";
 import { getUserSession } from "@/server/utils/userSession";
 import { TRPCReactProvider } from "@/trpc/react";
 import { api } from "@/trpc/server";
-import Link from "next/link";
 
 export const metadata = {
   title: "Create T3 App",
@@ -46,73 +32,13 @@ export default async function RootLayout({
       <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider headers={headers()}>
-            <div className="flex bg-gray-100 dark:bg-gray-900">
-              <div className="min-h-screen min-w-[300px] max-w-[300px] p-8">
-                <div className="sticky top-8">
-                  <div className="flex items-center gap-2 pb-4 font-bold">
-                    <Hammer />
-                    Do It Shop Manager
-                  </div>
-                  <div className="flex items-center gap-2 pb-4 text-xs text-muted-foreground">
-                    <span>v.{currentVersion}</span>
-                    <DbUpdater
-                      latestVersion={latestVersion}
-                      currentVersion={currentVersion}
-                    />
-                  </div>
-
-                  <nav className="flex flex-col gap-4 pb-10">
-                    <Link href="/" className="flex items-center gap-2">
-                      <Search className="w-4" /> Search
-                    </Link>
-                    <Link href="/" className="flex items-center gap-2">
-                      <Bell className="w-4" /> Notifications
-                    </Link>
-                  </nav>
-                  <nav className="flex flex-col gap-4">
-                    <Link
-                      href="/"
-                      className="flex items-center gap-2 text-primary dark:text-violet-400 "
-                    >
-                      <Gauge className="w-4" /> Dashboard
-                    </Link>
-                    <Link href="/users" className="flex items-center gap-2">
-                      <Users className="w-4" /> Users
-                    </Link>
-                    <Link href="/" className="flex items-center gap-2">
-                      <CircleDollarSign className="w-4" /> Payroll
-                    </Link>
-                    <Link href="/projects" className="flex items-center gap-2">
-                      <FolderInput className="w-4" /> Projects
-                    </Link>
-                    <Link href="/" className="flex items-center gap-2">
-                      <ListChecks className="w-4" /> Tasks
-                    </Link>
-                    <Link href="/" className="flex items-center gap-2">
-                      <Settings className="w-4" /> Settings
-                    </Link>
-                  </nav>
-                </div>
-
-                <div className="mt-96 flex items-center justify-between gap-2">
-                  <DarkModeToggle />
-                  <OrganizationSwitcher session={session} />
-                </div>
-              </div>
-              <div className="flex-grow">
-                <div className="min-h-screen bg-background ring-1 ring-slate-700/10">
-                  {/* <div className="flex justify-between px-4 pt-8">
-                    <h1 className="text-2xl font-extrabold">
-                      Jack&rsquo;s Do It Shop
-                    </h1>
-                    <div className="flex items-center gap-2">
-                      <OrganizationSwitcher session={session} />
-                      <DarkModeToggle />
-                    </div>
-                  </div> */}
-                  <div>{children}</div>
-                </div>
-              </div>
+            <div className="main-layout">
+              <MainNav
+                latestVersion={latestVersion}
+                currentVersion={currentVersion}
+                session={session}
+              />
+              {children}
             </div>
             {env.NODE_ENV === "development" && (
               <ReactQueryDevtools

@@ -70,7 +70,7 @@ export const createUserSession = async (
   });
 };
 
-export const getUserSession = () => {
+export const getUserSession = (): Session | null => {
   const session = cookies().get("session")?.value;
   if (!session) {
     return null;

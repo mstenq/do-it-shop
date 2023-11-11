@@ -31,6 +31,7 @@ type GridProps<T extends MaybeId> = {
   sticky?: boolean;
   rowClass?: string;
   totalFound: number | undefined;
+  onClick?: (item: T) => void;
 };
 
 const _DataGrid = <T extends MaybeId>({
@@ -43,6 +44,7 @@ const _DataGrid = <T extends MaybeId>({
   sticky = true,
   rowClass,
   totalFound,
+  onClick,
 }: GridProps<T>) => {
   const [found, setFound] = useState(totalFound);
   const [lastDataLength, setLastDataLength] = useState<number | undefined>();
@@ -119,8 +121,21 @@ const _DataGrid = <T extends MaybeId>({
           data.map((item, i) => {
             return (
               <div
+                tabIndex={onClick ? 0 : -1}
                 key={item.id ?? i}
-                className={cn("", gridTemplate, rowClass)}
+                onKeyDown={(e) => {
+                  if (e.code === "Enter" || e.code === "Space") {
+                    e.preventDefault();
+                    onClick?.(item);
+                  }
+                }}
+                onClick={() => onClick?.(item)}
+                className={cn(
+                  onClick &&
+                    "cursor-pointer hover:bg-accent focus:outline-none focus-visible:bg-primary/10",
+                  gridTemplate,
+                  rowClass,
+                )}
               >
                 {columns.map((column, i) => (
                   <div

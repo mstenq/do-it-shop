@@ -1,4 +1,9 @@
 @layer component {
+  .main-layout {
+    @apply grid grid-cols-[300px_1fr] xl:grid-cols-[300px_300px_1fr];
+    @apply grid-rows-[64px_1fr] xl:grid-rows-[1fr];
+  }
+
   .default-grid {
     @apply grid items-center gap-1 p-3 text-sm text-muted-foreground;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
