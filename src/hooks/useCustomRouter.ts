@@ -32,9 +32,9 @@ export const useCustomRouter = () => {
 
       nav(newHref, { scroll: options?.scroll ?? true });
 
-      changedKeys.forEach((key) => {
-        querySub.dispatch(key, mergedQueryObj[key] ?? "");
-      });
+      // changedKeys.forEach((key) => {
+      //   querySub.dispatch(key, mergedQueryObj[key] ?? "");
+      // });
     };
 
   return {

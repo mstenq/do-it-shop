@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { GeistMono, GeistSans } from "geist/font";
 import { headers } from "next/headers";
 
-import { MainNav } from "@/components/MainNav";
+import { MainNav } from "@/components/nav/MainNav";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { env } from "@/env.mjs";
 import { getUserSession } from "@/server/utils/userSession";
@@ -29,7 +29,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans`}>
+      <body
+        className={`${GeistSans.variable} ${GeistMono.variable}  font-sans`}
+      >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider headers={headers()}>
             <div className="main-layout">

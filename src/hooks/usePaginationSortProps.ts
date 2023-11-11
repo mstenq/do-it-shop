@@ -1,5 +1,8 @@
-import { z } from "zod";
-import { useQueryState } from "./useQueryState";
+import {
+  parseAsInteger,
+  parseAsStringEnum,
+  useQueryState,
+} from "next-usequerystate";
 
 type UsePaginationSortProps = {
   availableFilters?: string[];
@@ -28,31 +31,34 @@ type UsePaginationSortReturn = {
 export const usePaginationSortProps = ({
   queryKey,
 }: UsePaginationSortProps): UsePaginationSortReturn => {
-  const [sortBy, setSortBy] = useQueryState<string>({
-    key: queryKey + "-sortBy",
-    validator: (value) =>
-      z
-        .enum(["name", "email", "role", "lastUpdated"])
-        .catch("name")
-        .parse(value),
-  });
+  const [sortBy, setSortBy] = useQueryState(
+    queryKey + "-sortBy",
+    parseAsStringEnum(["name", "email", "role", "lastUpdated"]).withDefault(
+      "name",
+    ),
+  );
 
-  const [sortDirection, setSortDirection] = useQueryState({
-    key: queryKey + "-sortDirection",
-    validator: (value) => z.enum(["asc", "desc"]).catch("asc").parse(value),
-  });
+  const [sortDirection, setSortDirection] = useQueryState(
+    queryKey + "-sortDirection",
+    parseAsStringEnum(["asc", "desc"]).withDefault("asc"),
+  );
 
-  const [skip, setSkip] = useQueryState({
-    key: queryKey + "-skip",
-    validator: (value) => z.coerce.number().nonnegative().catch(0).parse(value),
-  });
+  const [skip, setSkip] = useQueryState(
+    queryKey + "-skip",
+    parseAsInteger.withDefault(0),
+  );
 
-  const [limit, setLimit] = useQueryState({
-    key: queryKey + "-limit",
-    validator: (value) => z.coerce.number().positive().catch(20).parse(value),
-  });
+  const [limit, setLimit] = useQueryState(
+    queryKey + "-limit",
+    parseAsInteger.withDefault(20),
+  );
 
-  const sort = { sortBy, sortDirection, setSortBy, setSortDirection };
+  const sort = {
+    sortBy: sortBy as string,
+    sortDirection,
+    setSortBy: setSortBy as (value: string) => void,
+    setSortDirection,
+  };
   const pagination = { skip, limit, setSkip, setLimit } as const;
   return { pagination, sort };
 };

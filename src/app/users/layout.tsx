@@ -1,5 +1,5 @@
 "use client";
-import { MasterDetail } from "@/components/LayoutMasterDetail";
+import { MasterDetail } from "@/components/layouts/LayoutMasterDetail";
 import { type PropsWithChildren } from "react";
 import { UserGrid } from "./UserGrid";
 

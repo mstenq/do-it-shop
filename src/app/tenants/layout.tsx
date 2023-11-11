@@ -3,12 +3,13 @@
 import { api } from "@/trpc/react";
 import { Row } from "./Row";
 import { CreateTenant } from "../_components/CreateTenant";
+import { LayoutMain } from "@/components/layouts/LayoutMain";
 
 export default function Home({ children }: { children: React.ReactNode }) {
   const { data: tenantData } = api.tenant.getAll.useQuery();
 
   return (
-    <main>
+    <LayoutMain>
       {children}
       <div className="container p-8">
         <CreateTenant />
@@ -28,6 +29,6 @@ export default function Home({ children }: { children: React.ReactNode }) {
           </tbody>
         </table>
       </div>
-    </main>
+    </LayoutMain>
   );
 }

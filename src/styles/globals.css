@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  overflow: hidden;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -81,7 +85,7 @@
 }
 
 table.pretty-table {
-  @apply w-full table-auto border-collapse overflow-hidden rounded text-sm ring-1 ring-slate-200 dark:ring-slate-900;
+  @apply w-full table-auto border-collapse overflow-hidden text-sm ring-1 ring-slate-200 dark:ring-slate-900;
 }
 
 .pretty-table th {

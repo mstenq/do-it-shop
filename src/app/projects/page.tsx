@@ -1,5 +1,6 @@
 "use client";
 import { Form } from "@/components/form";
+import { LayoutMain } from "@/components/layouts/LayoutMain";
 import { Button, SubmitButton } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { insertProjectSchema } from "@/server/db/schema";
@@ -28,9 +29,9 @@ export default function Projects() {
   });
 
   return (
-    <div className="container p-8">
+    <LayoutMain>
       <div className="">
-        <div className="flex justify-between py-4">
+        <div className="flex justify-between p-4">
           <h2 className="text-lg">Projects</h2>
           <div className="flex gap-2">
             <Button variant="default" size="sm" onClick={() => setIsOpen(true)}>
@@ -112,6 +113,6 @@ export default function Projects() {
           </Form>
         </DialogContent>
       </Dialog>
-    </div>
+    </LayoutMain>
   );
 }

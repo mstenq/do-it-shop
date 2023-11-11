@@ -1,6 +1,6 @@
 "use client";
 import { CustomLink } from "@/components/CustomLink";
-import { DataGrid, type Columns } from "@/components/DataGrid";
+import { DataGrid, type Columns } from "@/components/data-grid";
 import { Skeleton } from "@/components/Skeleton";
 import { UserAvatar } from "@/components/UserAvatar";
 import { FacetedFilter } from "@/components/filters/FacetedFilter";
@@ -11,10 +11,8 @@ import { useDebouncedState } from "@/hooks/useDebouncedState";
 import dayjs from "@/libs/dayjs";
 import { api } from "@/trpc/react";
 import { type api as server } from "@/trpc/server";
-import { cn } from "@/utils";
 import { XIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { ReactNode, type PropsWithChildren } from "react";
+import { SearchInput } from "@/components/inputs/SearchInput";
 
 type User = Awaited<ReturnType<typeof server.user.all.query>>["users"][number];
 
@@ -71,7 +69,6 @@ const columns: Columns<User, "name" | "email" | "role" | "lastUpdated"> = [
 ];
 
 export const UserGrid = () => {
-  const pathname = usePathname();
   const router = useCustomRouter();
   const { pagination, sort } = usePaginationSortProps({ queryKey: "users" });
   const [search, debouncedSearch, setSearch] = useDebouncedState("");
@@ -112,15 +109,9 @@ export const UserGrid = () => {
       totalFound={data?.totalFound ?? undefined}
       onClick={(user) => router.push(`/users/${user.id}`)}
       toolbar={
-        <div className="flex flex-col-reverse items-center justify-between gap-2 @md:flex-row">
-          <div className="flex w-full gap-2 @md:w-auto">
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="h-8"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <div className="flex w-full flex-col-reverse items-center justify-between gap-2 @md:flex-row">
+          <div className="flex w-full gap-2">
+            <SearchInput value={search} onChange={setSearch} />
             <FacetedFilter
               title="Role"
               value={roleSet}
