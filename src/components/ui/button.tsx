@@ -4,6 +4,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { Spinner } from "@/assets/icons";
+import { CheckIcon } from "lucide-react";
+import { useCustomForm } from "../form/CustomFormProvider";
 
 const buttonVariants = cva(
   "inline-flex items-center gap-1 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -13,6 +15,8 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        negative:
+          "text-secondary-foreground bg-secondary hover:text-destructive hover:bg-destructive/5",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
@@ -59,12 +63,14 @@ Button.displayName = "Button";
 const SubmitButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, ...props }, ref) => {
     const { formState } = useFormContext();
+    const { disabled } = useCustomForm();
+
     return (
       <Button
         ref={ref}
         {...props}
         type="submit"
-        disabled={formState.isSubmitting || props.disabled}
+        disabled={formState.isSubmitting || disabled || props.disabled}
       >
         <span
           className={cn(

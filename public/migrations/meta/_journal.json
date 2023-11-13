@@ -15,6 +15,13 @@
       "when": 1698898946809,
       "tag": "0001_minor_korath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1699840223208,
+      "tag": "0002_melodic_veda",
+      "breakpoints": true
     }
   ]
 }

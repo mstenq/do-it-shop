@@ -1,6 +1,6 @@
 @layer component {
   .main-layout {
-    @apply grid min-h-screen grid-cols-[300px_1fr] xl:grid-cols-[300px_300px_1fr];
+    @apply grid min-h-screen grid-cols-[300px_1fr] xl:grid-cols-[260px_350px_1fr];
     @apply grid-rows-[64px_1fr] xl:grid-rows-[1fr];
   }
 

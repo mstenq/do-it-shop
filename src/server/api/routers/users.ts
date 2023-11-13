@@ -5,28 +5,23 @@ import {
   publicProcedure,
   tenantAccessMiddleware,
 } from "@/server/api/trpc";
-import { tenantAccess, users } from "@/server/db/tenant-schema";
+import {
+  tenantAccess,
+  updateUserSchema,
+  users,
+} from "@/server/db/tenant-schema";
 import { verifyPassword } from "@/server/utils";
 import {
   createNewUserMutation,
   createUserSchema,
 } from "@/server/utils/createNewUser";
-import { QueryOption, generateDbQuery } from "@/server/utils/generateDbQuery";
+import {
+  type QueryOption,
+  generateDbQuery,
+} from "@/server/utils/generateDbQuery";
 import { createUserSession } from "@/server/utils/userSession";
 import { TRPCError } from "@trpc/server";
-import {
-  eq,
-  sql,
-  desc,
-  asc,
-  and,
-  like,
-  or,
-  type Column,
-  type SQLWrapper,
-  type SQL,
-} from "drizzle-orm";
-import { type SQLiteColumn } from "drizzle-orm/sqlite-core";
+import { asc, desc, eq, like, sql } from "drizzle-orm";
 import { z } from "zod";
 
 const devWait = async (ms: number) => {
@@ -54,7 +49,7 @@ export const userRouter = createTRPCRouter({
         sortDirection: SortDirection.default("asc"),
         search: z.string().optional(),
         roles: z
-          .array(z.enum(["system_admin", "user"]))
+          .array(z.enum(["system_admin", "user", "admin"]))
           .catch([])
           .optional(),
       }),
@@ -154,6 +149,8 @@ export const userRouter = createTRPCRouter({
           id: true,
           firstName: true,
           lastName: true,
+          email: true,
+          role: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -182,6 +179,16 @@ export const userRouter = createTRPCRouter({
     .input(createUserSchema)
     .use(tenantAccessMiddleware)
     .mutation(createNewUserMutation),
+
+  update: protectedProcedure
+    .input(z.object({ id: z.number(), user: updateUserSchema }))
+    .mutation(async ({ ctx, input }) => {
+      await devWait(1000);
+      return ctx.tenantDb
+        .update(users)
+        .set(input.user)
+        .where(eq(users.id, input.id));
+    }),
 
   login: publicProcedure
     .input(

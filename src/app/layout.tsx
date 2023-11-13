@@ -2,7 +2,9 @@ import "@/styles/globals.css";
 import "@/styles/grids.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-import { GeistMono, GeistSans } from "geist/font";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+
 import { headers } from "next/headers";
 
 import { MainNav } from "@/components/nav/MainNav";
@@ -27,11 +29,9 @@ export default async function RootLayout({
   const currentVersion = await api.turso.currentDBVersion.query();
   const latestVersion = await api.turso.latestDBVersion.query();
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */}
-      <body
-        className={`${GeistSans.variable} ${GeistMono.variable}  font-sans`}
-      >
+      <body className={`font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider headers={headers()}>
             <div className="main-layout">

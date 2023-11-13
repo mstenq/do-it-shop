@@ -21,7 +21,7 @@ export const MainNavItem = ({ href, children, icon, exact }: Props) => {
       href={href}
       onClick={close}
       className={cn(
-        "flex items-center gap-2 rounded-lg p-2 transition-all duration-300 hover:bg-primary/10 sm:flex-col sm:border sm:bg-background xl:flex-row xl:border-0 xl:bg-transparent",
+        "flex items-center gap-x-2 rounded-lg p-2 transition-all duration-300 hover:bg-primary/10 sm:flex-col sm:border sm:bg-background xl:flex-row xl:border-0 xl:bg-transparent",
         isMatch && "text-primary",
       )}
     >

@@ -13,6 +13,8 @@ import {
   type Control,
   type FieldPath,
 } from "react-hook-form";
+import { cn } from "@/utils";
+import { useCustomForm } from "./CustomFormProvider";
 
 type FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -22,6 +24,7 @@ type FormInputProps<
   name: TName;
   label?: ReactNode;
   description?: ReactNode;
+  className?: string;
 } & InputProps;
 
 export const _FormInput = <
@@ -32,18 +35,25 @@ export const _FormInput = <
   name,
   label,
   description,
+  className,
   ...inputProps
 }: FormInputProps<TFieldValues, TName>) => {
+  const { readOnly, disabled } = useCustomForm();
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className={cn("col-span-full", className)}>
           {label && <FormLabel>{label}</FormLabel>}
           {description && <FormDescription>{description}</FormDescription>}
           <FormControl>
-            <Input {...inputProps} {...field} />
+            <Input
+              {...inputProps}
+              {...field}
+              disabled={disabled || inputProps.disabled}
+              readOnly={readOnly || inputProps.readOnly}
+            />
           </FormControl>
           <div className="min-h-[16px]">
             <FormMessage />

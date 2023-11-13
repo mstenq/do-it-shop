@@ -29,10 +29,10 @@ export const SearchInput = (props: Props) => {
   };
   return (
     <div className="w-full @container sm:max-w-[250px]">
-      <div className="hidden w-full @[150px]:block">
+      <div className="hidden w-full @[100px]:block">
         <SearchInputField {...props} className="max-w-80" />
       </div>
-      <div className="block w-full @[150px]:hidden">
+      <div className="block w-full @[100px]:hidden">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button onClick={() => setIsOpen(true)} variant="outline" size="xs">
@@ -40,8 +40,8 @@ export const SearchInput = (props: Props) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            side="bottom"
-            align="start"
+            side="left"
+            align="center"
             className="flex w-full max-w-[250px] gap-2 rounded-xl"
           >
             <SearchInputField

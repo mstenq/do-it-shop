@@ -21,6 +21,7 @@ import { getDB } from "../db/db";
 import { getTenantDB } from "../db/tenant-db";
 import { getDbCredentialsFromSession } from "../utils/getDbCredentialsFromSession";
 import { getUserSession } from "../utils/userSession";
+import { getSessionsAndDb } from "../utils/getSessionAndDb";
 
 /**
  * 1. CONTEXT
@@ -66,16 +67,7 @@ export const createTRPCContext = (opts: {
   req: NextRequest;
   res: NextResponse;
 }) => {
-  const session = getUserSession();
-
-  // Configure users database client
-  const dbCredentials = getDbCredentialsFromSession(session);
-  let db: null | ReturnType<typeof getDB> = null;
-  if (dbCredentials) {
-    const { url, authToken } = dbCredentials;
-    db = getDB({ url, authToken });
-  }
-
+  const { session, db } = getSessionsAndDb();
   return {
     session,
     req: opts.req,
