@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 import * as schema from "./schema";
 
-export function getDB({ url, authToken }: { url: string, authToken?: string }) {
+export function getDB({ url, authToken }: { url: string; authToken?: string }) {
   if (url === undefined) {
     throw new Error("db url is not defined");
   }

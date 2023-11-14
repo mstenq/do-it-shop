@@ -62,6 +62,7 @@ export type Client = typeof clients.$inferSelect;
 export const roles = sqliteTable("roles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   role: text("role"), // e.g. "admin", "user", "guest"
+  description: text("description"),
 
   createdAt: integer("created_at")
     .notNull()
@@ -80,6 +81,7 @@ export const insertRolesSchema = createInsertSchema(roles).omit({
   createdAt: true,
   updatedAt: true,
 });
+export type RoleInsert = z.infer<typeof insertRolesSchema>;
 
 export const updateUserSchema = createInsertSchema(roles)
   .omit({
@@ -98,7 +100,7 @@ export const permissions = sqliteTable(
   "permissions",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    roleId: text("role_id")
+    roleId: integer("role_id")
       .references(() => roles.id)
       .notNull(),
     table: text("table").notNull(),
@@ -135,4 +137,5 @@ export const insertPermissionsSchema = createInsertSchema(permissions).omit({
 
 export const updatePermissionsSchema = insertPermissionsSchema.partial();
 
+export type PermissionsInsert = z.infer<typeof insertPermissionsSchema>;
 export type Permission = typeof permissions.$inferSelect;
