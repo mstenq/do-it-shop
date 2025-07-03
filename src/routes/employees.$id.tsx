@@ -92,55 +92,17 @@ function RouteComponent() {
             </div>
           )}
 
-          {employee.department && (
-            <div>
-              <div className="text-xs text-muted-foreground">Department</div>
-              <div className="flex items-center gap-1">
-                <BuildingIcon className="w-3 h-3" />
-                <span>{employee.department}</span>
-              </div>
-            </div>
+          {employee.photo && (
+            <img
+              src={employee.photo}
+              alt="Employee Photo"
+              className="object-cover border rounded"
+            />
           )}
-
-          {(employee.level || employee.grade) && (
-            <div>
-              <div className="text-xs text-muted-foreground">Level / Grade</div>
-              <div className="flex items-center gap-1">
-                <UserIcon className="w-3 h-3" />
-                <span>
-                  {[employee.level, employee.grade].filter(Boolean).join(" / ")}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <ImageUploadInput
-            existingImageUrl={employee.photo}
-            value={employee.photoStorageId}
-            onChange={handlePhotoUpload}
-            disabled={isUpdatingPhoto}
-            placeholder="Upload employees photo"
-          />
         </div>
       </div>
       <main className="w-full h-full p-4 border-l">
-        <PageTabs
-          tabs={[
-            {
-              label: "Details",
-              path: "/employees/$id",
-            },
-            {
-              label: "Schedule",
-              path: "/employees/$id/schedule",
-            },
-            {
-              label: "Time Off",
-              path: "/employees/$id/time-off",
-            },
-          ]}
-        />
-        <div className="pt-4">
+        <div className="">
           <Outlet />
         </div>
       </main>

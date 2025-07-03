@@ -18,8 +18,6 @@ import { Route as DashboardWaitingOnRouteImport } from './routes/dashboard.waiti
 import { Route as DashboardProjectsRouteImport } from './routes/dashboard.projects'
 import { Route as DashboardOverviewRouteImport } from './routes/dashboard.overview'
 import { Route as EmployeesIdIndexRouteImport } from './routes/employees.$id.index'
-import { Route as EmployeesIdTimeOffRouteImport } from './routes/employees.$id.time-off'
-import { Route as EmployeesIdScheduleRouteImport } from './routes/employees.$id.schedule'
 
 const EmployeesRoute = EmployeesRouteImport.update({
   id: '/employees',
@@ -66,16 +64,6 @@ const EmployeesIdIndexRoute = EmployeesIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => EmployeesIdRoute,
 } as any)
-const EmployeesIdTimeOffRoute = EmployeesIdTimeOffRouteImport.update({
-  id: '/time-off',
-  path: '/time-off',
-  getParentRoute: () => EmployeesIdRoute,
-} as any)
-const EmployeesIdScheduleRoute = EmployeesIdScheduleRouteImport.update({
-  id: '/schedule',
-  path: '/schedule',
-  getParentRoute: () => EmployeesIdRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -86,8 +74,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
-  '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
-  '/employees/$id/time-off': typeof EmployeesIdTimeOffRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -97,8 +83,6 @@ export interface FileRoutesByTo {
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees': typeof EmployeesIndexRoute
-  '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
-  '/employees/$id/time-off': typeof EmployeesIdTimeOffRoute
   '/employees/$id': typeof EmployeesIdIndexRoute
 }
 export interface FileRoutesById {
@@ -111,8 +95,6 @@ export interface FileRoutesById {
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
-  '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
-  '/employees/$id/time-off': typeof EmployeesIdTimeOffRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -126,8 +108,6 @@ export interface FileRouteTypes {
     | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/employees/'
-    | '/employees/$id/schedule'
-    | '/employees/$id/time-off'
     | '/employees/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,8 +117,6 @@ export interface FileRouteTypes {
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees'
-    | '/employees/$id/schedule'
-    | '/employees/$id/time-off'
     | '/employees/$id'
   id:
     | '__root__'
@@ -150,8 +128,6 @@ export interface FileRouteTypes {
     | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/employees/'
-    | '/employees/$id/schedule'
-    | '/employees/$id/time-off'
     | '/employees/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -226,20 +202,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmployeesIdIndexRouteImport
       parentRoute: typeof EmployeesIdRoute
     }
-    '/employees/$id/time-off': {
-      id: '/employees/$id/time-off'
-      path: '/time-off'
-      fullPath: '/employees/$id/time-off'
-      preLoaderRoute: typeof EmployeesIdTimeOffRouteImport
-      parentRoute: typeof EmployeesIdRoute
-    }
-    '/employees/$id/schedule': {
-      id: '/employees/$id/schedule'
-      path: '/schedule'
-      fullPath: '/employees/$id/schedule'
-      preLoaderRoute: typeof EmployeesIdScheduleRouteImport
-      parentRoute: typeof EmployeesIdRoute
-    }
   }
 }
 
@@ -260,14 +222,10 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 )
 
 interface EmployeesIdRouteChildren {
-  EmployeesIdScheduleRoute: typeof EmployeesIdScheduleRoute
-  EmployeesIdTimeOffRoute: typeof EmployeesIdTimeOffRoute
   EmployeesIdIndexRoute: typeof EmployeesIdIndexRoute
 }
 
 const EmployeesIdRouteChildren: EmployeesIdRouteChildren = {
-  EmployeesIdScheduleRoute: EmployeesIdScheduleRoute,
-  EmployeesIdTimeOffRoute: EmployeesIdTimeOffRoute,
   EmployeesIdIndexRoute: EmployeesIdIndexRoute,
 }
 

@@ -7,21 +7,11 @@ import { ConvexType } from "@/utils/convexType";
 import { RowActionsConfig } from "@/components/data-table-row-actions";
 import { PencilIcon, XIcon, Undo2Icon } from "lucide-react";
 import { toast } from "sonner";
-import { PositionBadges } from "../positions/position-badges";
 import { useMemo } from "react";
 
 type Row = ConvexType<"employees.all">[number];
 
-export const EmployeeColumn = z.enum([
-  "id",
-  "name",
-  "email",
-  "phoneNumber",
-  "positions",
-  "department",
-  "level",
-  "grade",
-]);
+export const EmployeeColumn = z.enum(["id", "name", "email", "phoneNumber"]);
 
 export const EmployeeSortingSchema = z.object({
   id: z.string(),
@@ -56,7 +46,7 @@ export const useEmployeesColumns = () => {
             {row.original.nameFirst} {row.original.nameLast}
           </div>
           {row.original.email && (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm normal-case text-muted-foreground">
               {row.original.email}
             </div>
           )}
@@ -72,63 +62,6 @@ export const useEmployeesColumns = () => {
         <div>
           {row.original.phoneNumber || (
             <span className="text-muted-foreground">No Phone</span>
-          )}
-        </div>
-      ),
-    },
-
-    {
-      id: "positions",
-      accessorKey: "positions",
-      header: "Positions",
-      size: 300,
-      cell: ({ row }) => {
-        return (
-          <div className="min-w-[200px]">
-            <PositionBadges
-              size="sm"
-              positions={row.original.positions ?? []}
-            />
-          </div>
-        );
-      },
-      enableSorting: false,
-    },
-
-    {
-      id: "department",
-      accessorKey: "department",
-      header: "Department",
-      cell: ({ row }) => (
-        <div>
-          {row.original.department || (
-            <span className="text-muted-foreground">No Department</span>
-          )}
-        </div>
-      ),
-    },
-
-    {
-      id: "level",
-      accessorKey: "level",
-      header: "Level",
-      cell: ({ row }) => (
-        <div>
-          {row.original.level || (
-            <span className="text-muted-foreground">No Level</span>
-          )}
-        </div>
-      ),
-    },
-
-    {
-      id: "grade",
-      accessorKey: "grade",
-      header: "Grade",
-      cell: ({ row }) => (
-        <div>
-          {row.original.grade || (
-            <span className="text-muted-foreground">No Grade</span>
           )}
         </div>
       ),
@@ -183,38 +116,7 @@ export const useEmployeesColumns = () => {
     []
   );
 
-  const groupBy = {
-    department: {
-      grouper: (row: Row) => row.department || "No Department",
-      above: (rows: Row[], depth = 0) => {
-        const count = rows.length;
-        const departmentName = rows[0]?.department || "No Department";
-        return (
-          <div className="flex items-center gap-2 p-2 border rounded-md bg-muted/50">
-            <div className="text-sm font-medium">{departmentName}</div>
-            <div className="text-xs text-muted-foreground">
-              ({count} employees)
-            </div>
-          </div>
-        );
-      },
-    },
-    level: {
-      grouper: (row: Row) => row.level || "No Level",
-      above: (rows: Row[], depth = 0) => {
-        const count = rows.length;
-        const levelName = rows[0]?.level || "No Level";
-        return (
-          <div className="flex items-center gap-2 p-2 border rounded-md bg-muted/50">
-            <div className="text-sm font-medium">{levelName}</div>
-            <div className="text-xs text-muted-foreground">
-              ({count} employees)
-            </div>
-          </div>
-        );
-      },
-    },
-  };
+  const groupBy = {};
 
   return { columns, groupBy, rowActions };
 };

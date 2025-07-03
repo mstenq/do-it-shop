@@ -55,7 +55,9 @@ export function NewEmployee() {
     try {
       const newEmployeeId = await addEmployee({
         ...data,
-        positionIds: (data.positionIds as Id<"positions">[]) ?? [],
+        photoStorageId: data.photoStorageId
+          ? (data.photoStorageId as Id<"_storage">)
+          : undefined,
       });
       form.reset(defaultValues);
       navigate({

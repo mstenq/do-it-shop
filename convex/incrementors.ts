@@ -4,7 +4,7 @@ import { tableName } from "./schema";
 
 const tablePrefixes: Record<Infer<typeof tableName>, string> = {
   employees: "EMP",
-  positions: "POS",
+  paySchedule: "PSC",
 };
 
 export const getNextId = internalMutation({

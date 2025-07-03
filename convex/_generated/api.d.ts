@@ -13,9 +13,11 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as crons from "../crons.js";
 import type * as employees from "../employees.js";
 import type * as incrementors from "../incrementors.js";
-import type * as positions from "../positions.js";
+import type * as paySchedule from "../paySchedule.js";
+import type * as payScheduleUtils from "../payScheduleUtils.js";
 import type * as search from "../search.js";
 import type * as storage from "../storage.js";
 import type * as triggers from "../triggers.js";
@@ -30,9 +32,11 @@ import type * as utils from "../utils.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
   employees: typeof employees;
   incrementors: typeof incrementors;
-  positions: typeof positions;
+  paySchedule: typeof paySchedule;
+  payScheduleUtils: typeof payScheduleUtils;
   search: typeof search;
   storage: typeof storage;
   triggers: typeof triggers;

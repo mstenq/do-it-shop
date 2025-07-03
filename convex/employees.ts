@@ -17,19 +17,11 @@ export const all = authQuery({
       ? employees.filter((employee) => !employee.isDeleted)
       : employees;
 
-    const positions = await ctx.db.query("positions").collect();
-
     // Join related data
     const joinedEmployees = await joinData(filteredEmployees, {
       photo: (record) =>
         record.photoStorageId
           ? ctx.storage.getUrl(record.photoStorageId)
-          : NullP,
-      positions: (r) =>
-        r.positionIds?.[0]
-          ? Promise.resolve(
-              positions.filter((p) => r.positionIds!.includes(p._id))
-            )
           : NullP,
     });
 
@@ -40,7 +32,6 @@ export const all = authQuery({
 export const get = authQuery({
   args: { _id: v.string() },
   handler: async (ctx, args) => {
-    console.log("Fetching employee with ID:", args._id);
     if (!args._id) {
       return null;
     }
@@ -50,19 +41,11 @@ export const get = authQuery({
       return null;
     }
 
-    const positions = await ctx.db.query("positions").collect();
-
     // Join related data
     const [joinedEmployee] = await joinData([employee], {
       photo: (record) =>
         record.photoStorageId
           ? ctx.storage.getUrl(record.photoStorageId)
-          : NullP,
-      positions: (r) =>
-        r.positionIds?.[0]
-          ? Promise.resolve(
-              positions.filter((p) => r.positionIds!.includes(p._id))
-            )
           : NullP,
     });
 
@@ -76,20 +59,6 @@ const commonArgs = {
   photoStorageId: v.optional(v.id("_storage")),
   phoneNumber: v.optional(v.string()),
   email: v.optional(v.string()),
-  dateOfBirth: v.optional(v.string()),
-  positionIds: v.optional(v.array(v.id("positions"))),
-  department: v.optional(v.string()),
-  level: v.optional(v.string()),
-  grade: v.optional(v.string()),
-  address: v.optional(
-    v.object({
-      street: v.optional(v.string()),
-      city: v.optional(v.string()),
-      state: v.optional(v.string()),
-      zipCode: v.optional(v.string()),
-      country: v.optional(v.string()),
-    })
-  ),
 };
 
 /**

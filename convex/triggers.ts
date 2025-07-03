@@ -31,6 +31,21 @@ triggers.register("employees", async (ctx, change) => {
   }
 });
 
+triggers.register("paySchedule", async (ctx, change) => {
+  console.log("PaySchedule trigger", change);
+  if (change.newDoc) {
+    // Build search index from relevant fields
+    const searchParts = [change.newDoc.id, change.newDoc.name].filter(Boolean);
+
+    const searchIndex = searchParts.join(" ");
+
+    // Update denormalized field. Check first to avoid recursion
+    if (change.newDoc.searchIndex !== searchIndex) {
+      await ctx.db.patch(change.id, { searchIndex });
+    }
+  }
+});
+
 export const triggerMutation = customMutation(
   rawMutation,
   customCtx(triggers.wrapDB)

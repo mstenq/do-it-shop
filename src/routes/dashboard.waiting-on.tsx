@@ -10,14 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Calendar,
   Clock,
   Search,
@@ -253,62 +245,65 @@ function RouteComponent() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Project</TableHead>
-                <TableHead>Waiting For</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Expected Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredItems.map((item) => (
-                <TableRow
-                  key={item.id}
-                  className={item.isResolved ? "opacity-60" : ""}
-                >
-                  <TableCell>
-                    <div>
+          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+            {filteredItems.map((item) => (
+              <Card
+                key={item.id}
+                className={`relative ${
+                  item.isResolved
+                    ? "opacity-60 bg-muted/50"
+                    : isOverdue(item.expectedDate)
+                      ? "border-red-200 bg-red-50/50 dark:bg-red-600/10"
+                      : ""
+                }`}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 font-medium">
                         {isOverdue(item.expectedDate) && !item.isResolved && (
-                          <AlertTriangle className="w-4 h-4 text-red-500" />
+                          <AlertTriangle className="flex-shrink-0 w-4 h-4 text-red-500" />
                         )}
-                        {item.projectName}
+                        {item.isResolved && (
+                          <CheckCircle className="flex-shrink-0 w-4 h-4 text-green-500" />
+                        )}
+                        <span className="truncate">{item.projectName}</span>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="mt-1 text-sm text-muted-foreground">
                         {item.clientName}
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="text-sm">{item.description}</div>
-                      {item.notes && (
-                        <div className="mt-1 text-xs text-gray-500">
-                          {item.notes}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getCategoryIcon(item.category)}
-                      <span className="text-sm">
-                        {getCategoryLabel(item.category)}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityColor(item.priority)}>
+                    <Badge
+                      variant={getPriorityColor(item.priority)}
+                      className="flex-shrink-0"
+                    >
                       {item.priority}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  {/* Description */}
+                  <div>
+                    <div className="mb-1 text-sm font-medium">Waiting For:</div>
+                    <div className="text-sm text-muted-foreground">
+                      {item.description}
+                    </div>
+                    {item.notes && (
+                      <div className="p-2 mt-2 text-xs rounded bg-muted/50 text-muted-foreground">
+                        {item.notes}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Category and Date */}
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      {getCategoryIcon(item.category)}
+                      <span>{getCategoryLabel(item.category)}</span>
+                    </div>
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
+                      Expected
                       <span
                         className={
                           isOverdue(item.expectedDate) && !item.isResolved
@@ -319,30 +314,40 @@ function RouteComponent() {
                         {formatDate(item.expectedDate)}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {item.daysSinceCreated} days ago
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {!item.isResolved && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleMarkResolved(item.id)}
-                        >
-                          Mark Resolved
-                        </Button>
-                      )}
-                      <Button size="sm" variant="outline">
-                        Edit
+                  </div>
+
+                  {/* Days since created */}
+                  <div className="text-xs text-muted-foreground">
+                    Created {item.daysSinceCreated} days ago
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-2">
+                    {!item.isResolved && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleMarkResolved(item.id)}
+                        className="flex-1"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Resolve
                       </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    )}
+                    <Button size="sm" variant="outline" className="flex-1">
+                      Edit
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {filteredItems.length === 0 && (
+            <div className="py-8 text-center text-muted-foreground">
+              No waiting items found matching your filters.
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

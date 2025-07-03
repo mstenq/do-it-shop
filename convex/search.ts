@@ -26,6 +26,11 @@ export const all = authQuery({
       )
       .take(LIMIT);
 
+    const paySchedules = await ctx.db
+      .query("paySchedule")
+      .withSearchIndex("search", (q) => q.search("searchIndex", args.q))
+      .take(LIMIT);
+
     const searchResults: SearchResultItem[] = [
       ...(employees ?? []).map(
         (e) =>
@@ -35,6 +40,16 @@ export const all = authQuery({
             table: "employees",
             title: `${e.nameFirst} ${e.nameLast}`,
             subtitle: e.email ?? "",
+          }) satisfies SearchResultItem
+      ),
+      ...(paySchedules ?? []).map(
+        (schedule) =>
+          ({
+            _id: String(schedule._id),
+            id: schedule.id,
+            table: "paySchedule",
+            title: schedule.name,
+            subtitle: `${schedule.startDate} - ${schedule.endDate}`,
           }) satisfies SearchResultItem
       ),
     ];

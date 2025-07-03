@@ -11,7 +11,7 @@ const address = v.object({
 
 export const tableName = v.union(
   v.literal("employees"),
-  v.literal("positions")
+  v.literal("paySchedule")
 );
 
 export default defineSchema({
@@ -22,12 +22,6 @@ export default defineSchema({
     photoStorageId: v.optional(v.id("_storage")),
     phoneNumber: v.optional(v.string()),
     email: v.optional(v.string()),
-    dateOfBirth: v.optional(v.string()),
-    positionIds: v.optional(v.array(v.id("positions"))),
-    department: v.optional(v.string()),
-    level: v.optional(v.string()),
-    grade: v.optional(v.string()),
-    address: v.optional(address),
     searchIndex: v.optional(v.string()),
     isDeleted: v.optional(v.boolean()),
   }).searchIndex("search", {
@@ -35,12 +29,19 @@ export default defineSchema({
     filterFields: ["isDeleted"],
   }),
 
-  positions: defineTable({
+  paySchedule: defineTable({
     id: v.string(),
     name: v.string(),
-    schedulerColor: v.string(),
-    isDeleted: v.optional(v.boolean()),
-  }),
+    payPeriod: v.number(),
+    year: v.number(),
+    startDate: v.number(),
+    endDate: v.number(),
+    searchIndex: v.optional(v.string()),
+  })
+    .index("by_name", ["name"])
+    .searchIndex("search", {
+      searchField: "searchIndex",
+    }),
 
   incrementors: defineTable({
     tableName: tableName,

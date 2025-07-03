@@ -86,18 +86,6 @@ function EditEmployeeForm({
       nameLast: "",
       email: "",
       phoneNumber: "",
-      dateOfBirth: "",
-      positionIds: [],
-      department: "",
-      level: "",
-      grade: "",
-      address: {
-        street: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        country: "",
-      },
       ...validatedInput,
     },
   });
@@ -112,8 +100,10 @@ function EditEmployeeForm({
     try {
       await update({
         ...data,
-        _id: employee!._id!,
-        positionIds: (data.positionIds as Id<"positions">[]) ?? [],
+        _id: employee._id,
+        photoStorageId: data.photoStorageId
+          ? (data.photoStorageId as Id<"_storage">)
+          : undefined,
       });
       navigate({
         search: {
@@ -130,7 +120,7 @@ function EditEmployeeForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <ScrollArea className="max-h-[calc(100svh-180px)] px-6 py-1">
-          <EmployeesForm form={form} />
+          <EmployeesForm form={form} photoUrl={employee.photo} />
         </ScrollArea>
         <SheetFooter className="">
           <SheetClose asChild>
