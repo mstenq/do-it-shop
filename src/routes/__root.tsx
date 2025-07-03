@@ -1,5 +1,6 @@
 import { App } from "@/components/app";
 import { OverlayProvider } from "@/components/overlay";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { SignInButton } from "@clerk/clerk-react";
@@ -30,22 +31,24 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
   return (
-    <OverlayProvider>
-      <div className="light">
-        <Unauthenticated>
-          <SignInButton />
-        </Unauthenticated>
-        <Authenticated>
-          <App />
-          <TanStackRouterDevtools position="bottom-right" />
-        </Authenticated>
-        <AuthLoading>
-          <div className="grid w-full h-screen place-items-center">
-            Authenticating user...
-          </div>
-        </AuthLoading>
-        <Toaster />
-      </div>
-    </OverlayProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="do-it-shop-theme">
+      <OverlayProvider>
+        <div className="light">
+          <Unauthenticated>
+            <SignInButton />
+          </Unauthenticated>
+          <Authenticated>
+            <App />
+            <TanStackRouterDevtools position="bottom-right" />
+          </Authenticated>
+          <AuthLoading>
+            <div className="grid w-full h-screen place-items-center">
+              Authenticating user...
+            </div>
+          </AuthLoading>
+          <Toaster />
+        </div>
+      </OverlayProvider>
+    </ThemeProvider>
   );
 }

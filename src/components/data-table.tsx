@@ -907,7 +907,7 @@ const BatchActionsRow = React.memo<BatchActionsRowProps<any>>(
       >
         <div ref={parent}>
           {selectedRows.length > 0 && (
-            <div className="flex items-center w-full gap-2 p-2 border-t border-b bg-primary-foreground">
+            <div className="flex items-center w-full gap-2 p-2 border-t border-b bg-background">
               {batchActions?.map((action, i) => (
                 <Button
                   key={i}

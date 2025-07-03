@@ -40,7 +40,7 @@ export const useEmployeesColumns = () => {
       header: "ID",
       size: 40,
       cell: ({ row }) => (
-        <div className="inline-block p-0.5 rounded text-xs font-mono border bg-primary-foreground pointer-events-none">
+        <div className="inline-block p-0.5 rounded text-xs font-mono border bg-primary-foreground dark:bg-primary/30 pointer-events-none">
           {row.original.id}
         </div>
       ),

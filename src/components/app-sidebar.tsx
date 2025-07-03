@@ -11,6 +11,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavEvents } from "./nav-events";
+import { ModeToggle } from "./mode-toggle";
 
 // This is sample data.
 const useDate = () => {
@@ -51,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
+        <ModeToggle />
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
