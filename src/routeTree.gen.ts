@@ -14,9 +14,6 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
-import { Route as DashboardSchedulingRouteImport } from './routes/dashboard.scheduling'
-import { Route as DashboardOverviewRouteImport } from './routes/dashboard.overview'
-import { Route as DashboardFollowUpsRouteImport } from './routes/dashboard.follow-ups'
 import { Route as EmployeesIdIndexRouteImport } from './routes/employees.$id.index'
 import { Route as EmployeesIdTimeOffRouteImport } from './routes/employees.$id.time-off'
 import { Route as EmployeesIdScheduleRouteImport } from './routes/employees.$id.schedule'
@@ -46,21 +43,6 @@ const EmployeesIdRoute = EmployeesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => EmployeesRoute,
 } as any)
-const DashboardSchedulingRoute = DashboardSchedulingRouteImport.update({
-  id: '/scheduling',
-  path: '/scheduling',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardOverviewRoute = DashboardOverviewRouteImport.update({
-  id: '/overview',
-  path: '/overview',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardFollowUpsRoute = DashboardFollowUpsRouteImport.update({
-  id: '/follow-ups',
-  path: '/follow-ups',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const EmployeesIdIndexRoute = EmployeesIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,11 +61,8 @@ const EmployeesIdScheduleRoute = EmployeesIdScheduleRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/employees': typeof EmployeesRouteWithChildren
-  '/dashboard/follow-ups': typeof DashboardFollowUpsRoute
-  '/dashboard/overview': typeof DashboardOverviewRoute
-  '/dashboard/scheduling': typeof DashboardSchedulingRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
   '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
@@ -92,10 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
-  '/dashboard/follow-ups': typeof DashboardFollowUpsRoute
-  '/dashboard/overview': typeof DashboardOverviewRoute
-  '/dashboard/scheduling': typeof DashboardSchedulingRoute
+  '/dashboard': typeof DashboardRoute
   '/employees': typeof EmployeesIndexRoute
   '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
   '/employees/$id/time-off': typeof EmployeesIdTimeOffRoute
@@ -104,11 +80,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/employees': typeof EmployeesRouteWithChildren
-  '/dashboard/follow-ups': typeof DashboardFollowUpsRoute
-  '/dashboard/overview': typeof DashboardOverviewRoute
-  '/dashboard/scheduling': typeof DashboardSchedulingRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
   '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
@@ -121,9 +94,6 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/employees'
-    | '/dashboard/follow-ups'
-    | '/dashboard/overview'
-    | '/dashboard/scheduling'
     | '/employees/$id'
     | '/employees/'
     | '/employees/$id/schedule'
@@ -133,9 +103,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
-    | '/dashboard/follow-ups'
-    | '/dashboard/overview'
-    | '/dashboard/scheduling'
     | '/employees'
     | '/employees/$id/schedule'
     | '/employees/$id/time-off'
@@ -145,9 +112,6 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/employees'
-    | '/dashboard/follow-ups'
-    | '/dashboard/overview'
-    | '/dashboard/scheduling'
     | '/employees/$id'
     | '/employees/'
     | '/employees/$id/schedule'
@@ -157,7 +121,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
   EmployeesRoute: typeof EmployeesRouteWithChildren
 }
 
@@ -198,27 +162,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmployeesIdRouteImport
       parentRoute: typeof EmployeesRoute
     }
-    '/dashboard/scheduling': {
-      id: '/dashboard/scheduling'
-      path: '/scheduling'
-      fullPath: '/dashboard/scheduling'
-      preLoaderRoute: typeof DashboardSchedulingRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/overview': {
-      id: '/dashboard/overview'
-      path: '/overview'
-      fullPath: '/dashboard/overview'
-      preLoaderRoute: typeof DashboardOverviewRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/follow-ups': {
-      id: '/dashboard/follow-ups'
-      path: '/follow-ups'
-      fullPath: '/dashboard/follow-ups'
-      preLoaderRoute: typeof DashboardFollowUpsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/employees/$id/': {
       id: '/employees/$id/'
       path: '/'
@@ -242,22 +185,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface DashboardRouteChildren {
-  DashboardFollowUpsRoute: typeof DashboardFollowUpsRoute
-  DashboardOverviewRoute: typeof DashboardOverviewRoute
-  DashboardSchedulingRoute: typeof DashboardSchedulingRoute
-}
-
-const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardFollowUpsRoute: DashboardFollowUpsRoute,
-  DashboardOverviewRoute: DashboardOverviewRoute,
-  DashboardSchedulingRoute: DashboardSchedulingRoute,
-}
-
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
-)
 
 interface EmployeesIdRouteChildren {
   EmployeesIdScheduleRoute: typeof EmployeesIdScheduleRoute
@@ -291,7 +218,7 @@ const EmployeesRouteWithChildren = EmployeesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRouteWithChildren,
+  DashboardRoute: DashboardRoute,
   EmployeesRoute: EmployeesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
