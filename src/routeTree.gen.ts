@@ -14,6 +14,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
+import { Route as DashboardWaitingOnRouteImport } from './routes/dashboard.waiting-on'
+import { Route as DashboardProjectsRouteImport } from './routes/dashboard.projects'
+import { Route as DashboardOverviewRouteImport } from './routes/dashboard.overview'
 import { Route as EmployeesIdIndexRouteImport } from './routes/employees.$id.index'
 import { Route as EmployeesIdTimeOffRouteImport } from './routes/employees.$id.time-off'
 import { Route as EmployeesIdScheduleRouteImport } from './routes/employees.$id.schedule'
@@ -43,6 +46,21 @@ const EmployeesIdRoute = EmployeesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => EmployeesRoute,
 } as any)
+const DashboardWaitingOnRoute = DashboardWaitingOnRouteImport.update({
+  id: '/waiting-on',
+  path: '/waiting-on',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProjectsRoute = DashboardProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardOverviewRoute = DashboardOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const EmployeesIdIndexRoute = EmployeesIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,8 +79,11 @@ const EmployeesIdScheduleRoute = EmployeesIdScheduleRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
+  '/dashboard/overview': typeof DashboardOverviewRoute
+  '/dashboard/projects': typeof DashboardProjectsRoute
+  '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
   '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
@@ -71,7 +92,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/overview': typeof DashboardOverviewRoute
+  '/dashboard/projects': typeof DashboardProjectsRoute
+  '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees': typeof EmployeesIndexRoute
   '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
   '/employees/$id/time-off': typeof EmployeesIdTimeOffRoute
@@ -80,8 +104,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
+  '/dashboard/overview': typeof DashboardOverviewRoute
+  '/dashboard/projects': typeof DashboardProjectsRoute
+  '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
   '/employees/$id/schedule': typeof EmployeesIdScheduleRoute
@@ -94,6 +121,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/employees'
+    | '/dashboard/overview'
+    | '/dashboard/projects'
+    | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/employees/'
     | '/employees/$id/schedule'
@@ -103,6 +133,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/dashboard/overview'
+    | '/dashboard/projects'
+    | '/dashboard/waiting-on'
     | '/employees'
     | '/employees/$id/schedule'
     | '/employees/$id/time-off'
@@ -112,6 +145,9 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/employees'
+    | '/dashboard/overview'
+    | '/dashboard/projects'
+    | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/employees/'
     | '/employees/$id/schedule'
@@ -121,7 +157,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   EmployeesRoute: typeof EmployeesRouteWithChildren
 }
 
@@ -162,6 +198,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmployeesIdRouteImport
       parentRoute: typeof EmployeesRoute
     }
+    '/dashboard/waiting-on': {
+      id: '/dashboard/waiting-on'
+      path: '/waiting-on'
+      fullPath: '/dashboard/waiting-on'
+      preLoaderRoute: typeof DashboardWaitingOnRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/projects': {
+      id: '/dashboard/projects'
+      path: '/projects'
+      fullPath: '/dashboard/projects'
+      preLoaderRoute: typeof DashboardProjectsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/overview': {
+      id: '/dashboard/overview'
+      path: '/overview'
+      fullPath: '/dashboard/overview'
+      preLoaderRoute: typeof DashboardOverviewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/employees/$id/': {
       id: '/employees/$id/'
       path: '/'
@@ -185,6 +242,22 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardOverviewRoute: typeof DashboardOverviewRoute
+  DashboardProjectsRoute: typeof DashboardProjectsRoute
+  DashboardWaitingOnRoute: typeof DashboardWaitingOnRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardOverviewRoute: DashboardOverviewRoute,
+  DashboardProjectsRoute: DashboardProjectsRoute,
+  DashboardWaitingOnRoute: DashboardWaitingOnRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 interface EmployeesIdRouteChildren {
   EmployeesIdScheduleRoute: typeof EmployeesIdScheduleRoute
@@ -218,7 +291,7 @@ const EmployeesRouteWithChildren = EmployeesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   EmployeesRoute: EmployeesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
