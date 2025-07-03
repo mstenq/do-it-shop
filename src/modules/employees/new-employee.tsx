@@ -38,8 +38,6 @@ const defaultValues = {
     zipCode: "",
     country: "",
   },
-  driversLicenseNumber: "",
-  driversLicenseExpDate: "",
 } as const;
 
 export function NewEmployee() {

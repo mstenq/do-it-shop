@@ -6,17 +6,8 @@ import { api } from "@convex/api";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "convex-helpers/react/cache";
 import { useMutation } from "convex/react";
-import {
-  CalendarIcon,
-  IdCardIcon,
-  MailIcon,
-  PhoneIcon,
-  UserIcon,
-  MapPinIcon,
-  BuildingIcon,
-  ClockIcon,
-} from "lucide-react";
-import { useState, useTransition } from "react";
+import { BuildingIcon, MailIcon, PhoneIcon, UserIcon } from "lucide-react";
+import { useTransition } from "react";
 
 export const Route = createFileRoute("/employees/$id")({
   beforeLoad: async ({ params }: { params: any }) => {
@@ -60,7 +51,7 @@ function RouteComponent() {
           </span>
           <Spacer />
           <Button variant="outline" className="" asChild>
-            <Link to="." search={{ showEdit: employee.id }}>
+            <Link to="." search={{ showEdit: employee._id }}>
               Edit
             </Link>
           </Button>

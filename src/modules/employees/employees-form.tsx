@@ -31,8 +31,6 @@ export const schema = z.object({
       country: z.string().optional(),
     })
     .optional(),
-  driversLicenseNumber: z.string().optional(),
-  driversLicenseExpDate: z.string().optional(),
 });
 
 export type FormData = z.infer<typeof schema>;
@@ -258,38 +256,6 @@ export const EmployeesForm = ({ form }: Props) => {
             )}
           />
         </div>
-      </div>
-
-      <div className="space-y-1">
-        <h2 className="py-1 text-lg font-semibold">Driver's License</h2>
-
-        <FormField
-          control={form.control}
-          name="driversLicenseNumber"
-          render={({ field }) => (
-            <FormItem className={cn(formItemClassName)}>
-              <FormLabel>License Number</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="driversLicenseExpDate"
-          render={({ field }) => (
-            <FormItem className={cn(formItemClassName)}>
-              <FormLabel>Expiration Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
     </div>
   );

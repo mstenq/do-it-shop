@@ -40,6 +40,7 @@ export const all = authQuery({
 export const get = authQuery({
   args: { _id: v.string() },
   handler: async (ctx, args) => {
+    console.log("Fetching employee with ID:", args._id);
     if (!args._id) {
       return null;
     }
@@ -89,8 +90,6 @@ const commonArgs = {
       country: v.optional(v.string()),
     })
   ),
-  driversLicenseNumber: v.optional(v.string()),
-  driversLicenseExpDate: v.optional(v.string()),
 };
 
 /**

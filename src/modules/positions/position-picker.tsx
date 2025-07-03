@@ -135,9 +135,9 @@ export function FormPositionPicker({
       <FormDescription className="flex items-center col-start-2 sm:!-mt-3">
         Need to create a new {label.toLowerCase()}?
         <Button variant="link" size="sm" asChild>
-          <Link to="/positions" search={{ showAdd: true }}>
+          {/* <Link to="/positions" search={{ showAdd: true }}>
             Create New
-          </Link>
+          </Link> */}
         </Button>
       </FormDescription>
       <FormMessage />

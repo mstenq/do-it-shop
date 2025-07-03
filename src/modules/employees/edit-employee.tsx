@@ -32,18 +32,22 @@ export function EditEmployee() {
   const search = useSearch({ from: "/employees" });
 
   const showEdit = search.showEdit;
-  const employee = useQuery(api.employees.get, {
-    _id: showEdit,
-  });
+  const employee = useQuery(
+    api.employees.get,
+    showEdit
+      ? {
+          _id: showEdit,
+        }
+      : "skip"
+  );
 
   const setOpenClose = (open: boolean) => {
     console.log("setOpenClose", open);
     navigate({
-      to: ".",
       search: {
         ...search,
         showEdit: open ? showEdit : "",
-      },
+      } as any,
     });
   };
 
@@ -94,8 +98,6 @@ function EditEmployeeForm({
         zipCode: "",
         country: "",
       },
-      driversLicenseNumber: "",
-      driversLicenseExpDate: "",
       ...validatedInput,
     },
   });

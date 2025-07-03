@@ -84,8 +84,22 @@ function RouteComponent() {
 
   if (!data) return null;
 
+  console.log("rerender");
+
   return (
     <div className="p-4">
+      <button
+        onClick={() => {
+          navigate({
+            search: {
+              ...search,
+              showEdit: "j57d4wqwpbzbp8kyavwd23gfsx7k1d6e",
+            },
+          });
+        }}
+      >
+        Test
+      </button>
       <DataTable
         id="/employees/$id"
         data={data}
@@ -99,6 +113,7 @@ function RouteComponent() {
         className="md:max-h-[calc(100svh-192px)] print:max-h-full"
         groupBy={groupBy}
         onRowClick={(row) => {
+          console.log("Row clicked:", row);
           navigate({
             to: "/employees/$id",
             params: { id: row._id },

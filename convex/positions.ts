@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { authMutation, authQuery } from "./utils";
+import { Id } from "./_generated/dataModel";
 
 /**
  * Queries
@@ -20,9 +21,12 @@ export const all = authQuery({
 });
 
 export const get = authQuery({
-  args: { _id: v.id("positions") },
+  args: { _id: v.string() },
   handler: async (ctx, args) => {
-    const position = await ctx.db.get(args._id);
+    if (!args._id) {
+      return null;
+    }
+    const position = await ctx.db.get(args._id as Id<"positions">);
     return position;
   },
 });

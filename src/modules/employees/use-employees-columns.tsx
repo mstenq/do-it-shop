@@ -8,6 +8,7 @@ import { RowActionsConfig } from "@/components/data-table-row-actions";
 import { PencilIcon, XIcon, Undo2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { PositionBadges } from "../positions/position-badges";
+import { useMemo } from "react";
 
 type Row = ConvexType<"employees.all">[number];
 
@@ -134,48 +135,53 @@ export const useEmployeesColumns = () => {
     },
   ];
 
-  const rowActions: RowActionsConfig<Row> = {
-    items: [
-      {
-        type: "button",
-        label: "Edit",
-        onClick: (row: Row) => {
-          // Navigate to edit - will work once routes are generated
-          if (typeof window !== "undefined") {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set("showEdit", row._id);
-            window.history.pushState({}, "", currentUrl.toString());
-            window.dispatchEvent(new PopStateEvent("popstate"));
-          }
+  const rowActions = useMemo<RowActionsConfig<Row>>(
+    () => ({
+      items: [
+        {
+          type: "button",
+          label: "Edit",
+          onClick: (row: Row) => {
+            console.log("Edit row:", row);
+            navigate({
+              to: "/employees",
+              search: (prev) => ({
+                ...prev,
+                showEdit: row._id,
+                showAdd: false,
+              }),
+            });
+          },
+          icon: <PencilIcon className="w-4 h-4" />,
         },
-        icon: <PencilIcon className="w-4 h-4" />,
-      },
-      {
-        type: "separator",
-      },
-      {
-        type: "button",
-        label: "Restore",
-        onClick: (row: Row) => {
-          restoreEmployee({ ids: [row._id] });
-          toast.success("Employee restored");
+        {
+          type: "separator",
         },
-        hidden: (row: Row) => !row.isDeleted,
-        icon: <Undo2Icon className="w-4 h-4" />,
-      },
-      {
-        type: "button",
-        label: "Delete",
-        onClick: (row: Row) => {
-          destroyEmployee({ ids: [row._id] });
-          toast.success("Employee deleted");
+        {
+          type: "button",
+          label: "Restore",
+          onClick: (row: Row) => {
+            restoreEmployee({ ids: [row._id] });
+            toast.success("Employee restored");
+          },
+          hidden: (row: Row) => !row.isDeleted,
+          icon: <Undo2Icon className="w-4 h-4" />,
         },
-        hidden: (row: Row) => Boolean(row.isDeleted),
-        variant: "destructive",
-        icon: <XIcon className="w-4 h-4" />,
-      },
-    ],
-  };
+        {
+          type: "button",
+          label: "Delete",
+          onClick: (row: Row) => {
+            destroyEmployee({ ids: [row._id] });
+            toast.success("Employee deleted");
+          },
+          hidden: (row: Row) => Boolean(row.isDeleted),
+          variant: "destructive",
+          icon: <XIcon className="w-4 h-4" />,
+        },
+      ],
+    }),
+    []
+  );
 
   const groupBy = {
     department: {

@@ -29,24 +29,8 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const employee = useQuery(api.employees.get, { _id: id });
   const updateEmployee = useMutation(api.employees.update);
-  const [isUpdatingLicense, setIsUpdatingLicense] = useState(false);
 
   if (!employee) return null;
-
-  const handleDriversLicenseUpload = async (storageId: string | undefined) => {
-    if (!employee._id) return;
-
-    setIsUpdatingLicense(true);
-    try {
-      await updateEmployee({
-        _id: employee._id,
-      });
-    } catch (error) {
-      console.error("Failed to update driver's license photo:", error);
-    } finally {
-      setIsUpdatingLicense(false);
-    }
-  };
 
   const fullName = `${employee.nameFirst} ${employee.nameLast}`;
   const formattedAddress = employee.address
@@ -59,10 +43,6 @@ function RouteComponent() {
         .filter(Boolean)
         .join(", ")
     : null;
-
-  const isLicenseExpired = employee.driversLicenseExpDate
-    ? new Date(employee.driversLicenseExpDate) < new Date()
-    : false;
 
   return (
     <div className="space-y-6">
@@ -179,68 +159,6 @@ function RouteComponent() {
                 <div>
                   {[employee.level, employee.grade].filter(Boolean).join(" / ")}
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Driver's License Information */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <IdCardIcon className="w-4 h-4" />
-              Driver's License Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {employee.driversLicenseNumber ? (
-              <>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">
-                      License Number
-                    </div>
-                    <div className="font-mono text-sm">
-                      {employee.driversLicenseNumber}
-                    </div>
-                  </div>
-
-                  {employee.driversLicenseExpDate && (
-                    <div>
-                      <div className="text-sm font-medium text-muted-foreground">
-                        Expiration Date
-                      </div>
-                      <div
-                        className={`flex items-center gap-2 ${isLicenseExpired ? "text-red-600" : ""}`}
-                      >
-                        <ClockIcon className="w-4 h-4" />
-                        <span>
-                          {new Date(
-                            employee.driversLicenseExpDate
-                          ).toLocaleDateString()}
-                        </span>
-                        {isLicenseExpired && (
-                          <AlertCircleIcon className="w-4 h-4 text-red-600" />
-                        )}
-                      </div>
-                      {isLicenseExpired && (
-                        <div className="mt-1 text-sm text-red-600">
-                          License has expired
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="py-8 text-center">
-                <FileImageIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="mb-2 text-muted-foreground">
-                  No driver's license information on file.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Edit the employee to add license details.
-                </p>
               </div>
             )}
           </CardContent>

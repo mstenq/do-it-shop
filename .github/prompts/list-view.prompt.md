@@ -140,11 +140,6 @@ function RouteComponent() {
       >
         <CurrentFilters filters={search.filters} />
         <Spacer />
-        <ViewManager 
-          path="/module-name" 
-          tableName="moduleName" 
-          searchSchema={indexSearchSchema} 
-        />
         <ColumnsManager
           columns={columns}
           activeColumnIds={search.columns}
@@ -160,9 +155,8 @@ function RouteComponent() {
 #### Required DataTable Children Components
 1. **CurrentFilters**: Shows active filters with clear options
 2. **Spacer**: Provides spacing between filter components  
-3. **ViewManager**: Handles saved views and view management
-4. **ColumnsManager**: Column visibility and ordering controls
-5. **ModuleFilterPopover**: Custom filter controls specific to the module
+3. **ColumnsManager**: Column visibility and ordering controls
+4. **ModuleFilterPopover**: Custom filter controls specific to the module
 
 #### DataTable Props Configuration
 - `id`: Route pattern for row navigation (e.g., "/module-name/$id")
@@ -600,41 +594,5 @@ Please generate a complete list view for the "employees" module.
 - Navigation to employee detail view on row click
 ```
 
-### Expected File Generation
-The prompt should generate all 6 files with:
-1. Complete search schema with proper defaults
-2. Full DataTable implementation with all child components
-3. Simplified batch actions using the `useStandardBatchActions` hook
-4. Filter popover with appropriate controls
-5. Column definitions with proper cell renderers
-6. Data hook with client-side filtering
-7. Form components for create/edit operations
-8. Proper TypeScript typing throughout
-9. Responsive design and accessibility
-10. Error handling and loading states
 
-## Validation Checklist
 
-After generation, verify:
-- [ ] All routes are properly typed with search schemas
-- [ ] Forms include all required field validations
-- [ ] Table columns display data correctly
-- [ ] Filters work as expected
-- [ ] Batch operations use `useStandardBatchActions` hook correctly
-- [ ] Modal state management works
-- [ ] Navigation and breadcrumbs are correct
-- [ ] Error handling is implemented
-- [ ] Loading states are shown
-- [ ] Responsive design works on mobile
-- [ ] TypeScript compiles without errors
-- [ ] All imports resolve correctly
-
-## Testing Requirements
-
-Generated code should include:
-- Form validation testing
-- Table filtering and sorting
-- Modal open/close behavior
-- CRUD operations end-to-end
-- Error state handling
-- Loading state verification
