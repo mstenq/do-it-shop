@@ -248,9 +248,7 @@ function RouteComponent() {
         <Card>
           <CardHeader>
             <CardTitle>Employees</CardTitle>
-            <CardDescription>
-              Hourly employees can clock in and out to track their time
-            </CardDescription>
+            <CardDescription>Showing active hourly employees</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="min-w-[580px]">
@@ -266,16 +264,16 @@ function RouteComponent() {
                           src={employee.avatar}
                           alt={`${employee.nameFirst} ${employee.nameLast}`}
                         />
-                        <AvatarFallback className="font-medium text-gray-700 bg-gray-100">
+                        <AvatarFallback className="">
                           {employee.nameFirst[0]}
                           {employee.nameLast[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold ">
                           {employee.nameFirst} {employee.nameLast}
                         </div>
-                        <div className="space-y-1 text-sm text-gray-500">
+                        <div className="space-y-1 text-sm text-muted-foreground">
                           <div>Daily: {employee.dailyHours} hrs</div>
                           <div>
                             Period: {employee.periodHours} hrs Week:{" "}
@@ -351,29 +349,17 @@ function RouteComponent() {
                   <TableHead className="w-8"></TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="overflow-y-auto">
                 {filteredTimeEntries.map((entry) => (
                   <TableRow key={entry.id} className="">
-                    <TableCell className="py-2 text-sm">
-                      {entry.employeeName}
-                    </TableCell>
-                    <TableCell className="py-2 text-sm">
-                      {entry.timeIn}
-                    </TableCell>
-                    <TableCell className="py-2 text-sm">
-                      {entry.timeOut}
-                    </TableCell>
-                    <TableCell className="py-2 text-sm">
-                      {entry.total}
-                    </TableCell>
-                    <TableCell className="py-2 text-sm">{entry.type}</TableCell>
+                    <TableCell className="">{entry.employeeName}</TableCell>
+                    <TableCell className="">{entry.timeIn}</TableCell>
+                    <TableCell className="">{entry.timeOut}</TableCell>
+                    <TableCell className="">{entry.total}</TableCell>
+                    <TableCell className="">{entry.type}</TableCell>
 
-                    <TableCell className="py-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-6 h-6 p-0 "
-                      >
+                    <TableCell className="">
+                      <Button variant="ghost" size="sm">
                         <X className="w-4 h-4" />
                       </Button>
                     </TableCell>

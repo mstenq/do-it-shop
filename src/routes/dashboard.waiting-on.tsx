@@ -190,50 +190,6 @@ function RouteComponent() {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600">
-              {mockWaitingOnItems.filter((item) => !item.isResolved).length}
-            </div>
-            <div className="text-sm text-gray-500">Waiting Items</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-red-600">
-              {
-                mockWaitingOnItems.filter(
-                  (item) => !item.isResolved && isOverdue(item.expectedDate)
-                ).length
-              }
-            </div>
-            <div className="text-sm text-gray-500">Overdue</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-yellow-600">
-              {
-                mockWaitingOnItems.filter(
-                  (item) => !item.isResolved && item.priority === "urgent"
-                ).length
-              }
-            </div>
-            <div className="text-sm text-gray-500">Urgent</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">
-              {mockWaitingOnItems.filter((item) => item.isResolved).length}
-            </div>
-            <div className="text-sm text-gray-500">Resolved</div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Waiting Items Table */}
       <Card>
         <CardHeader>
@@ -305,7 +261,6 @@ function RouteComponent() {
                 <TableHead>Category</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Expected Date</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -367,19 +322,6 @@ function RouteComponent() {
                     <div className="text-xs text-gray-500">
                       {item.daysSinceCreated} days ago
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    {item.isResolved ? (
-                      <Badge variant="outline" className="text-green-600">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Resolved
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary">
-                        <Clock className="w-3 h-3 mr-1" />
-                        Waiting
-                      </Badge>
-                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

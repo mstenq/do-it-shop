@@ -153,42 +153,6 @@ function RouteComponent() {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600">
-              {mockProjects.filter((p) => p.status === "in_progress").length}
-            </div>
-            <div className="text-sm text-gray-500">In Progress</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">
-              {mockProjects.filter((p) => p.status === "ready").length}
-            </div>
-            <div className="text-sm text-gray-500">Ready to Start</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600">
-              {mockProjects.filter((p) => p.priority === "urgent").length}
-            </div>
-            <div className="text-sm text-gray-500">Urgent</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-red-600">
-              {mockProjects.filter((p) => isDueSoon(p.dueDate)).length}
-            </div>
-            <div className="text-sm text-gray-500">Due Soon</div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Projects Table */}
       <Card>
         <CardHeader>
