@@ -11,7 +11,8 @@ const address = v.object({
 
 export const tableName = v.union(
   v.literal("employees"),
-  v.literal("paySchedule")
+  v.literal("paySchedule"),
+  v.literal("times")
 );
 
 export default defineSchema({
@@ -47,4 +48,15 @@ export default defineSchema({
     tableName: tableName,
     nextAvailableId: v.number(),
   }).index("by_tableName", ["tableName"]),
+
+  times: defineTable({
+    id: v.string(),
+    employeeId: v.id("employees"),
+    date: v.number(),
+    startTime: v.string(),
+    endTime: v.optional(v.string()),
+    totalTime: v.optional(v.number()), // calculated in trigger
+  })
+    .index("by_date", ["date"])
+    .index("by_employeeId_date", ["employeeId", "date"]),
 });

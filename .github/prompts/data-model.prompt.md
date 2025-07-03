@@ -38,7 +38,6 @@ yourNewTable: defineTable({
   description: v.optional(v.string()),
   // Add other fields as needed...
 })
-  .index("by_id", ["id"])
   .searchIndex("search", {
     searchField: "searchIndex",
     filterFields: ["isDeleted"],
@@ -284,7 +283,7 @@ Use these existing implementations as references:
 After implementation, verify:
 
 - [ ] Schema includes all standard fields (id, isDeleted, searchIndex)
-- [ ] Proper indexes are defined (by_id and search)
+- [ ] Proper indexes are defined (search)
 - [ ] Incrementor prefix is added to tablePrefixes
 - [ ] All CRUD operations work (add, update, destroy, restore)
 - [ ] Trigger updates searchIndex correctly

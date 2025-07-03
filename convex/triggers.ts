@@ -46,6 +46,25 @@ triggers.register("paySchedule", async (ctx, change) => {
   }
 });
 
+triggers.register("times", async (ctx, change) => {
+  console.log("times trigger", change);
+  if (change.newDoc) {
+    // Only calculate totalTime if both startTime and endTime are present
+    const { startTime, endTime } = change.newDoc;
+    let totalTime: number | undefined = undefined;
+    if (startTime && endTime) {
+      // Assume startTime and endTime are ISO strings (e.g., '2025-07-03T09:00:00')
+      const start = new Date(`${change.newDoc.date}T${startTime}`);
+      const end = new Date(`${change.newDoc.date}T${endTime}`);
+      totalTime = (end.getTime() - start.getTime()) / (1000 * 60 * 60); // hours
+      if (totalTime < 0) totalTime = undefined; // don't allow negative
+    }
+    if (change.newDoc.totalTime !== totalTime) {
+      await ctx.db.patch(change.id, { totalTime });
+    }
+  }
+});
+
 export const triggerMutation = customMutation(
   rawMutation,
   customCtx(triggers.wrapDB)

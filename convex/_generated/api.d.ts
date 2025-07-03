@@ -20,6 +20,7 @@ import type * as paySchedule from "../paySchedule.js";
 import type * as payScheduleUtils from "../payScheduleUtils.js";
 import type * as search from "../search.js";
 import type * as storage from "../storage.js";
+import type * as times from "../times.js";
 import type * as triggers from "../triggers.js";
 import type * as utils from "../utils.js";
 
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   payScheduleUtils: typeof payScheduleUtils;
   search: typeof search;
   storage: typeof storage;
+  times: typeof times;
   triggers: typeof triggers;
   utils: typeof utils;
 }>;

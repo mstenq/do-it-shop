@@ -1,12 +1,13 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { authMutation, authQuery, joinData, NullP, parseDate } from "./utils";
 import { Id } from "./_generated/dataModel";
 import { internalMutation } from "./_generated/server";
 import {
   getCurrentPayPeriodInfo,
   getPayPeriodInfoForDate,
 } from "./payScheduleUtils";
+import { timesDateRangeQuery } from "./times";
+import { authQuery, joinData, parseDate } from "./utils";
 
 /**
  * Queries
@@ -23,6 +24,7 @@ export const all = authQuery({
 export const get = authQuery({
   args: { _id: v.string() },
   handler: async (ctx, args) => {
+    console.log(args._id);
     if (!args._id) {
       return null;
     }
@@ -32,7 +34,12 @@ export const get = authQuery({
       return null;
     }
 
-    return record;
+    const [joinedRecord] = await joinData([record], {
+      timeEntries: (r) =>
+        timesDateRangeQuery(ctx, r.startDate, r.endDate).collect(),
+    });
+
+    return joinedRecord;
   },
 });
 
@@ -88,7 +95,16 @@ export const getCurrentPayPeriod = authQuery({
       .withIndex("by_name", (q) => q.eq("name", payPeriodInfo.name))
       .first();
 
-    return existingPaySchedule;
+    if (!existingPaySchedule) {
+      return null;
+    }
+
+    const [joinedRecord] = await joinData([existingPaySchedule], {
+      timeEntries: (r) =>
+        timesDateRangeQuery(ctx, r.startDate, r.endDate).collect(),
+    });
+
+    return joinedRecord;
   },
 });
 
@@ -113,6 +129,9 @@ export const getPayPeriodForDate = authQuery({
 export const backfillPaySchedules = internalMutation({
   args: {},
   handler: async (ctx) => {
+    console.log("COMMENTED OUT BACKFILL PAY SCHEDULES");
+    return { created: 0 }; // Commented out to prevent accidental execution
+
     // Start from 7/2/2017
     const startDate = new Date(Date.UTC(2017, 6, 2)); // July is month 6 (0-based)
     const today = new Date();
