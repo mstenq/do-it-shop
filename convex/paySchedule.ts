@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { authMutation, authQuery, joinData, NullP } from "./utils";
+import { authMutation, authQuery, joinData, NullP, parseDate } from "./utils";
 import { Id } from "./_generated/dataModel";
 import { internalMutation } from "./_generated/server";
 import {
@@ -70,6 +70,7 @@ export const generatePaySchedule = internalMutation({
       year,
       startDate: startDateUTC,
       endDate: endDateUTC,
+      searchIndex: `${id} ${name}`,
     });
 
     return await ctx.db.get(newPayScheduleId);
@@ -92,17 +93,60 @@ export const getCurrentPayPeriod = authQuery({
 });
 
 export const getPayPeriodForDate = authQuery({
-  args: { date: v.number() },
+  args: { date: v.string() },
   handler: async (ctx, args) => {
-    const date = new Date(args.date);
-    const payPeriodInfo = getPayPeriodInfoForDate(date);
+    const parsedDate = parseDate(args.date);
+    if (!parsedDate) {
+      console.error("Invalid date format:", args.date);
+      throw new Error("Invalid date format. Use YYYY-MM-DD.");
+    }
+    const payPeriodInfo = getPayPeriodInfoForDate(parsedDate);
 
-    // Try to find existing pay schedule
-    const existingPaySchedule = await ctx.db
-      .query("paySchedule")
-      .withIndex("by_name", (q) => q.eq("name", payPeriodInfo.name))
-      .first();
+    return {
+      ...payPeriodInfo,
+      startDate: payPeriodInfo.startDate.toISOString().split("T")[0],
+      endDate: payPeriodInfo.endDate.toISOString().split("T")[0],
+    };
+  },
+});
 
-    return existingPaySchedule;
+export const backfillPaySchedules = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    // Start from 7/2/2017
+    const startDate = new Date(Date.UTC(2017, 6, 2)); // July is month 6 (0-based)
+    const today = new Date();
+    let current = new Date(startDate);
+    let created = 0;
+    while (current <= today) {
+      // Get pay period info for this date
+      const payPeriodInfo = getPayPeriodInfoForDate(current);
+      const { year, payPeriod, name, startDate, endDate } = payPeriodInfo;
+      // Check if this pay schedule already exists
+      const existing = await ctx.db
+        .query("paySchedule")
+        .withIndex("by_name", (q) => q.eq("name", name))
+        .first();
+      if (!existing) {
+        // Generate unique ID
+        const id = await ctx.runMutation(internal.incrementors.getNextId, {
+          tableName: "paySchedule",
+        });
+        // Insert new pay schedule
+        await ctx.db.insert("paySchedule", {
+          id,
+          name,
+          payPeriod,
+          year,
+          startDate: startDate.getTime(),
+          endDate: endDate.getTime(),
+          searchIndex: `${id} ${name}`,
+        });
+        created++;
+      }
+      // Move to next pay period (assume biweekly: add 14 days)
+      current = new Date(endDate.getTime() + 24 * 60 * 60 * 1000); // Next day after endDate
+    }
+    return { created };
   },
 });

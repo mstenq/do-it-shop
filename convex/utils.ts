@@ -9,10 +9,23 @@ import { triggerMutation } from "./triggers";
 import { Id } from "./_generated/dataModel";
 
 const userSchema = z.object({
-  email: z.string(),
-  pictureUrl: z.string().nullable(),
   subject: z.string(), //this is the id
 });
+
+export function parseDate(dateStr: string): Date | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return null;
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  // Check for invalid date (e.g., 2024-02-30)
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+}
 
 export const authQuery = customQuery(
   query,
