@@ -58,7 +58,6 @@ export const all = authQuery({
         end: v.string(),
       })
     ),
-    pagination: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
     const query = args.employeeId
@@ -70,14 +69,14 @@ export const all = authQuery({
         )
       : timesDateRangeQuery(ctx, args.dateRange?.start, args.dateRange?.end);
 
-    const results = await query.paginate(args.pagination);
+    const results = await query.collect();
 
     // Join related data if needed
-    const joinedRecords = await joinData(results.page, {
+    const joinedRecords = await joinData(results, {
       employee: (r) => (r.employeeId ? ctx.db.get(r.employeeId) : NullP),
     });
 
-    return { ...results, page: joinedRecords };
+    return joinedRecords;
   },
 });
 

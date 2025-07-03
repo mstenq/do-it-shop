@@ -84,6 +84,7 @@ type Props<T extends { _id: string; id: string }> = {
   setSorting?: (sorting: SortingState) => void;
   search?: string;
   setSearch?: (search: string) => void;
+  hideSearch?: boolean;
   groupBy?: GroupByParam<T>;
   paginator?: {
     pagination: PaginationState;
@@ -315,6 +316,7 @@ export function DataTable<T extends { _id: string; id: string }>({
   children,
   search,
   setSearch,
+  hideSearch = false,
   groupBy,
   paginator,
 }: Props<T>) {
@@ -620,15 +622,17 @@ export function DataTable<T extends { _id: string; id: string }>({
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 pb-4">
-        <Input
-          placeholder="Search..."
-          type="search"
-          value={globalFilter}
-          onChange={(event) =>
-            table.setGlobalFilter(String(event.target.value))
-          }
-          className="max-w-56"
-        />
+        {!hideSearch && (
+          <Input
+            placeholder="Search..."
+            type="search"
+            value={globalFilter}
+            onChange={(event) =>
+              table.setGlobalFilter(String(event.target.value))
+            }
+            className="max-w-56"
+          />
+        )}
         {children}
       </div>
 
