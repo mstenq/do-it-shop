@@ -39,7 +39,7 @@ function RootComponent() {
           </Unauthenticated>
           <Authenticated>
             <App />
-            <TanStackRouterDevtools position="bottom-right" />
+            {/* <TanStackRouterDevtools position="bottom-right" /> */}
           </Authenticated>
           <AuthLoading>
             <div className="grid w-full h-screen place-items-center">

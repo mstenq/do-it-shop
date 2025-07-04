@@ -21,34 +21,17 @@ export const Route = createFileRoute("/employees/$id")({
 function RouteComponent() {
   const { id } = Route.useParams();
   const [isUpdatingPhoto, startTransition] = useTransition();
-  const employee = useQuery(api.employees.get, { _id: id });
+  const employee = useQuery(api.employees.get, { id });
   const updateEmployee = useMutation(api.employees.update);
 
   if (!employee) return null;
 
   const fullName = `${employee.nameFirst} ${employee.nameLast}`;
 
-  const handlePhotoUpload = async (storageId: string | undefined) => {
-    if (!employee._id) return;
-    startTransition(async () => {
-      try {
-        await updateEmployee({
-          _id: employee._id,
-          photoStorageId: storageId as any,
-        });
-      } catch (error) {
-        console.error("Failed to update driver's license photo:", error);
-      }
-    });
-  };
-
   return (
-    <div className="flex flex-col h-full gap-4 xl:flex-row">
+    <div className="flex flex-col h-[calc(100vh-65px)] gap-4 xl:flex-row">
       <div className="xl:min-w-[380px] py-4 pl-4">
         <div className="flex items-center">
-          <span className="p-1 text-xs border rounded bg-muted">
-            # {employee.id}
-          </span>
           <Spacer />
           <Button variant="outline" className="" asChild>
             <Link to="." search={{ showEdit: employee._id }}>
@@ -101,7 +84,7 @@ function RouteComponent() {
           )}
         </div>
       </div>
-      <main className="w-full h-full p-4 border-l">
+      <main className="w-full p-4 border-l">
         <div className="">
           <Outlet />
         </div>

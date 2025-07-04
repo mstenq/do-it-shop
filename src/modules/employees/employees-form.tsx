@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -7,6 +8,8 @@ import {
 } from "@/components/ui/form";
 import { ImageUploadInput } from "@/components/ui/image-upload-input";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
@@ -17,6 +20,7 @@ export const schema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   phoneNumber: z.string().optional(),
   photoStorageId: z.string().optional(),
+  type: z.enum(["hourly", "salary", "piece-work"]),
 });
 
 export type FormData = z.infer<typeof schema>;
@@ -32,7 +36,7 @@ const formItemClassName =
 export const EmployeesForm = ({ form, photoUrl }: Props) => {
   return (
     <div className="flex flex-col gap-4">
-      <div className="space-y-1">
+      <div className="space-y-3">
         <h2 className="py-1 text-lg font-semibold">Basic Information</h2>
 
         <FormField
@@ -93,10 +97,45 @@ export const EmployeesForm = ({ form, photoUrl }: Props) => {
 
         <FormField
           control={form.control}
+          name="type"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel className="self-start">Type</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <div className="flex gap-6">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="hourly" id="hourly" />
+                      <Label htmlFor="hourly">Hourly</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="salary" id="salary" />
+                      <Label htmlFor="salary">Salary</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="piece-work" id="piece-work" />
+                      <Label htmlFor="piece-work">Piece Work</Label>
+                    </div>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormDescription className="col-start-2 pb-2">
+                Active Hourly will show up on the dashboard
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="photoStorageId"
           render={({ field }) => (
             <FormItem className={cn(formItemClassName)}>
-              <FormLabel>Image</FormLabel>
+              <FormLabel className="self-start">Image</FormLabel>
               <FormControl>
                 <ImageUploadInput
                   value={field.value}

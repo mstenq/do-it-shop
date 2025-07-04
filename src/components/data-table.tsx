@@ -65,12 +65,13 @@ type GroupByParam<T> = Record<
   string,
   {
     grouper: (row: T) => string;
+    spanAvailable?: boolean;
     above?: (rows: T[], depth?: number) => React.ReactNode;
     below?: (rows: T[], depth?: number) => React.ReactNode;
   }
 >;
 
-type Props<T extends { _id: string; id: string }> = {
+type Props<T extends { _id: string }> = {
   id: string;
   data: T[];
   columns: ColumnDef<T>[];
@@ -272,6 +273,7 @@ type GroupRowProps<T extends { _id: string }> = {
   hasBatchActions: boolean;
   columnsLength: number;
   keyPrefix: string;
+  spanAvailable?: boolean;
 };
 
 const GroupRow = React.memo<GroupRowProps<any>>(
@@ -283,6 +285,7 @@ const GroupRow = React.memo<GroupRowProps<any>>(
     hasBatchActions,
     columnsLength,
     keyPrefix,
+    spanAvailable = true,
   }) => (
     <TableRow key={keyPrefix}>
       <GroupCheckbox
@@ -291,18 +294,21 @@ const GroupRow = React.memo<GroupRowProps<any>>(
         setRowSelection={setRowSelection}
         hasBatchActions={hasBatchActions}
       />
-      <TableCellWithPadding
-        colSpan={hasBatchActions ? columnsLength - 1 : columnsLength}
-        className="font-semibold bg-muted"
-      >
-        {groupContent}
-      </TableCellWithPadding>
+      {spanAvailable && (
+        <TableCellWithPadding
+          colSpan={hasBatchActions ? columnsLength - 1 : columnsLength}
+          className="font-semibold bg-muted"
+        >
+          {groupContent}
+        </TableCellWithPadding>
+      )}
+      {!spanAvailable && <>{groupContent}</>}
     </TableRow>
   )
 );
 GroupRow.displayName = "GroupRow";
 
-export function DataTable<T extends { _id: string; id: string }>({
+export function DataTable<T extends { _id: string }>({
   id,
   data,
   batchActions,
@@ -323,6 +329,7 @@ export function DataTable<T extends { _id: string; id: string }>({
   "use no memo";
 
   const [localSorting, setLocalSorting] = useSortingState(sorting, setSorting);
+  console.log(localSorting);
   const [globalFilter, setGlobalFilter] = useGlobalFilter(search, setSearch);
 
   const columnVisibility = React.useMemo(() => {
@@ -471,6 +478,9 @@ export function DataTable<T extends { _id: string; id: string }>({
             key={cell.id}
             paddingDepth={paddingDepth}
             isFirstContentColumn={isFirstContentColumn}
+            className={cn(
+              cell.column.columnDef.meta?.align == "right" && "text-right"
+            )}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </TableCellWithPadding>
@@ -497,7 +507,7 @@ export function DataTable<T extends { _id: string; id: string }>({
               data-deleted={(row.original as any)?.isDeleted ? "true" : "false"}
               onClick={() => {
                 saveIdsToSessionStorage(
-                  table.getRowModel().rows.map((r) => r.original.id)
+                  table.getRowModel().rows.map((r) => r.original._id)
                 );
                 onRowClick?.(row.original);
               }}
@@ -532,16 +542,17 @@ export function DataTable<T extends { _id: string; id: string }>({
       }
 
       // Group rows by the grouper function
-      const groups: Record<string, Row<T>[]> = {};
+      const groups = new Map<string, Row<T>[]>();
       rows.forEach((row) => {
         const groupVal = groupConfig.grouper(row.original);
-        if (!groups[groupVal]) groups[groupVal] = [];
-        groups[groupVal].push(row);
+        if (!groups.has(groupVal)) groups.set(groupVal, []);
+        groups.get(groupVal)?.push(row);
       });
 
       const result: React.ReactNode[] = [];
 
-      Object.entries(groups).forEach(([groupVal, groupRowsArr], i) => {
+      Array.from(groups.entries()).forEach(([groupVal, groupRowsArr], i) => {
+        console.log(`Processing group: ${groupVal}`, groupRowsArr);
         if (groupRowsArr.length === 0) return;
 
         const baseKey = `${keyPrefix}-${currentKey}-${groupVal}-${i}`;
@@ -561,6 +572,7 @@ export function DataTable<T extends { _id: string; id: string }>({
               hasBatchActions={hasBatchActions}
               columnsLength={updatedColumns.length}
               keyPrefix={`above-${baseKey}`}
+              spanAvailable={groupConfig.spanAvailable}
             />
           );
         }
@@ -585,6 +597,7 @@ export function DataTable<T extends { _id: string; id: string }>({
               hasBatchActions={hasBatchActions}
               columnsLength={updatedColumns.length}
               keyPrefix={`below-${baseKey}`}
+              spanAvailable={groupConfig.spanAvailable}
             />
           );
         }
@@ -664,7 +677,7 @@ export function DataTable<T extends { _id: string; id: string }>({
                       saveIdsToSessionStorage(
                         table
                           .getFilteredRowModel()
-                          .rows.map((r) => r.original.id)
+                          .rows.map((r) => r.original._id)
                       );
                       onRowClick?.(row);
                     }}
@@ -741,72 +754,6 @@ export function DataTable<T extends { _id: string; id: string }>({
           </PaginationContent>
         </Pagination>
       )}
-
-      {paginator && false && (
-        <div className="flex items-center gap-2">
-          <button
-            className="p-1 border rounded"
-            onClick={() => table.firstPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<<"}
-          </button>
-          <button
-            className="p-1 border rounded"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<"}
-          </button>
-          <button
-            className="p-1 border rounded"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {">"}
-          </button>
-          <button
-            className="p-1 border rounded"
-            onClick={() => table.lastPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {">>"}
-          </button>
-          <span className="flex items-center gap-1">
-            <div>Page</div>
-            <strong>
-              {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount().toLocaleString()}
-            </strong>
-          </span>
-          <span className="flex items-center gap-1">
-            | Go to page:
-            <input
-              type="number"
-              min="1"
-              max={table.getPageCount()}
-              defaultValue={table.getState().pagination.pageIndex + 1}
-              onChange={(e) => {
-                const page = e.target.value ? Number(e.target.value) - 1 : 0;
-                table.setPageIndex(page);
-              }}
-              className="w-16 p-1 border rounded"
-            />
-          </span>
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
     </div>
   );
 }
@@ -835,7 +782,10 @@ const TableHeaderComponent = React.memo<TableHeaderComponentProps>(
               return (
                 <TableHead
                   key={header.id}
-                  className=""
+                  className={cn(
+                    header.column.columnDef.meta?.align === "right" &&
+                      "text-right"
+                  )}
                   style={{ width: `${header.getSize()}px` }}
                 >
                   <div className="py-2">
@@ -860,7 +810,9 @@ const TableHeaderComponent = React.memo<TableHeaderComponentProps>(
                     {
                       "flex-row-reverse":
                         header.column?.columnDef.meta?.align === "right",
-                    }
+                    },
+                    header.column?.columnDef.meta?.align === "right" &&
+                      "text-right"
                   )}
                   onClick={header.column.getToggleSortingHandler()}
                 >

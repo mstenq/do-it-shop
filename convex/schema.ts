@@ -9,6 +9,12 @@ const address = v.object({
   country: v.optional(v.string()),
 });
 
+export const employeeType = v.union(
+  v.literal("hourly"),
+  v.literal("salary"),
+  v.literal("piece-work")
+);
+
 export const tableName = v.union(
   v.literal("employees"),
   v.literal("paySchedule"),
@@ -17,21 +23,30 @@ export const tableName = v.union(
 
 export default defineSchema({
   employees: defineTable({
-    id: v.string(),
     nameFirst: v.string(),
     nameLast: v.string(),
     photoStorageId: v.optional(v.id("_storage")),
     phoneNumber: v.optional(v.string()),
     email: v.optional(v.string()),
+    isActive: v.boolean(),
+    type: employeeType,
+    currentDailyHours: v.optional(v.number()), // calculated in trigger
+    currentWeekHours: v.optional(v.number()), // calculated in trigger
+    currentPayPeriodHours: v.optional(v.number()), // calculated in trigger
+
+    // system fields
     searchIndex: v.optional(v.string()),
     isDeleted: v.optional(v.boolean()),
-  }).searchIndex("search", {
-    searchField: "searchIndex",
-    filterFields: ["isDeleted"],
-  }),
+    filemakerId: v.optional(v.string()),
+  })
+    .index("by_active_type", ["isActive", "type"])
+    .index("by_type", ["type"])
+    .searchIndex("search", {
+      searchField: "searchIndex",
+      filterFields: ["isDeleted"],
+    }),
 
   paySchedule: defineTable({
-    id: v.string(),
     name: v.string(),
     payPeriod: v.number(),
     year: v.number(),
@@ -44,19 +59,35 @@ export default defineSchema({
       searchField: "searchIndex",
     }),
 
-  incrementors: defineTable({
-    tableName: tableName,
-    nextAvailableId: v.number(),
-  }).index("by_tableName", ["tableName"]),
-
   times: defineTable({
-    id: v.string(),
     employeeId: v.id("employees"),
     date: v.number(),
     startTime: v.string(),
     endTime: v.optional(v.string()),
     totalTime: v.optional(v.number()), // calculated in trigger
+
+    filemakerId: v.optional(v.string()),
   })
     .index("by_date", ["date"])
     .index("by_employeeId_date", ["employeeId", "date"]),
+
+  // Temp tables
+  fmEmployees: defineTable({
+    email: v.string(),
+    filemakerId: v.string(),
+    nameFirst: v.string(),
+    nameLast: v.string(),
+    phoneNumber: v.string(),
+    isActive: v.boolean(),
+    type: employeeType,
+  }).index("by_filemakerId", ["filemakerId"]),
+
+  fmTimes: defineTable({
+    date: v.float64(),
+    employeeFilemakerId: v.string(),
+    endTime: v.string(),
+    filemakerId: v.string(),
+    startTime: v.string(),
+    totalTime: v.float64(),
+  }).index("by_employeeFilemakerId", ["employeeFilemakerId"]),
 });

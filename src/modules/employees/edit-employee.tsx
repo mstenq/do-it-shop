@@ -36,7 +36,7 @@ export function EditEmployee() {
     api.employees.get,
     showEdit
       ? {
-          _id: showEdit,
+          id: showEdit,
         }
       : "skip"
   );
@@ -100,7 +100,7 @@ function EditEmployeeForm({
     try {
       await update({
         ...data,
-        _id: employee._id,
+        id: employee._id,
         photoStorageId: data.photoStorageId
           ? (data.photoStorageId as Id<"_storage">)
           : undefined,

@@ -21,7 +21,10 @@ import { z } from "zod";
 const defaultSearch = {
   q: "",
   columns: EmployeeColumn.options,
-  sorting: [{ id: "id", desc: false }] as ColumnSort[],
+  sorting: [
+    { id: "isActive", desc: true },
+    { id: "name", desc: false },
+  ] as ColumnSort[],
   pagination: {
     pageIndex: 0,
     pageSize: 30,
@@ -88,18 +91,6 @@ function RouteComponent() {
 
   return (
     <div className="p-4">
-      <button
-        onClick={() => {
-          navigate({
-            search: {
-              ...search,
-              showEdit: "j57d4wqwpbzbp8kyavwd23gfsx7k1d6e",
-            },
-          });
-        }}
-      >
-        Test
-      </button>
       <DataTable
         id="/employees/$id"
         data={data}

@@ -8,10 +8,17 @@ import { RowActionsConfig } from "@/components/data-table-row-actions";
 import { PencilIcon, XIcon, Undo2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type Row = ConvexType<"employees.all">[number];
 
-export const EmployeeColumn = z.enum(["id", "name", "email", "phoneNumber"]);
+export const EmployeeColumn = z.enum([
+  "name",
+  "type",
+  "phoneNumber",
+  "isActive",
+]);
 
 export const EmployeeSortingSchema = z.object({
   id: z.string(),
@@ -24,18 +31,6 @@ export const useEmployeesColumns = () => {
   const restoreEmployee = useMutation(api.employees.restore);
 
   const columns: ColumnDef<Row>[] = [
-    {
-      id: "id",
-      accessorKey: "id",
-      header: "ID",
-      size: 40,
-      cell: ({ row }) => (
-        <div className="inline-block p-0.5 rounded text-xs font-mono border bg-primary-foreground dark:bg-primary/30 pointer-events-none">
-          {row.original.id}
-        </div>
-      ),
-    },
-
     {
       id: "name",
       accessorFn: (row) => `${row.nameFirst} ${row.nameLast}`,
@@ -55,6 +50,22 @@ export const useEmployeesColumns = () => {
     },
 
     {
+      id: "type",
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => {
+        const type = row.original.type;
+        return (
+          <div className="text-sm">
+            {type === "hourly" && "Hourly"}
+            {type === "salary" && "Salary"}
+            {type === "piece-work" && "Piece Work"}
+          </div>
+        );
+      },
+    },
+
+    {
       id: "phoneNumber",
       accessorKey: "phoneNumber",
       header: "Phone",
@@ -65,6 +76,26 @@ export const useEmployeesColumns = () => {
           )}
         </div>
       ),
+    },
+
+    {
+      id: "isActive",
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => {
+        const isActive = row.original.isActive;
+        return (
+          <Badge
+            variant={"secondary"}
+            className={cn(
+              "text-xs",
+              isActive ? "text-green-500" : "text-red-600 opacity-70"
+            )}
+          >
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        );
+      },
     },
   ];
 
@@ -116,7 +147,36 @@ export const useEmployeesColumns = () => {
     []
   );
 
-  const groupBy = {};
+  const groupBy = useMemo(
+    () => ({
+      type: {
+        grouper: (row: Row) => row.type,
+        above: (rows: Row[]) => {
+          const type = rows[0]?.type;
+          return (
+            <div>
+              {type === "hourly" && "Hourly"}
+              {type === "salary" && "Salary"}
+              {type === "piece-work" && "Piece Work"}
+              {" (" + rows.length + ")"}
+            </div>
+          );
+        },
+      },
+      isActive: {
+        grouper: (row: Row) => (row.isActive ? "Active" : "Inactive"),
+        above: (rows: Row[]) => {
+          const isActive = rows[0]?.isActive;
+          return (
+            <div>
+              {isActive ? "Active" : "Inactive"} ({rows.length})
+            </div>
+          );
+        },
+      },
+    }),
+    []
+  );
 
   return { columns, groupBy, rowActions };
 };

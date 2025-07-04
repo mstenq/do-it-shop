@@ -12,7 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import { useTimesColumns } from "@/modules/times/use-times-columns";
-import { TimesRow } from "@/modules/times/types";
 
 export const Route = createFileRoute("/employees/$id/")({
   component: RouteComponent,
@@ -21,8 +20,12 @@ export const Route = createFileRoute("/employees/$id/")({
 function RouteComponent() {
   const params = Route.useParams();
   const employeeId = String(params.id) as Id<"employees">;
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    new Date(2025, 5, 22)
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    new Date(2025, 6, 5)
+  );
 
   // Prepare date range for query
   const dateRange =
@@ -50,9 +53,7 @@ function RouteComponent() {
         <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
           <div>
             <CardTitle>Timesheet</CardTitle>
-            <CardDescription>
-              All time entries for this employee
-            </CardDescription>
+            <CardDescription>Time entries for this employee</CardDescription>
           </div>
           <div className="flex items-end gap-4">
             <div>
@@ -90,10 +91,12 @@ function RouteComponent() {
             id="times-table"
             data={data}
             columns={columns}
+            activeColumnIds={["date", "startTime", "endTime", "totalTime"]}
             groupBy={groupBy}
+            className="max-h-[calc(100svh-230px)]"
             sorting={[
               { id: "week", desc: true },
-              { id: "date", desc: true },
+              { id: "date", desc: false },
             ]}
             hideSearch
           />

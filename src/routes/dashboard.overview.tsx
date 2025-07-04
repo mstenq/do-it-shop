@@ -27,6 +27,7 @@ import {
 import { Clock, LogOut, Search, X } from "lucide-react";
 import { useState } from "react";
 import { Line, LineChart, XAxis, YAxis } from "recharts";
+import { HourlyEmployeeCard } from "@/modules/employees/hourly-employee-card";
 
 export const Route = createFileRoute("/dashboard/overview")({
   component: RouteComponent,
@@ -245,78 +246,7 @@ function RouteComponent() {
     <div className="space-y-6">
       <div className="flex h-full gap-6">
         {/* Left Side - Employee List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Employees</CardTitle>
-            <CardDescription>Showing active hourly employees</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="min-w-[580px]">
-              <div className="divide-y">
-                {mockEmployees.map((employee) => (
-                  <div
-                    key={employee.id}
-                    className="flex items-center justify-between py-1.5 "
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage
-                          src={employee.avatar}
-                          alt={`${employee.nameFirst} ${employee.nameLast}`}
-                        />
-                        <AvatarFallback className="">
-                          {employee.nameFirst[0]}
-                          {employee.nameLast[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="font-semibold ">
-                          {employee.nameFirst} {employee.nameLast}
-                        </div>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                          <div>Daily: {employee.dailyHours} hrs</div>
-                          <div>
-                            Period: {employee.periodHours} hrs Week:{" "}
-                            {employee.weekHours} hrs
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        variant={"ghost"}
-                        size="sm"
-                        disabled={!employee.isClockedIn}
-                        className={
-                          employee.isClockedIn
-                            ? "text-primary hover:text-primary"
-                            : ""
-                        }
-                        onClick={() =>
-                          handleClockToggle(employee.id, employee.isClockedIn)
-                        }
-                      >
-                        Clock In
-                      </Button>
-                      <Button
-                        variant={"ghost"}
-                        size="sm"
-                        disabled={employee.isClockedIn}
-                        className={
-                          !employee.isClockedIn
-                            ? "text-primary hover:text-primary"
-                            : ""
-                        }
-                      >
-                        Clock Out
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <HourlyEmployeeCard />
 
         {/* Right Side - Time Entries */}
         <Card className="w-full">

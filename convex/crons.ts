@@ -12,4 +12,13 @@ crons.daily(
   internal.paySchedule.generatePaySchedule
 );
 
+crons.daily(
+  "calculateEmployeeHours",
+  {
+    hourUTC: 7,
+    minuteUTC: 0,
+  },
+  internal.employees.calculateAllEmployeeHours
+);
+
 export default crons;

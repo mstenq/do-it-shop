@@ -15,11 +15,12 @@ import type {
 } from "convex/server";
 import type * as crons from "../crons.js";
 import type * as employees from "../employees.js";
-import type * as incrementors from "../incrementors.js";
+import type * as migrate from "../migrate.js";
 import type * as paySchedule from "../paySchedule.js";
 import type * as payScheduleUtils from "../payScheduleUtils.js";
 import type * as search from "../search.js";
 import type * as storage from "../storage.js";
+import type * as timeUtils from "../timeUtils.js";
 import type * as times from "../times.js";
 import type * as triggers from "../triggers.js";
 import type * as utils from "../utils.js";
@@ -35,11 +36,12 @@ import type * as utils from "../utils.js";
 declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   employees: typeof employees;
-  incrementors: typeof incrementors;
+  migrate: typeof migrate;
   paySchedule: typeof paySchedule;
   payScheduleUtils: typeof payScheduleUtils;
   search: typeof search;
   storage: typeof storage;
+  timeUtils: typeof timeUtils;
   times: typeof times;
   triggers: typeof triggers;
   utils: typeof utils;

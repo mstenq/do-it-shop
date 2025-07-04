@@ -60,24 +60,18 @@ export const generatePaySchedule = internalMutation({
       return existingPaySchedule;
     }
 
-    // Generate unique ID for the pay schedule
-    const id: string = await ctx.runMutation(internal.incrementors.getNextId, {
-      tableName: "paySchedule",
-    });
-
     // Convert dates to UTC timestamps for storage
     const startDateUTC = startDate.getTime();
     const endDateUTC = endDate.getTime();
 
     // Create the pay schedule
     const newPayScheduleId = await ctx.db.insert("paySchedule", {
-      id,
       name,
       payPeriod,
       year,
       startDate: startDateUTC,
       endDate: endDateUTC,
-      searchIndex: `${id} ${name}`,
+      searchIndex: `${name}`,
     });
 
     return await ctx.db.get(newPayScheduleId);
@@ -147,19 +141,14 @@ export const backfillPaySchedules = internalMutation({
         .withIndex("by_name", (q) => q.eq("name", name))
         .first();
       if (!existing) {
-        // Generate unique ID
-        const id = await ctx.runMutation(internal.incrementors.getNextId, {
-          tableName: "paySchedule",
-        });
         // Insert new pay schedule
         await ctx.db.insert("paySchedule", {
-          id,
           name,
           payPeriod,
           year,
           startDate: startDate.getTime(),
           endDate: endDate.getTime(),
-          searchIndex: `${id} ${name}`,
+          searchIndex: `${name}`,
         });
         created++;
       }

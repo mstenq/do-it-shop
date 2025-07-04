@@ -28,16 +28,7 @@ const defaultValues = {
   email: "",
   phoneNumber: "",
   dateOfBirth: "",
-  department: "",
-  level: "",
-  grade: "",
-  address: {
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-  },
+  type: "hourly",
 } as const;
 
 export function NewEmployee() {
@@ -61,8 +52,9 @@ export function NewEmployee() {
       });
       form.reset(defaultValues);
       navigate({
-        to: `/employees`,
-        search: { showAdd: false } as any,
+        to: `/employees/$id`,
+        params: { id: newEmployeeId },
+        search: { showAdd: false, showEdit: "" },
       });
     } catch (error) {
       console.error(error);

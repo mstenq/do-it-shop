@@ -4,6 +4,7 @@ import { authMutation, authQuery, joinData, NullP, parseDate } from "./utils";
 import { Id } from "./_generated/dataModel";
 import { QueryCtx } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
+import { getStartOfTodayUtc, getCurrentTimeHHMM } from "./timeUtils";
 
 /**
  * Queries
@@ -120,26 +121,18 @@ export const add = authMutation({
     // endTime is optional
   },
   handler: async (ctx, args) => {
-    const nextAvailableId: string = await ctx.runMutation(
-      internal.incrementors.getNextId,
-      {
-        tableName: "times",
-      }
-    );
-
     const date = parseDate(args.date);
     if (!date) {
       throw new Error("Invalid date format");
     }
 
-    await ctx.db.insert("times", {
+    const newTime = await ctx.db.insert("times", {
       ...args,
-      id: nextAvailableId,
       date: date.getTime(),
       // totalTime will be calculated in trigger
     });
 
-    return nextAvailableId;
+    return newTime;
   },
 });
 
@@ -163,6 +156,49 @@ export const update = authMutation({
       ...(date !== undefined ? { date: time } : {}),
     });
     return;
+  },
+});
+
+export const clockIn = authMutation({
+  args: {
+    employeeId: v.id("employees"),
+  },
+  handler: async (ctx, args) => {
+    const startOfToday = getStartOfTodayUtc();
+    const startTime = getCurrentTimeHHMM();
+
+    const newTime = await ctx.db.insert("times", {
+      employeeId: args.employeeId,
+      date: startOfToday.getTime(),
+      startTime,
+      // endTime is undefined for clock in
+    });
+
+    return newTime;
+  },
+});
+
+export const clockOut = authMutation({
+  args: {
+    id: v.id("times"),
+  },
+  handler: async (ctx, args) => {
+    const timeRecord = await ctx.db.get(args.id);
+    if (!timeRecord) {
+      throw new Error("Time record not found");
+    }
+
+    if (timeRecord.endTime) {
+      throw new Error("Employee has already clocked out for this time record");
+    }
+
+    const endTime = getCurrentTimeHHMM();
+
+    await ctx.db.patch(args.id, {
+      endTime,
+    });
+
+    return args.id;
   },
 });
 

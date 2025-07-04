@@ -6,7 +6,6 @@ import { Infer } from "convex/values";
 type TableName = Infer<typeof tableName>;
 type SearchResultItem = {
   _id: string;
-  id: string;
   table: TableName;
   title: string;
   subtitle: string;
@@ -36,7 +35,6 @@ export const all = authQuery({
         (e) =>
           ({
             _id: String(e._id),
-            id: e.id,
             table: "employees",
             title: `${e.nameFirst} ${e.nameLast}`,
             subtitle: e.email ?? "",
@@ -46,7 +44,6 @@ export const all = authQuery({
         (schedule) =>
           ({
             _id: String(schedule._id),
-            id: schedule.id,
             table: "paySchedule",
             title: schedule.name,
             subtitle: `${schedule.startDate} - ${schedule.endDate}`,

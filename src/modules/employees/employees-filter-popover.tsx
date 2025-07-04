@@ -14,44 +14,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { api } from "@convex/api";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useQuery } from "convex-helpers/react/cache";
 import { FilterIcon } from "lucide-react";
-import { useMemo } from "react";
 
 export function EmployeesFilterPopover() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false });
 
-  // Get employees data to extract unique departments, levels, and grades
-  const employees = useQuery(api.employees.all, { includeDeleted: true });
-
   const filters = (search as any)?.filters || {
-    department: "",
-    level: "",
-    grade: "",
     showDeleted: false,
   };
-
-  // Extract unique values for filter options
-  const filterOptions = useMemo(() => {
-    if (!employees) return { departments: [], levels: [], grades: [] };
-
-    const departments = [
-      ...new Set(
-        employees.map((emp) => emp.department).filter(Boolean) as string[]
-      ),
-    ].sort();
-    const levels = [
-      ...new Set(employees.map((emp) => emp.level).filter(Boolean) as string[]),
-    ].sort();
-    const grades = [
-      ...new Set(employees.map((emp) => emp.grade).filter(Boolean) as string[]),
-    ].sort();
-
-    return { departments, levels, grades };
-  }, [employees]);
 
   const updateFilter = (key: string, value: any) => {
     navigate({
@@ -70,9 +42,6 @@ export function EmployeesFilterPopover() {
       search: {
         ...search,
         filters: {
-          department: "",
-          level: "",
-          grade: "",
           showDeleted: false,
         },
       } as any,
@@ -97,66 +66,6 @@ export function EmployeesFilterPopover() {
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
-            <Select
-              value={filters.department}
-              onValueChange={(value) => updateFilter("department", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Departments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Departments</SelectItem>
-                {filterOptions.departments.map((department) => (
-                  <SelectItem key={department} value={department}>
-                    {department}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="level">Level</Label>
-            <Select
-              value={filters.level}
-              onValueChange={(value) => updateFilter("level", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Levels" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Levels</SelectItem>
-                {filterOptions.levels.map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="grade">Grade</Label>
-            <Select
-              value={filters.grade}
-              onValueChange={(value) => updateFilter("grade", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Grades" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Grades</SelectItem>
-                {filterOptions.grades.map((grade) => (
-                  <SelectItem key={grade} value={grade}>
-                    {grade}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="showDeleted">Show Deleted</Label>
             <Select
