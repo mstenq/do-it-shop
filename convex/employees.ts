@@ -1,10 +1,18 @@
-import { convexToJson, v } from "convex/values";
+import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { authMutation, authQuery, joinData, NullP } from "./utils";
 import { Id } from "./_generated/dataModel";
+import {
+  getCurrentPayPeriodInfo,
+  getPayPeriodTimestamps,
+} from "./payScheduleUtils";
 import { employeeType } from "./schema";
-import { internalMutation } from "./_generated/server";
-import { getCurrentPayPeriodInfo } from "./payScheduleUtils";
+import {
+  calculateEmployeeHours,
+  getMostRecentOpenTimeRecord,
+  getStartOfTodayUtc,
+} from "./timeUtils";
+import { internalMutation } from "./triggers";
+import { authMutation, authQuery, joinData, NullP } from "./utils";
 
 /**
  * Queries
@@ -74,22 +82,11 @@ export const all = authQuery({
           ? ctx.storage.getUrl(record.photoStorageId)
           : NullP,
       mostRecentOpenTime: async (record) => {
-        // Get start of today
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const startOfToday = today.getTime();
+        // Get start of today timestamp
+        const startOfToday = getStartOfTodayUtc().getTime();
 
-        // Find the most recent time record for this employee without endTime
-        // and with a date >= start of today
-        const openTime = await ctx.db
-          .query("times")
-          .withIndex("by_employeeId_date", (q) =>
-            q.eq("employeeId", record._id).gte("date", startOfToday)
-          )
-          .filter((q) => q.eq(q.field("endTime"), undefined))
-          .first();
-
-        return openTime;
+        // Find the most recent open time record for this employee
+        return await getMostRecentOpenTimeRecord(ctx, record._id, startOfToday);
       },
     });
 
@@ -146,6 +143,7 @@ export const add = authMutation({
       ...args,
       isDeleted: false,
       isActive: true,
+      modificationTime: new Date().getTime(),
     });
 
     return newEmployee;
@@ -160,6 +158,7 @@ export const update = authMutation({
   handler: async (ctx, { id, ...args }) => {
     await ctx.db.patch(id, {
       ...args,
+      modificationTime: new Date().getTime(),
     });
     return;
   },
@@ -210,80 +209,42 @@ export const calculateAllEmployeeHours = internalMutation({
 export const calculateHours = internalMutation({
   args: { id: v.id("employees") },
   handler: async (ctx, args) => {
-    // calculate hours for today
     console.log(`Calculating hours for employee ${args.id}`);
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
-    const todayTimes = await ctx.db
-      .query("times")
-      .withIndex("by_employeeId_date", (q) =>
-        q
-          .eq("employeeId", args.id)
-          .gte("date", startOfToday.getTime())
-          .lte("date", endOfToday.getTime())
-      )
-      .filter((q) => q.neq(q.field("endTime"), undefined))
-      .collect();
-    const currentTodayHours = todayTimes.reduce((sum, record) => {
-      return sum + (record.totalTime ?? 0);
-    }, 0);
 
-    // get current pay period
+    // Get current pay period info
     const payPeriod = getCurrentPayPeriodInfo();
-    const startDate = payPeriod.startDate.getTime();
-    const endDate = payPeriod.endDate.getTime();
+    const { startTimestamp, endTimestamp } = getPayPeriodTimestamps(payPeriod);
 
-    // get all time entries for this employee in the current pay period
-    const times = await ctx.db
-      .query("times")
-      .withIndex("by_employeeId_date", (q) =>
-        q.eq("employeeId", args.id).gte("date", startDate).lte("date", endDate)
-      )
-      .filter((q) => q.neq(q.field("endTime"), undefined))
-      .collect();
-
-    // calculate total hours
-    const totalHours = times.reduce((sum, record) => {
-      return sum + (record.totalTime ?? 0);
-    }, 0);
-    console.log(
-      `Calculated ${totalHours} hours for employee ${args.id} in pay period ${payPeriod.name}`
+    // Calculate all hours using the utility function
+    const hours = await calculateEmployeeHours(
+      ctx,
+      args.id,
+      startTimestamp,
+      endTimestamp
     );
 
-    // get time entries for current week
-    const currentWeekStart = new Date();
-    currentWeekStart.setDate(
-      currentWeekStart.getDate() - currentWeekStart.getDay()
-    );
-    currentWeekStart.setHours(0, 0, 0, 0);
-    const currentWeekEnd = new Date(currentWeekStart);
-    currentWeekEnd.setDate(currentWeekEnd.getDate() + 6);
-    currentWeekEnd.setHours(23, 59, 59, 999);
-    const currentWeekTimes = await ctx.db
-      .query("times")
-      .withIndex("by_employeeId_date", (q) =>
-        q
-          .eq("employeeId", args.id)
-          .gte("date", currentWeekStart.getTime())
-          .lte("date", currentWeekEnd.getTime())
-      )
-      .filter((q) => q.neq(q.field("endTime"), undefined))
-      .collect();
-    const currentWeekHours = currentWeekTimes.reduce((sum, record) => {
-      return sum + (record.totalTime ?? 0);
-    }, 0);
-
     console.log(
-      `Calculated ${currentWeekHours} hours for employee ${args.id} in current week`
+      `Calculated hours for employee ${args.id}:`,
+      `Daily: ${hours.currentDailyHours},`,
+      `Pay Period (${payPeriod.name}): ${hours.currentPayPeriodHours},`,
+      `Week: ${hours.currentWeekHours}`
     );
 
     // Update employee with calculated hours
-    await ctx.db.patch(args.id, {
-      currentDailyHours: currentTodayHours,
-      currentPayPeriodHours: totalHours,
-      currentWeekHours: currentWeekHours,
-    });
+    await ctx.db.patch(args.id, hours);
+  },
+});
+
+export const triggerSearchIndexUpdate = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    // get all active employees
+    const employees = await ctx.db.query("employees").collect();
+
+    for (const employee of employees) {
+      await ctx.db.patch(employee._id, {
+        modificationTime: new Date().getTime(),
+      });
+    }
   },
 });

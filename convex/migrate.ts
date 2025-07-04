@@ -1,7 +1,7 @@
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
-import { internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
+// don't use triggerInternalMutation here as they slow down massive processes
+import { internalMutation } from "./_generated/server";
 
 export const processFM = internalMutation({
   args: {},
@@ -12,6 +12,17 @@ export const processFM = internalMutation({
 
     let timeout = 1000;
     for (const fmEmployee of fmEmployees) {
+      if (fmEmployee.nameFirst === "" && fmEmployee.nameLast === "") {
+        continue; // Skip employees with no name
+      }
+      const searchParts = [
+        fmEmployee.nameFirst,
+        fmEmployee.nameLast,
+        fmEmployee.email,
+      ].filter(Boolean);
+
+      const searchIndex = searchParts.join(" ");
+
       const newId = await ctx.db.insert("employees", {
         nameFirst: fmEmployee.nameFirst,
         nameLast: fmEmployee.nameLast,
@@ -20,6 +31,9 @@ export const processFM = internalMutation({
         filemakerId: fmEmployee.filemakerId,
         isActive: fmEmployee.isActive,
         type: fmEmployee.type,
+        isDeleted: false,
+        searchIndex,
+        modificationTime: new Date().getTime(),
       });
 
       await ctx.scheduler.runAfter(
@@ -50,15 +64,17 @@ export const processEmployeeTimes = internalMutation({
       .collect();
 
     console.log("Processing FileMaker Times:", fmTimes.length);
-    for (const fmTime of fmTimes) {
-      await ctx.db.insert("times", {
+    const timeInserts = fmTimes.map((fmTime) =>
+      ctx.db.insert("times", {
         employeeId: args.convexEmployeeId,
         date: fmTime.date,
         startTime: String(fmTime.startTime),
         endTime: fmTime.endTime === ":00" ? undefined : String(fmTime.endTime),
         totalTime: fmTime.totalTime,
         filemakerId: fmTime.filemakerId,
-      });
-    }
+      })
+    );
+
+    await Promise.all(timeInserts);
   },
 });

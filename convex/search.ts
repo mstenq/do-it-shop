@@ -1,7 +1,6 @@
-import { v } from "convex/values";
-import { authQuery, formatDate, formatTime, joinData, NullP } from "./utils";
+import { Infer, v } from "convex/values";
 import { tableName } from "./schema";
-import { Infer } from "convex/values";
+import { authQuery } from "./utils";
 
 type TableName = Infer<typeof tableName>;
 type SearchResultItem = {

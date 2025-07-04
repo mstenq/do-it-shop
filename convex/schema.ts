@@ -36,8 +36,9 @@ export default defineSchema({
 
     // system fields
     searchIndex: v.optional(v.string()),
-    isDeleted: v.optional(v.boolean()),
+    isDeleted: v.boolean(),
     filemakerId: v.optional(v.string()),
+    modificationTime: v.number(),
   })
     .index("by_active_type", ["isActive", "type"])
     .index("by_type", ["type"])

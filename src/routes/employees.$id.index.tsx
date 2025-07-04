@@ -1,17 +1,12 @@
+import { DataTable } from "@/components/data-table";
+import { CardDescription, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useStableQuery } from "@/hooks/use-stable-query";
+import { useTimesColumns } from "@/modules/times/use-times-columns";
+import { api } from "@convex/api";
 import { Id } from "@convex/dataModel";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { api } from "../../convex/_generated/api";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { DataTable } from "@/components/data-table";
-import { useTimesColumns } from "@/modules/times/use-times-columns";
 
 export const Route = createFileRoute("/employees/$id/")({
   component: RouteComponent,
@@ -49,8 +44,8 @@ function RouteComponent() {
 
   return (
     <div className="space-y-4">
-      <Card className="p-0">
-        <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
+      <div className="p-0">
+        <div className="flex flex-row items-start justify-between gap-4 pt-2 pb-2">
           <div>
             <CardTitle>Timesheet</CardTitle>
             <CardDescription>Time entries for this employee</CardDescription>
@@ -85,15 +80,15 @@ function RouteComponent() {
               />
             </div>
           </div>
-        </CardHeader>
-        <div className="p-4 pt-0">
+        </div>
+        <div className="">
           <DataTable
             id="times-table"
             data={data}
             columns={columns}
             activeColumnIds={["date", "startTime", "endTime", "totalTime"]}
             groupBy={groupBy}
-            className="max-h-[calc(100svh-230px)]"
+            className="max-h-[calc(100svh-190px)]"
             sorting={[
               { id: "week", desc: true },
               { id: "date", desc: false },
@@ -101,7 +96,7 @@ function RouteComponent() {
             hideSearch
           />
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

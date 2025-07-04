@@ -1,12 +1,12 @@
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
-import { internalMutation } from "./_generated/server";
 import {
   getCurrentPayPeriodInfo,
   getPayPeriodInfoForDate,
+  timestampToDateString,
 } from "./payScheduleUtils";
-import { timesDateRangeQuery } from "./times";
+import { timesDateRangeQuery } from "./timeUtils";
+import { internalMutation } from "./triggers";
 import { authQuery, joinData, parseDate } from "./utils";
 
 /**
@@ -114,8 +114,8 @@ export const getPayPeriodForDate = authQuery({
 
     return {
       ...payPeriodInfo,
-      startDate: payPeriodInfo.startDate.toISOString().split("T")[0],
-      endDate: payPeriodInfo.endDate.toISOString().split("T")[0],
+      startDate: timestampToDateString(payPeriodInfo.startDate.getTime()),
+      endDate: timestampToDateString(payPeriodInfo.endDate.getTime()),
     };
   },
 });
@@ -128,7 +128,7 @@ export const backfillPaySchedules = internalMutation({
 
     // Start from 7/2/2017
     const startDate = new Date(Date.UTC(2017, 6, 2)); // July is month 6 (0-based)
-    const today = new Date();
+    const today = new Date(); // This is fine as we're comparing timestamps
     let current = new Date(startDate);
     let created = 0;
     while (current <= today) {

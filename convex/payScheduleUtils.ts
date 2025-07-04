@@ -1,3 +1,5 @@
+import { parseDate } from "./utils";
+
 /**
  * Pay Schedule Utilities
  *
@@ -25,15 +27,7 @@ export interface PayPeriodInfo {
 }
 
 /**
- * Convert current time to MST timezone
- * MST is UTC-7, but we use UTC-6 for Mountain Daylight Time
- */
-function getCurrentMSTTime(): Date {
-  const now = new Date();
-  const mstOffset = -6; // Mountain Daylight Time is UTC-6
-  return new Date(now.getTime() + mstOffset * 60 * 60 * 1000);
-}
-
+ 
 /**
  * Calculate the current week number of the year (1-based)
  * Note: This is kept for reference but pay periods are no longer calculated from weeks
@@ -111,8 +105,7 @@ function formatPayScheduleName(year: number, payPeriod: number): string {
  * Get comprehensive pay period information for the current date
  */
 export function getCurrentPayPeriodInfo(): PayPeriodInfo {
-  const mstNow = getCurrentMSTTime();
-  return getPayPeriodInfoForDate(mstNow);
+  return getPayPeriodInfoForDate(new Date());
 }
 
 /**
@@ -201,4 +194,35 @@ function getDayOfYear(date: Date): number {
   const startOfYear = new Date(Date.UTC(year, 0, 1));
   const msPerDay = 24 * 60 * 60 * 1000;
   return Math.floor((date.getTime() - startOfYear.getTime()) / msPerDay) + 1;
+}
+
+/**
+ * Convert a date string (YYYY-MM-DD) to a Date object or timestamp
+ */
+export function dateStringToTimestamp(dateString: string | undefined): number {
+  if (!dateString) return 0;
+
+  const parsed = parseDate(dateString);
+  return parsed ? parsed.getTime() : 0;
+}
+
+/**
+ * Convert a timestamp to a date string (YYYY-MM-DD)
+ */
+export function timestampToDateString(timestamp: number): string {
+  const date = new Date(timestamp);
+  return date.toISOString().split("T")[0];
+}
+
+/**
+ * Get pay period date range as timestamps for database queries
+ */
+export function getPayPeriodTimestamps(payPeriodInfo: PayPeriodInfo): {
+  startTimestamp: number;
+  endTimestamp: number;
+} {
+  return {
+    startTimestamp: payPeriodInfo.startDate.getTime(),
+    endTimestamp: payPeriodInfo.endDate.getTime(),
+  };
 }

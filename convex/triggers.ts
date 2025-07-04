@@ -4,8 +4,12 @@ import {
 } from "convex-helpers/server/customFunctions";
 import { Triggers } from "convex-helpers/server/triggers";
 import { DataModel } from "./_generated/dataModel";
-import { mutation as rawMutation } from "./_generated/server";
+import {
+  mutation as rawMutation,
+  internalMutation as rawInternalMutation,
+} from "./_generated/server";
 import { internal } from "./_generated/api";
+import { calculateTotalTime } from "./timeUtils";
 
 /**
  * Triggers
@@ -48,6 +52,15 @@ triggers.register("paySchedule", async (ctx, change) => {
 
 triggers.register("times", async (ctx, change) => {
   console.log("times trigger", change);
+
+  // if your deleting a doc that already had an endTime, we need to recalculate the employee hours
+  if (change.operation === "delete" && change.oldDoc.endTime) {
+    ctx.scheduler.runAfter(0, internal.employees.calculateHours, {
+      id: change.oldDoc.employeeId,
+    });
+    return;
+  }
+
   if (
     change.newDoc &&
     change.newDoc.date &&
@@ -56,25 +69,9 @@ triggers.register("times", async (ctx, change) => {
   ) {
     // Only calculate totalTime if both startTime and endTime are present
     const { startTime, endTime, date } = change.newDoc;
-    let totalTime: number = 0;
 
-    // Parse time strings (e.g., "14:08") and combine with timestamp date
-    const [startHour, startMinute] = startTime.split(":").map(Number);
-    const [endHour, endMinute] = endTime.split(":").map(Number);
-
-    // Create Date objects using the timestamp date and parsed times
-    const start = new Date(date);
-    start.setHours(startHour, startMinute, 0, 0);
-
-    const end = new Date(date);
-    end.setHours(endHour, endMinute, 0, 0);
-
-    // Handle case where end time is next day (e.g., shift crosses midnight)
-    if (end < start) {
-      end.setDate(end.getDate() + 1);
-    }
-
-    totalTime = (end.getTime() - start.getTime()) / (1000 * 60 * 60); // hours
+    // Calculate total time using utility function
+    const totalTime = calculateTotalTime(startTime, endTime, date);
     console.log("Calculated totalTime:", totalTime);
 
     if (change.newDoc.totalTime !== totalTime) {
@@ -91,5 +88,10 @@ triggers.register("times", async (ctx, change) => {
 
 export const triggerMutation = customMutation(
   rawMutation,
+  customCtx(triggers.wrapDB)
+);
+
+export const internalMutation = customMutation(
+  rawInternalMutation,
   customCtx(triggers.wrapDB)
 );

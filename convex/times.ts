@@ -4,51 +4,21 @@ import { authMutation, authQuery, joinData, NullP, parseDate } from "./utils";
 import { Id } from "./_generated/dataModel";
 import { QueryCtx } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
-import { getStartOfTodayUtc, getCurrentTimeHHMM } from "./timeUtils";
+import {
+  getStartOfTodayUtc,
+  getCurrentTimeHHMM,
+  timesDateRangeQuery,
+  timesEmployeeAndDateRangeQuery,
+} from "./timeUtils";
+
+/**
+ * Re-export query functions for backward compatibility
+ */
+export { timesDateRangeQuery, timesEmployeeAndDateRangeQuery };
 
 /**
  * Queries
  */
-
-export const timesDateRangeQuery = (
-  ctx: QueryCtx,
-  start: string | number | undefined,
-  end: string | number | undefined
-) => {
-  const startDate =
-    typeof start === "number"
-      ? start
-      : parseDate(start || "1000-01-01")!.getTime();
-  const endDate =
-    typeof end === "number" ? end : parseDate(end || "3000-01-01")!.getTime();
-
-  return ctx.db
-    .query("times")
-    .withIndex("by_date", (q) => {
-      return q.gte("date", startDate).lte("date", endDate);
-    })
-    .order("desc");
-};
-
-export const timesEmployeeAndDateRangeQuery = (
-  ctx: QueryCtx,
-  employeeId: Id<"employees">,
-  start: string | undefined,
-  end: string | undefined
-) => {
-  const startDate = parseDate(start || "1000-01-01")!.getTime();
-  const endDate = parseDate(end || "3000-01-01")!.getTime();
-
-  return ctx.db
-    .query("times")
-    .withIndex("by_employeeId_date", (q) => {
-      return q
-        .eq("employeeId", employeeId)
-        .gte("date", startDate)
-        .lte("date", endDate);
-    })
-    .order("desc");
-};
 
 export const all = authQuery({
   args: {
@@ -203,9 +173,9 @@ export const clockOut = authMutation({
 });
 
 export const destroy = authMutation({
-  args: { _id: v.id("times") },
+  args: { id: v.id("times") },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args._id);
-    return args._id;
+    await ctx.db.delete(args.id);
+    return args.id;
   },
 });
