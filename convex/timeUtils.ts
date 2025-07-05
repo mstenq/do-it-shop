@@ -66,28 +66,8 @@ export function getCurrentTimeHHMM(): string {
  * Calculate total time in hours from start and end time strings (HH:MM format)
  * and a date timestamp. Handles overnight shifts that cross midnight.
  */
-export function calculateTotalTime(
-  startTime: string,
-  endTime: string,
-  dateTimestamp: number
-): number {
-  // Parse time strings (e.g., "14:08") and combine with timestamp date
-  const [startHour, startMinute] = startTime.split(":").map(Number);
-  const [endHour, endMinute] = endTime.split(":").map(Number);
-
-  // Create Date objects using the timestamp date and parsed times
-  const start = new Date(dateTimestamp);
-  start.setUTCHours(startHour, startMinute, 0, 0);
-
-  const end = new Date(dateTimestamp);
-  end.setUTCHours(endHour, endMinute, 0, 0);
-
-  // Handle case where end time is next day (e.g., shift crosses midnight)
-  if (end < start) {
-    end.setUTCDate(end.getUTCDate() + 1);
-  }
-
-  return (end.getTime() - start.getTime()) / (1000 * 60 * 60); // hours
+export function calculateTotalTime(startTime: number, endTime: number): number {
+  return (startTime - endTime) / (1000 * 60 * 60); // hours
 }
 
 /**
@@ -104,20 +84,16 @@ export function sumTotalHours(
  */
 export function timesDateRangeQuery(
   ctx: QueryCtx,
-  start: string | number | undefined,
-  end: string | number | undefined
+  start: number | undefined,
+  end: number | undefined
 ) {
-  const startDate =
-    typeof start === "number"
-      ? start
-      : parseDate(start || "1000-01-01")!.getTime();
-  const endDate =
-    typeof end === "number" ? end : parseDate(end || "3000-01-01")!.getTime();
+  const startRange = start ?? parseDate("1000-01-01")!.getTime();
+  const endRange = end ?? parseDate("3000-01-01")!.getTime();
 
   return ctx.db
     .query("times")
-    .withIndex("by_date", (q) => {
-      return q.gte("date", startDate).lte("date", endDate);
+    .withIndex("by_startTime", (q) => {
+      return q.gte("startTime", startRange).lte("startTime", endRange);
     })
     .order("desc");
 }
@@ -131,20 +107,16 @@ export function timesEmployeeAndDateRangeQuery(
   start: number | undefined,
   end: number | undefined
 ) {
-  const startDate =
-    typeof start === "number"
-      ? start
-      : parseDate(start || "1000-01-01")!.getTime();
-  const endDate =
-    typeof end === "number" ? end : parseDate(end || "3000-01-01")!.getTime();
+  const startRange = start ?? parseDate("1000-01-01")!.getTime();
+  const endRange = end ?? parseDate("3000-01-01")!.getTime();
 
   return ctx.db
     .query("times")
-    .withIndex("by_employeeId_date", (q) => {
+    .withIndex("by_employeeId_startTime", (q) => {
       return q
         .eq("employeeId", employeeId)
-        .gte("date", startDate)
-        .lte("date", endDate);
+        .gte("startTime", startRange)
+        .lte("startTime", endRange);
     })
     .order("desc");
 }
@@ -160,11 +132,11 @@ export async function getCompletedTimeRecords(
 ) {
   return await ctx.db
     .query("times")
-    .withIndex("by_employeeId_date", (q) =>
+    .withIndex("by_employeeId_startTime", (q) =>
       q
         .eq("employeeId", employeeId)
-        .gte("date", startTimestamp)
-        .lte("date", endTimestamp)
+        .gte("startTime", startTimestamp)
+        .lte("startTime", endTimestamp)
     )
     .filter((q) => q.neq(q.field("endTime"), undefined))
     .collect();
@@ -180,8 +152,8 @@ export async function getMostRecentOpenTimeRecord(
 ) {
   return await ctx.db
     .query("times")
-    .withIndex("by_employeeId_date", (q) =>
-      q.eq("employeeId", employeeId).gte("date", fromTimestamp)
+    .withIndex("by_employeeId_startTime", (q) =>
+      q.eq("employeeId", employeeId).gte("startTime", fromTimestamp)
     )
     .filter((q) => q.eq(q.field("endTime"), undefined))
     .first();

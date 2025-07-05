@@ -75,9 +75,8 @@ export const get = authQuery({
 
 const commonArgs = {
   employeeId: v.optional(v.id("employees")),
-  date: v.optional(v.string()),
-  startTime: v.optional(v.string()),
-  endTime: v.optional(v.string()),
+  startTime: v.optional(v.number()),
+  endTime: v.optional(v.number()),
 };
 
 /**
@@ -87,19 +86,12 @@ export const add = authMutation({
   args: {
     ...commonArgs,
     employeeId: v.id("employees"),
-    date: v.string(),
-    startTime: v.string(),
+    startTime: v.number(),
     // endTime is optional
   },
   handler: async (ctx, args) => {
-    const date = parseDate(args.date);
-    if (!date) {
-      throw new Error("Invalid date format");
-    }
-
     const newTime = await ctx.db.insert("times", {
       ...args,
-      date: date.getTime(),
       // totalTime will be calculated in trigger
     });
 
@@ -112,19 +104,9 @@ export const update = authMutation({
     _id: v.id("times"),
     ...commonArgs,
   },
-  handler: async (ctx, { _id, date, ...args }) => {
-    let time: undefined | number = undefined;
-    if (date) {
-      const parsedDate = parseDate(date);
-      if (!parsedDate) {
-        throw new Error("Invalid date format");
-      }
-      time = parsedDate.getTime();
-    }
-
+  handler: async (ctx, { _id, ...args }) => {
     await ctx.db.patch(_id, {
       ...args,
-      ...(date !== undefined ? { date: time } : {}),
     });
     return;
   },
@@ -135,16 +117,9 @@ export const clockIn = authMutation({
     employeeId: v.id("employees"),
   },
   handler: async (ctx, args) => {
-    const startOfToday = getStartOfTodayUtc();
-    const startTime = getCurrentTimeHHMM();
-
-    console.log(startOfToday, startTime);
-
     const newTime = await ctx.db.insert("times", {
       employeeId: args.employeeId,
-      date: startOfToday.getTime(),
-      startTime,
-      // endTime is undefined for clock in
+      startTime: new Date().getTime(),
     });
 
     return newTime;
@@ -165,10 +140,8 @@ export const clockOut = authMutation({
       throw new Error("Employee has already clocked out for this time record");
     }
 
-    const endTime = getCurrentTimeHHMM();
-
     await ctx.db.patch(args.id, {
-      endTime,
+      endTime: new Date().getTime(),
     });
 
     return args.id;

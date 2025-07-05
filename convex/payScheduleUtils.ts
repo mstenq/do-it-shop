@@ -26,8 +26,73 @@ export interface PayPeriodInfo {
   dayOfYear: number;
 }
 
-/**
- 
+function isDaylightSavingTime(
+  year: number,
+  month: number, // 0-based month (0 = January)
+  day: number
+): boolean {
+  // Find the second Sunday in March
+  const marchFirst = new Date(Date.UTC(year, 2, 1)); // March 1st
+  const marchFirstDay = marchFirst.getUTCDay(); // 0 = Sunday
+  const daysToFirstSunday = marchFirstDay === 0 ? 0 : 7 - marchFirstDay;
+  const secondSundayMarch = 1 + daysToFirstSunday + 7; // Second Sunday
+
+  // Find the first Sunday in November
+  const novemberFirst = new Date(Date.UTC(year, 10, 1)); // November 1st
+  const novemberFirstDay = novemberFirst.getUTCDay(); // 0 = Sunday
+  const daysToFirstSundayNov =
+    novemberFirstDay === 0 ? 0 : 7 - novemberFirstDay;
+  const firstSundayNovember = 1 + daysToFirstSundayNov; // First Sunday
+
+  // Check if the date falls within DST period
+  if (month < 2) return false; // January, February - always MST
+  if (month > 10) return false; // December - always MST
+  if (month >= 3 && month <= 9) return true; // April through October - always MDT
+
+  if (month === 2) {
+    // March
+    return day >= secondSundayMarch;
+  }
+
+  if (month === 10) {
+    // November
+    return day < firstSundayNovember;
+  }
+
+  return false;
+}
+
+function getMountainTimeOffset(
+  year: number,
+  month: number,
+  day: number
+): number {
+  return isDaylightSavingTime(year, month, day) ? -6 : -7;
+}
+
+function utcDateToMDTDate(date?: Date): Date {
+  const utcDate = date || new Date();
+  const year = utcDate.getUTCFullYear();
+  const month = utcDate.getUTCMonth();
+  const day = utcDate.getUTCDate();
+  const hours = utcDate.getUTCHours();
+  const minutes = utcDate.getUTCMinutes();
+  const seconds = utcDate.getUTCSeconds();
+  const milliseconds = utcDate.getUTCMilliseconds();
+  const mountainOffset = getMountainTimeOffset(year, month, day);
+  // Create date preserving the original time, adjusted for MDT offset
+  return new Date(
+    Date.UTC(
+      year,
+      month,
+      day,
+      hours - mountainOffset,
+      minutes,
+      seconds,
+      milliseconds
+    )
+  );
+}
 /**
  * Calculate the current week number of the year (1-based)
  * Note: This is kept for reference but pay periods are no longer calculated from weeks
@@ -86,11 +151,12 @@ function calculatePayPeriodStartDate(year: number, payPeriod: number): Date {
 
 /**
  * Calculate the end date (Saturday) for a given start date
- * End date is 13 days after start date (2 weeks - 1 day)
+ * End date is 14 days after start date minus 1 second (11:59:59 PM on the 14th day)
  */
 function calculatePayPeriodEndDate(startDate: Date): Date {
   const endDate = new Date(startDate);
-  endDate.setUTCDate(startDate.getUTCDate() + 13);
+  endDate.setUTCDate(startDate.getUTCDate() + 14);
+  endDate.setUTCSeconds(endDate.getUTCSeconds() - 1);
   return endDate;
 }
 
@@ -125,8 +191,8 @@ export function getPayPeriodInfoForDate(date: Date): PayPeriodInfo {
       year: inputYear,
       payPeriod: 1,
       name: formatPayScheduleName(inputYear, 1),
-      startDate: currentYearPP01Start,
-      endDate: currentYearPP01End,
+      startDate: utcDateToMDTDate(currentYearPP01Start),
+      endDate: utcDateToMDTDate(currentYearPP01End),
       currentWeek: getWeekOfYear(date),
       dayOfYear: getDayOfYear(date),
     };
@@ -142,8 +208,8 @@ export function getPayPeriodInfoForDate(date: Date): PayPeriodInfo {
       year: inputYear + 1,
       payPeriod: 1,
       name: formatPayScheduleName(inputYear + 1, 1),
-      startDate: nextYearPP01Start,
-      endDate: nextYearPP01End,
+      startDate: utcDateToMDTDate(nextYearPP01Start),
+      endDate: utcDateToMDTDate(nextYearPP01End),
       currentWeek: getWeekOfYear(date),
       dayOfYear: getDayOfYear(date),
     };
@@ -179,8 +245,8 @@ export function getPayPeriodInfoForDate(date: Date): PayPeriodInfo {
     year: payYear,
     payPeriod,
     name: formatPayScheduleName(payYear, payPeriod),
-    startDate,
-    endDate,
+    startDate: utcDateToMDTDate(startDate),
+    endDate: utcDateToMDTDate(endDate),
     currentWeek: getWeekOfYear(date),
     dayOfYear: getDayOfYear(date),
   };
@@ -197,32 +263,12 @@ function getDayOfYear(date: Date): number {
 }
 
 /**
- * Convert a date string (YYYY-MM-DD) to a Date object or timestamp
+ *
+ * @deprecated - dont use - can't delete because convex freaks out
  */
 export function dateStringToTimestamp(dateString: string | undefined): number {
   if (!dateString) return 0;
 
   const parsed = parseDate(dateString);
   return parsed ? parsed.getTime() : 0;
-}
-
-/**
- * Convert a timestamp to a date string (YYYY-MM-DD)
- */
-export function timestampToDateString(timestamp: number): string {
-  const date = new Date(timestamp);
-  return date.toISOString().split("T")[0];
-}
-
-/**
- * Get pay period date range as timestamps for database queries
- */
-export function getPayPeriodTimestamps(payPeriodInfo: PayPeriodInfo): {
-  startTimestamp: number;
-  endTimestamp: number;
-} {
-  return {
-    startTimestamp: payPeriodInfo.startDate.getTime(),
-    endTimestamp: payPeriodInfo.endDate.getTime(),
-  };
 }

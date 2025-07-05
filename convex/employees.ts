@@ -1,10 +1,7 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
-import {
-  getCurrentPayPeriodInfo,
-  getPayPeriodTimestamps,
-} from "./payScheduleUtils";
+import { getCurrentPayPeriodInfo } from "./payScheduleUtils";
 import { employeeType } from "./schema";
 import {
   calculateEmployeeHours,
@@ -213,14 +210,13 @@ export const calculateHours = internalMutation({
 
     // Get current pay period info
     const payPeriod = getCurrentPayPeriodInfo();
-    const { startTimestamp, endTimestamp } = getPayPeriodTimestamps(payPeriod);
 
     // Calculate all hours using the utility function
     const hours = await calculateEmployeeHours(
       ctx,
       args.id,
-      startTimestamp,
-      endTimestamp
+      payPeriod.startDate.getTime(),
+      payPeriod.endDate.getTime()
     );
 
     console.log(

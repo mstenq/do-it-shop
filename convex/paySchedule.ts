@@ -3,7 +3,6 @@ import { Id } from "./_generated/dataModel";
 import {
   getCurrentPayPeriodInfo,
   getPayPeriodInfoForDate,
-  timestampToDateString,
 } from "./payScheduleUtils";
 import { timesDateRangeQuery } from "./timeUtils";
 import { internalMutation } from "./triggers";
@@ -47,8 +46,12 @@ export const generatePaySchedule = internalMutation({
   args: {},
   handler: async (ctx): Promise<any> => {
     // Get current pay period information using utilities
-    const payPeriodInfo = getCurrentPayPeriodInfo();
+    const tomorrow = new Date();
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1); // Get tomorrow
+    const payPeriodInfo = getPayPeriodInfoForDate(tomorrow);
     const { year, payPeriod, name, startDate, endDate } = payPeriodInfo;
+
+    console.log("found", payPeriodInfo);
 
     // Check if current pay schedule already exists
     const existingPaySchedule = await ctx.db
@@ -114,8 +117,8 @@ export const getPayPeriodForDate = authQuery({
 
     return {
       ...payPeriodInfo,
-      startDate: timestampToDateString(payPeriodInfo.startDate.getTime()),
-      endDate: timestampToDateString(payPeriodInfo.endDate.getTime()),
+      startDate: payPeriodInfo.startDate.getTime(),
+      endDate: payPeriodInfo.endDate.getTime(),
     };
   },
 });
@@ -123,9 +126,6 @@ export const getPayPeriodForDate = authQuery({
 export const backfillPaySchedules = internalMutation({
   args: {},
   handler: async (ctx) => {
-    console.log("COMMENTED OUT BACKFILL PAY SCHEDULES");
-    return { created: 0 }; // Commented out to prevent accidental execution
-
     // Start from 7/2/2017
     const startDate = new Date(Date.UTC(2017, 6, 2)); // July is month 6 (0-based)
     const today = new Date(); // This is fine as we're comparing timestamps

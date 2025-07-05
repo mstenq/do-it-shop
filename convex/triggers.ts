@@ -61,17 +61,12 @@ triggers.register("times", async (ctx, change) => {
     return;
   }
 
-  if (
-    change.newDoc &&
-    change.newDoc.date &&
-    change.newDoc.startTime &&
-    change.newDoc.endTime
-  ) {
+  if (change.newDoc && change.newDoc.startTime && change.newDoc.endTime) {
     // Only calculate totalTime if both startTime and endTime are present
-    const { startTime, endTime, date } = change.newDoc;
+    const { startTime, endTime } = change.newDoc;
 
     // Calculate total time using utility function
-    const totalTime = calculateTotalTime(startTime, endTime, date);
+    const totalTime = calculateTotalTime(startTime, endTime);
     console.log("Calculated totalTime:", totalTime);
 
     if (change.newDoc.totalTime !== totalTime) {

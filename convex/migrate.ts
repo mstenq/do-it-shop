@@ -67,9 +67,8 @@ export const processEmployeeTimes = internalMutation({
     const timeInserts = fmTimes.map((fmTime) =>
       ctx.db.insert("times", {
         employeeId: args.convexEmployeeId,
-        date: fmTime.date,
-        startTime: String(fmTime.startTime),
-        endTime: fmTime.endTime === ":00" ? undefined : String(fmTime.endTime),
+        startTime: fmTime.startTime,
+        endTime: fmTime.endTime ?? undefined,
         totalTime: fmTime.totalTime,
         filemakerId: fmTime.filemakerId,
       })

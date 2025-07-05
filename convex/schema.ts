@@ -62,15 +62,14 @@ export default defineSchema({
 
   times: defineTable({
     employeeId: v.id("employees"),
-    date: v.number(),
-    startTime: v.string(),
-    endTime: v.optional(v.string()),
+    startTime: v.number(),
+    endTime: v.optional(v.number()),
     totalTime: v.optional(v.number()), // calculated in trigger
 
     filemakerId: v.optional(v.string()),
   })
-    .index("by_date", ["date"])
-    .index("by_employeeId_date", ["employeeId", "date"]),
+    .index("by_startTime", ["startTime"])
+    .index("by_employeeId_startTime", ["employeeId", "startTime"]),
 
   // Temp tables
   fmEmployees: defineTable({
@@ -84,11 +83,10 @@ export default defineSchema({
   }).index("by_filemakerId", ["filemakerId"]),
 
   fmTimes: defineTable({
-    date: v.float64(),
     employeeFilemakerId: v.string(),
-    endTime: v.string(),
-    filemakerId: v.string(),
-    startTime: v.string(),
+    endTime: v.number(),
+    startTime: v.number(),
     totalTime: v.float64(),
+    filemakerId: v.string(),
   }).index("by_employeeFilemakerId", ["employeeFilemakerId"]),
 });
