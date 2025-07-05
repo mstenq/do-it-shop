@@ -1,4 +1,4 @@
-import { tryCatch } from "./tryCatch";
+import { tryCatch } from "./try-catch";
 
 export const uriEncodeAndStringify = (v: any) => {
   const [jsonString, stringifyError] = tryCatch(() => JSON.stringify(v));

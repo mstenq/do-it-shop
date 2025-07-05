@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   camelToProperCase,
   stringToSpacedTitleCase,
-} from "@/utils/textCaseConvert";
+} from "@/utils/text-case-convert";
 import {
   closestCenter,
   DndContext,

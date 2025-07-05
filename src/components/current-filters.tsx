@@ -1,4 +1,4 @@
-import { camelToProperCase } from "@/utils/textCaseConvert";
+import { camelToProperCase } from "@/utils/text-case-convert";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";

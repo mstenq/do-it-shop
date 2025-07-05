@@ -128,8 +128,8 @@ export function timesDateRangeQuery(
 export function timesEmployeeAndDateRangeQuery(
   ctx: QueryCtx,
   employeeId: Id<"employees">,
-  start: string | number | undefined,
-  end: string | number | undefined
+  start: number | undefined,
+  end: number | undefined
 ) {
   const startDate =
     typeof start === "number"

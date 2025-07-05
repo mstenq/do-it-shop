@@ -6,8 +6,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ConvexType } from "@/utils/convexType";
-import { formatHours } from "@/utils/numberFormatters";
+import { ConvexType } from "@/utils/convex-type";
+import { formatHours } from "@/utils/number-formatters";
 import { ColumnDef } from "@tanstack/react-table";
 import { format, getWeek } from "date-fns";
 import { useMemo } from "react";

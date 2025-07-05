@@ -20,7 +20,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery } from "convex-helpers/react/cache";
 import { useMutation } from "convex/react";
 
-import { ConvexType } from "@/utils/convexType";
+import { ConvexType } from "@/utils/convex-type";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../../components/ui/button";

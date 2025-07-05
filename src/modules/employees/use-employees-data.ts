@@ -1,6 +1,6 @@
 import { api } from "@convex/api";
 import { useQuery } from "convex-helpers/react/cache";
-import { ConvexType } from "@/utils/convexType";
+import { ConvexType } from "@/utils/convex-type";
 import { useSearch } from "@tanstack/react-router";
 
 export const useEmployeesData = (

@@ -1,6 +1,6 @@
 import { JSX } from "react";
 import { format } from "date-fns";
-import { tryCatch } from "./tryCatch";
+import { tryCatch } from "./try-catch";
 
 export const createMonthGrouper = <Row,>(
   key: keyof Row,

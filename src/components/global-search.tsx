@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/command";
 import { useIsMac } from "@/hooks/use-is-mac";
 import { useStableQuery } from "@/hooks/use-stable-query";
-import { ConvexType } from "@/utils/convexType";
+import { ConvexType } from "@/utils/convex-type";
 import { api } from "@convex/api";
 import {
   Calendar,

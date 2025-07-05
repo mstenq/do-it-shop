@@ -25,12 +25,13 @@ export const all = authQuery({
     employeeId: v.optional(v.id("employees")),
     dateRange: v.optional(
       v.object({
-        start: v.string(),
-        end: v.string(),
+        start: v.optional(v.number()),
+        end: v.optional(v.number()),
       })
     ),
   },
   handler: async (ctx, args) => {
+    console.log("Fetching all times with args:", args);
     const query = args.employeeId
       ? timesEmployeeAndDateRangeQuery(
           ctx,
@@ -73,9 +74,9 @@ export const get = authQuery({
 });
 
 const commonArgs = {
-  employeeId: v.id("employees"),
-  date: v.string(),
-  startTime: v.string(),
+  employeeId: v.optional(v.id("employees")),
+  date: v.optional(v.string()),
+  startTime: v.optional(v.string()),
   endTime: v.optional(v.string()),
 };
 
@@ -136,6 +137,8 @@ export const clockIn = authMutation({
   handler: async (ctx, args) => {
     const startOfToday = getStartOfTodayUtc();
     const startTime = getCurrentTimeHHMM();
+
+    console.log(startOfToday, startTime);
 
     const newTime = await ctx.db.insert("times", {
       employeeId: args.employeeId,

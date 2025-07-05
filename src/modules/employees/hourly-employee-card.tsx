@@ -8,8 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ConvexType } from "@/utils/convexType";
-import { formatHours } from "@/utils/numberFormatters";
+import { ConvexType } from "@/utils/convex-type";
+import { formatHours } from "@/utils/number-formatters";
 import { api } from "@convex/api";
 import { Id } from "@convex/dataModel";
 import { Link } from "@tanstack/react-router";

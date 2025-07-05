@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { ConvexType } from "@/utils/convexType";
+import { ConvexType } from "@/utils/convex-type";
 import { Id } from "@convex/dataModel";
 import { ReactMutation } from "convex/react";
 import { FunctionReference } from "convex/server";

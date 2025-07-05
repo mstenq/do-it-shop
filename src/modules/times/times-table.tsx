@@ -1,3 +1,4 @@
+import { useOverlay } from "@/components/overlay";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,27 +27,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatHours } from "@/utils/numberFormatters";
-import { formatTimeString } from "@/utils/timeFormatters";
+import { ConvexType } from "@/utils/convex-type";
+import { formatHours } from "@/utils/number-formatters";
+import { formatTimeString } from "@/utils/time-formatters";
 import { api } from "@convex/api";
 import { Id } from "@convex/dataModel";
 import { useQuery } from "convex-helpers/react/cache";
 import { useMutation } from "convex/react";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { EditTimeForm } from "./edit-time-form";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { getEndOfDay, getStartOfDay } from "@/utils/date-utils";
 
 export function TimesTable() {
+  const overlay = useOverlay();
   const [timeEntryFilter, setTimeEntryFilter] = useState("");
   const [timeEntryToDelete, setTimeEntryToDelete] =
     useState<Id<"times"> | null>(null);
 
+  const dateRange = useMemo(() => {
+    return {
+      start: getStartOfDay(),
+      end: getEndOfDay(),
+    };
+  }, []);
+
   const times =
     useQuery(api.times.all, {
-      dateRange: {
-        start: new Date().toISOString().split("T")[0], // Start of today
-        end: new Date().toISOString().split("T")[0], // End of today
-      },
+      dateRange,
     }) ?? [];
 
   const destroyTimeEntry = useMutation(api.times.destroy);
@@ -79,6 +89,21 @@ export function TimesTable() {
 
   const handleCancelDelete = () => {
     setTimeEntryToDelete(null);
+  };
+
+  const showEditForm = (time: ConvexType<"times.all">[number]) => {
+    overlay.show(
+      <Dialog open={true} onOpenChange={() => overlay.close()}>
+        <DialogTitle>Edit Time Entry</DialogTitle>
+        <DialogContent>
+          <EditTimeForm
+            id={time._id}
+            onSuccess={() => overlay.close()}
+            onCancel={() => overlay.close()}
+          />
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   return (
@@ -115,7 +140,11 @@ export function TimesTable() {
             </TableHeader>
             <TableBody className="overflow-y-auto">
               {filteredTimeEntries.map((entry) => (
-                <TableRow key={entry._id} className="">
+                <TableRow
+                  key={entry._id}
+                  className=""
+                  onClick={() => showEditForm(entry)}
+                >
                   <TableCell className="">
                     {entry.employee?.nameFirst} {entry.employee?.nameLast}
                   </TableCell>

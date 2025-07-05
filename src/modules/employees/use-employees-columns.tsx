@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { z } from "zod";
 import { api } from "@convex/api";
-import { ConvexType } from "@/utils/convexType";
+import { ConvexType } from "@/utils/convex-type";
 import { RowActionsConfig } from "@/components/data-table-row-actions";
 import { PencilIcon, XIcon, Undo2Icon } from "lucide-react";
 import { toast } from "sonner";

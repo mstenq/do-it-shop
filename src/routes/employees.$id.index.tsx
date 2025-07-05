@@ -26,10 +26,8 @@ function RouteComponent() {
   const dateRange =
     startDate || endDate
       ? {
-          start: startDate
-            ? startDate.toISOString().slice(0, 10)
-            : "1000-01-01",
-          end: endDate ? endDate.toISOString().slice(0, 10) : "3000-01-01",
+          start: startDate ? startDate.getTime() : undefined,
+          end: endDate ? endDate.getTime() : undefined,
         }
       : undefined;
 
