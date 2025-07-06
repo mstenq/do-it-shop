@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 import { ConvexType } from "@/utils/convex-type";
 import { formatHours } from "@/utils/number-formatters";
-import { formatTimeString } from "@/utils/time-formatters";
+import { formatTime } from "@/utils/time-formatters";
 import { api } from "@convex/api";
 import { Id } from "@convex/dataModel";
 import { useQuery } from "convex-helpers/react/cache";
@@ -149,10 +149,10 @@ export function TimesTable() {
                     {entry.employee?.nameFirst} {entry.employee?.nameLast}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatTimeString(entry.startTime)}
+                    {formatTime(entry.startTime)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatTimeString(entry.endTime)}
+                    {formatTime(entry.endTime)}
                   </TableCell>
                   <TableCell className="text-right">
                     {formatHours(entry.totalTime)}

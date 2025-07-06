@@ -1,4 +1,4 @@
-import { House, IdCardIcon } from "lucide-react";
+import { FileClockIcon, House, IdCardIcon, PiggyBankIcon } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -19,7 +19,7 @@ const useDate = () => {
     navMain: [
       {
         title: "Dashboard",
-        url: "#",
+        url: "/dashboard/",
         icon: House,
         isActive: true,
         items: [],
@@ -34,6 +34,11 @@ const useDate = () => {
             url: "/positions",
           },
         ],
+      },
+      {
+        title: "Pay Roll",
+        url: "/pay-roll",
+        icon: PiggyBankIcon,
       },
     ],
   };

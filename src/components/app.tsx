@@ -1,22 +1,15 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { NavBreadcrumbs } from "@/components/nav-breadcrumbs";
-import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useOrganization } from "@clerk/clerk-react";
 import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { OrganizationList, useOrganization } from "@clerk/clerk-react";
-import { api } from "@convex/api";
-import { DataModel } from "@convex/dataModel";
-import { Outlet } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
-import { useEffect, useState } from "react";
+  Outlet,
+  useRouteContext,
+  useRouterState,
+} from "@tanstack/react-router";
 import { TooltipProvider } from "./ui/tooltip";
+import { useMemo } from "react";
 
 export function App() {
-  const { organization } = useOrganization();
-
   return (
     <TooltipProvider delayDuration={0}>
       <SidebarProvider>

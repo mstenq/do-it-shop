@@ -39,16 +39,21 @@ export function NavMain({
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link to={item.url}>
-                  <item.icon />
+              <SidebarMenuButton size="lg" asChild tooltip={item.title}>
+                <Link
+                  to={item.url}
+                  className="flex items-center gap-4 data-[status=active]:text-primary"
+                >
+                  <div className="h-5">
+                    <item.icon />
+                  </div>
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
               {item.items?.length ? (
                 <>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuAction className="data-[state=open]:rotate-90">
+                    <SidebarMenuAction className="data-[state=open]:rotate-90  w-8 h-8">
                       <ChevronRight />
                       <span className="sr-only">Toggle</span>
                     </SidebarMenuAction>

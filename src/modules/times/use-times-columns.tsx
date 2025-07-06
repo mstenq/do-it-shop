@@ -1,13 +1,8 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ConvexType } from "@/utils/convex-type";
 import { formatHours } from "@/utils/number-formatters";
+import { formatTime } from "@/utils/time-formatters";
 import { ColumnDef } from "@tanstack/react-table";
 import { format, getWeek } from "date-fns";
 import { useMemo } from "react";
@@ -22,8 +17,8 @@ export function useTimesColumns() {
         accessorKey: "date",
         header: "Date",
         enableSorting: false,
-        cell: ({ getValue }) =>
-          format(new Date(getValue() as string), "yyyy-MM-dd"),
+        cell: ({ row }) =>
+          format(new Date(row.original.startTime), "yyyy-MM-dd"),
       },
       {
         id: "startTime",
@@ -33,8 +28,7 @@ export function useTimesColumns() {
         meta: {
           align: "right",
         },
-        cell: ({ getValue }) =>
-          getValue() ? String(getValue()).slice(0, 5) : "",
+        cell: ({ row }) => formatTime(row.original.startTime),
       },
       {
         id: "endTime",
@@ -44,8 +38,7 @@ export function useTimesColumns() {
         meta: {
           align: "right",
         },
-        cell: ({ getValue }) =>
-          getValue() ? String(getValue()).slice(0, 5) : "",
+        cell: ({ row }) => formatTime(row.original.endTime),
       },
       {
         id: "totalTime",
@@ -55,8 +48,7 @@ export function useTimesColumns() {
         meta: {
           align: "right",
         },
-        cell: ({ getValue }) =>
-          getValue() ? (Number(getValue()) / 60).toFixed(2) : "",
+        cell: ({ row }) => formatHours(row.original.totalTime),
       },
 
       {
@@ -65,7 +57,7 @@ export function useTimesColumns() {
         enableSorting: false,
 
         accessorFn: (row) => {
-          const date = new Date(row.date);
+          const date = new Date(row.startTime);
           return getWeek(date);
         },
       },
@@ -77,7 +69,7 @@ export function useTimesColumns() {
     () => ({
       week: {
         grouper: (row: Row) => {
-          const date = new Date(row.date);
+          const date = new Date(row.startTime);
           return String(getWeek(date));
         },
         above: (rows: Row[]) => {
@@ -87,7 +79,7 @@ export function useTimesColumns() {
           );
           const regularHours = totalTime > 40 ? 40 : totalTime;
           const overtime = totalTime > 40 ? totalTime - 40 : 0;
-          const week = getWeek(new Date(rows[0].date));
+          const week = getWeek(new Date(rows[0].startTime));
           return (
             <div className="flex flex-row items-end justify-between gap-1 pl-3">
               <div className="flex items-center gap-2 mb-1 text-lg font-bold text-primary">
@@ -128,7 +120,7 @@ export function useTimesColumns() {
       },
       date: {
         grouper: (row: Row) => {
-          const date = new Date(row.date);
+          const date = new Date(row.startTime);
           return format(date, "yyyy-MM-dd");
         },
         spanAvailable: false,
@@ -137,7 +129,7 @@ export function useTimesColumns() {
             (sum, row) => sum + (row.totalTime || 0),
             0
           );
-          const date = format(new Date(rows[0].date), "MMMM dd, yyyy");
+          const date = format(new Date(rows[0].startTime), "MMMM dd, yyyy");
           return (
             <>
               <td className="py-2 pl-6 font-bold bg-muted/50">{date}</td>

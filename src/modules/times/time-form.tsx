@@ -1,8 +1,4 @@
-import { ConvexType } from "@/utils/convex-type";
 import { Id } from "@convex/dataModel";
-import { api } from "convex/_generated/api";
-import { useQuery } from "convex/react";
-import { parse } from "date-fns";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
@@ -14,7 +10,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { cn } from "@/lib/utils";
 
 // Shared form schema for time entry validation

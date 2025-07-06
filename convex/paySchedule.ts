@@ -96,12 +96,7 @@ export const getCurrentPayPeriod = authQuery({
       return null;
     }
 
-    const [joinedRecord] = await joinData([existingPaySchedule], {
-      timeEntries: (r) =>
-        timesDateRangeQuery(ctx, r.startDate, r.endDate).collect(),
-    });
-
-    return joinedRecord;
+    return existingPaySchedule;
   },
 });
 

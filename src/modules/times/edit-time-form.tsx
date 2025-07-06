@@ -1,6 +1,6 @@
 import React from "react";
 import { Id } from "@convex/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -12,10 +12,8 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 import { TimeFormFields, timeEntrySchema, TimeFormData } from "./time-form";
 import { api } from "@convex/api";
-import {
-  convertLocalTimeToUtc,
-  convertUtcTimeToLocal,
-} from "@/utils/date-utils";
+import { parseDateAndTime, timestampToTimeString } from "@/utils/date-utils";
+import { useQuery } from "convex-helpers/react/cache";
 
 interface EditTimeFormProps {
   id: Id<"times">;
@@ -48,14 +46,14 @@ export const EditTimeForm = ({
   // Populate form when data loads
   React.useEffect(() => {
     if (timeEntry) {
-      const localDate = format(new Date(timeEntry.date), "yyyy-MM-dd");
+      const localDate = format(new Date(timeEntry.startTime), "yyyy-MM-dd");
 
       form.reset({
         employeeId: timeEntry.employeeId,
         date: localDate,
-        startTime: convertUtcTimeToLocal(timeEntry.startTime, timeEntry.date),
+        startTime: timestampToTimeString(timeEntry.startTime),
         endTime: timeEntry.endTime
-          ? convertUtcTimeToLocal(timeEntry.endTime, timeEntry.date)
+          ? timestampToTimeString(timeEntry.endTime)
           : "",
       });
     }
@@ -65,15 +63,15 @@ export const EditTimeForm = ({
   const onSubmit = async (data: TimeFormData) => {
     try {
       // Convert local times to UTC before saving
-      const utcStartTime = convertLocalTimeToUtc(data.startTime, data.date);
-      const utcEndTime = data.endTime
-        ? convertLocalTimeToUtc(data.endTime, data.date)
+      const startDate = parseDateAndTime(data.date, data.startTime);
+      const endDate = data.endTime
+        ? parseDateAndTime(data.date, data.endTime)
         : undefined;
 
       await updateTime({
         _id: id,
-        startTime: utcStartTime,
-        endTime: utcEndTime,
+        startTime: startDate.getTime(),
+        endTime: endDate?.getTime(),
       });
 
       toast.success("Time entry updated successfully");
@@ -112,7 +110,7 @@ export const EditTimeForm = ({
             form={form}
             mode="edit"
             employeeId={timeEntry.employeeId}
-            date={format(new Date(timeEntry.date), "yyyy-MM-dd")}
+            date={format(new Date(timeEntry.startTime), "yyyy-MM-dd")}
             isSubmitting={form.formState.isSubmitting}
           />
         </div>

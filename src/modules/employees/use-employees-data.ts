@@ -19,23 +19,6 @@ export const useEmployeesData = (
   const filteredData = (): ConvexType<"employees.all"> => {
     let data = employees ?? [];
 
-    // Filter by department
-    if (filters?.department) {
-      data = data.filter(
-        (employee) => employee.department === filters?.department
-      );
-    }
-
-    // Filter by level
-    if (filters?.level) {
-      data = data.filter((employee) => employee.level === filters?.level);
-    }
-
-    // Filter by grade
-    if (filters?.grade) {
-      data = data.filter((employee) => employee.grade === filters?.grade);
-    }
-
     return data;
   };
 

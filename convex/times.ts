@@ -5,7 +5,7 @@ import { Id } from "./_generated/dataModel";
 import { QueryCtx } from "./_generated/server";
 import { paginationOptsValidator } from "convex/server";
 import {
-  getStartOfTodayUtc,
+  getStartOfTodayMDT,
   getCurrentTimeHHMM,
   timesDateRangeQuery,
   timesEmployeeAndDateRangeQuery,

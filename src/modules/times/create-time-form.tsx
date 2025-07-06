@@ -1,6 +1,6 @@
 import React from "react";
 import { Id } from "@convex/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { api } from "@convex/api";
-import { convertLocalTimeToUtc } from "@/utils/date-utils";
+import { parseDateAndTime } from "@/utils/date-utils";
+import { useQuery } from "convex-helpers/react/cache";
 
 // Form schema for time entry validation
 const timeEntrySchema = z
@@ -111,16 +112,15 @@ export const CreateTimeForm = ({
   const onSubmit = async (data: FormData) => {
     try {
       // Convert local times to UTC before saving
-      const utcStartTime = convertLocalTimeToUtc(data.startTime, data.date);
-      const utcEndTime = data.endTime
-        ? convertLocalTimeToUtc(data.endTime, data.date)
+      const startDate = parseDateAndTime(data.date, data.startTime);
+      const endDate = data.endTime
+        ? parseDateAndTime(data.date, data.endTime)
         : undefined;
 
       await createTime({
         employeeId: data.employeeId as Id<"employees">,
-        date: data.date,
-        startTime: utcStartTime,
-        endTime: utcEndTime,
+        startTime: startDate.getTime(),
+        endTime: endDate?.getTime(),
       });
 
       toast.success("Time entry created successfully");

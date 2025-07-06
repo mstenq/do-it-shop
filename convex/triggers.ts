@@ -74,7 +74,7 @@ triggers.register("times", async (ctx, change) => {
       await ctx.db.patch(change.id, { totalTime });
 
       // trigger employee hour calculations
-      ctx.scheduler.runAfter(0, internal.employees.calculateHours, {
+      ctx.scheduler.runAfter(1000, internal.employees.calculateHours, {
         id: change.newDoc.employeeId,
       });
     }

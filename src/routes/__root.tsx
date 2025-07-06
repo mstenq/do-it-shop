@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+import { JSX } from "react";
 
 interface MyRouterContext {
   title: string;

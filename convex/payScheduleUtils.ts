@@ -34,7 +34,7 @@ const DAYS_PER_WEEK = 7;
 /**
  * Determines if a date falls within Daylight Saving Time in Mountain Time
  */
-function isDaylightSavingTime(
+export function isDaylightSavingTime(
   year: number,
   month: number,
   day: number
@@ -67,7 +67,7 @@ function getNthSundayOfMonth(year: number, month: number, nth: number): number {
 /**
  * Get Mountain Time offset from UTC (-6 for MDT, -7 for MST)
  */
-function getMountainTimeOffset(
+export function getMountainTimeOffset(
   year: number,
   month: number,
   day: number
@@ -78,7 +78,7 @@ function getMountainTimeOffset(
 /**
  * Convert UTC date to Mountain Time (preserving the date/time values)
  */
-function utcDateToMDTDate(date?: Date): Date {
+export function utcDateToMDTDate(date?: Date): Date {
   const utcDate = date || new Date();
   const year = utcDate.getUTCFullYear();
   const month = utcDate.getUTCMonth();
@@ -89,18 +89,21 @@ function utcDateToMDTDate(date?: Date): Date {
   const milliseconds = utcDate.getUTCMilliseconds();
 
   const mountainOffset = getMountainTimeOffset(year, month, day);
+
+  // Convert UTC to Mountain Time by adding the offset (negative values become positive)
   return new Date(
     Date.UTC(
       year,
       month,
       day,
-      hours - mountainOffset,
+      hours + mountainOffset,
       minutes,
       seconds,
       milliseconds
     )
   );
 }
+
 /**
  * Calculate the current week number of the year (1-based)
  * Note: This is kept for reference but pay periods are no longer calculated from weeks
@@ -194,7 +197,7 @@ function formatPayScheduleName(year: number, payPeriod: number): string {
  * Get comprehensive pay period information for the current date
  */
 export function getCurrentPayPeriodInfo(): PayPeriodInfo {
-  return getPayPeriodInfoForDate(new Date());
+  return getPayPeriodInfoForDate(utcDateToMDTDate());
 }
 
 /**

@@ -64,15 +64,20 @@ export const processEmployeeTimes = internalMutation({
       .collect();
 
     console.log("Processing FileMaker Times:", fmTimes.length);
+
     const timeInserts = fmTimes.map((fmTime) =>
       ctx.db.insert("times", {
         employeeId: args.convexEmployeeId,
         startTime: fmTime.startTime,
-        endTime: fmTime.endTime ?? undefined,
+        endTime: fmTime.endTime === 0 ? undefined : fmTime.endTime,
         totalTime: fmTime.totalTime,
         filemakerId: fmTime.filemakerId,
       })
     );
+
+    ctx.scheduler.runAfter(10000, internal.employees.calculateHours, {
+      id: args.convexEmployeeId,
+    });
 
     await Promise.all(timeInserts);
   },

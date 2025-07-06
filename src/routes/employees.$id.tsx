@@ -1,13 +1,9 @@
-import { PageTabs } from "@/components/page-tabs";
 import { Spacer } from "@/components/spacer";
 import { Button } from "@/components/ui/button";
-import { ImageUploadInput } from "@/components/ui/image-upload-input";
 import { api } from "@convex/api";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "convex-helpers/react/cache";
-import { useMutation } from "convex/react";
-import { BuildingIcon, MailIcon, PhoneIcon, UserIcon } from "lucide-react";
-import { useTransition } from "react";
+import { MailIcon, PhoneIcon } from "lucide-react";
 
 export const Route = createFileRoute("/employees/$id")({
   beforeLoad: async ({ params }: { params: any }) => {
@@ -20,9 +16,7 @@ export const Route = createFileRoute("/employees/$id")({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const [isUpdatingPhoto, startTransition] = useTransition();
   const employee = useQuery(api.employees.get, { id });
-  const updateEmployee = useMutation(api.employees.update);
 
   if (!employee) return null;
 

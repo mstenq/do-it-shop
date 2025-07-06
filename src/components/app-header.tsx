@@ -1,4 +1,3 @@
-import { GlobalSearch } from "./global-search";
 import { NavBreadcrumbs } from "./nav-breadcrumbs";
 import { Spacer } from "./spacer";
 import { Separator } from "./ui/separator";

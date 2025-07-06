@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PayRollRouteImport } from './routes/pay-roll'
 import { Route as EmployeesRouteImport } from './routes/employees'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PayRollIndexRouteImport } from './routes/pay-roll.index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
 import { Route as DashboardWaitingOnRouteImport } from './routes/dashboard.waiting-on'
@@ -19,6 +21,11 @@ import { Route as DashboardProjectsRouteImport } from './routes/dashboard.projec
 import { Route as DashboardOverviewRouteImport } from './routes/dashboard.overview'
 import { Route as EmployeesIdIndexRouteImport } from './routes/employees.$id.index'
 
+const PayRollRoute = PayRollRouteImport.update({
+  id: '/pay-roll',
+  path: '/pay-roll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmployeesRoute = EmployeesRouteImport.update({
   id: '/employees',
   path: '/employees',
@@ -33,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PayRollIndexRoute = PayRollIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PayRollRoute,
 } as any)
 const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
   id: '/',
@@ -69,11 +81,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
+  '/pay-roll': typeof PayRollRouteWithChildren
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
+  '/pay-roll/': typeof PayRollIndexRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -83,6 +97,7 @@ export interface FileRoutesByTo {
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees': typeof EmployeesIndexRoute
+  '/pay-roll': typeof PayRollIndexRoute
   '/employees/$id': typeof EmployeesIdIndexRoute
 }
 export interface FileRoutesById {
@@ -90,11 +105,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
+  '/pay-roll': typeof PayRollRouteWithChildren
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/employees/': typeof EmployeesIndexRoute
+  '/pay-roll/': typeof PayRollIndexRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -103,11 +120,13 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/employees'
+    | '/pay-roll'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/employees/'
+    | '/pay-roll/'
     | '/employees/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -117,17 +136,20 @@ export interface FileRouteTypes {
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees'
+    | '/pay-roll'
     | '/employees/$id'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/employees'
+    | '/pay-roll'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/employees/'
+    | '/pay-roll/'
     | '/employees/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -135,10 +157,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   EmployeesRoute: typeof EmployeesRouteWithChildren
+  PayRollRoute: typeof PayRollRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pay-roll': {
+      id: '/pay-roll'
+      path: '/pay-roll'
+      fullPath: '/pay-roll'
+      preLoaderRoute: typeof PayRollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/employees': {
       id: '/employees'
       path: '/employees'
@@ -159,6 +189,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/pay-roll/': {
+      id: '/pay-roll/'
+      path: '/'
+      fullPath: '/pay-roll/'
+      preLoaderRoute: typeof PayRollIndexRouteImport
+      parentRoute: typeof PayRollRoute
     }
     '/employees/': {
       id: '/employees/'
@@ -247,10 +284,22 @@ const EmployeesRouteWithChildren = EmployeesRoute._addFileChildren(
   EmployeesRouteChildren,
 )
 
+interface PayRollRouteChildren {
+  PayRollIndexRoute: typeof PayRollIndexRoute
+}
+
+const PayRollRouteChildren: PayRollRouteChildren = {
+  PayRollIndexRoute: PayRollIndexRoute,
+}
+
+const PayRollRouteWithChildren =
+  PayRollRoute._addFileChildren(PayRollRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   EmployeesRoute: EmployeesRouteWithChildren,
+  PayRollRoute: PayRollRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

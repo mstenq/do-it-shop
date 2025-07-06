@@ -6,7 +6,7 @@ import { employeeType } from "./schema";
 import {
   calculateEmployeeHours,
   getMostRecentOpenTimeRecord,
-  getStartOfTodayUtc,
+  getStartOfTodayMDT,
 } from "./timeUtils";
 import { internalMutation } from "./triggers";
 import { authMutation, authQuery, joinData, NullP } from "./utils";
@@ -80,7 +80,7 @@ export const all = authQuery({
           : NullP,
       mostRecentOpenTime: async (record) => {
         // Get start of today timestamp
-        const startOfToday = getStartOfTodayUtc().getTime();
+        const startOfToday = getStartOfTodayMDT().getTime();
 
         // Find the most recent open time record for this employee
         return await getMostRecentOpenTimeRecord(ctx, record._id, startOfToday);
@@ -210,6 +210,7 @@ export const calculateHours = internalMutation({
 
     // Get current pay period info
     const payPeriod = getCurrentPayPeriodInfo();
+    console.log(payPeriod);
 
     // Calculate all hours using the utility function
     const hours = await calculateEmployeeHours(
