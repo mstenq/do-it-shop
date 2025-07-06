@@ -18,16 +18,20 @@ export const Route = createFileRoute("/pay-roll/$id")({
 
 function RouteComponent() {
   const { id } = Route.useParams();
-  const payRoll = useQuery(api.paySchedule.get, { id });
+  const paySchedule = useQuery(api.paySchedule.get, { id });
 
-  if (!payRoll) return null;
+  if (!paySchedule) return null;
 
   return (
     <div className=" h-[calc(100vh-65px)]   p-4">
-      <h1 className="text-lg font-bold">{payRoll?.name}</h1>
+      <h1 className="text-lg font-bold">{paySchedule?.name}</h1>
       <div>
-        {payRoll?.employees.map((employee) => (
-          <PayScheduleEmployeeRow key={employee._id} employee={employee} />
+        {paySchedule?.employees.map((employee) => (
+          <PayScheduleEmployeeRow
+            key={employee._id}
+            employee={employee}
+            paySchedule={paySchedule}
+          />
         ))}
       </div>
     </div>

@@ -41,7 +41,7 @@ function groupTimeEntriesByWeek<
         weekTotalHours,
         weekOvertimeHours,
         weekRegularHours,
-        timeEntries: entries,
+        timeEntries: entries.sort((a, b) => a.startTime - b.startTime), // Sort by start time
       };
     })
     .sort((a, b) => a.week - b.week);
