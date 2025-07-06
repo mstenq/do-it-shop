@@ -3,10 +3,51 @@ import { Id } from "./_generated/dataModel";
 import {
   getCurrentPayPeriodInfo,
   getPayPeriodInfoForDate,
+  getWeekOfYear,
 } from "./payScheduleUtils";
 import { timesDateRangeQuery } from "./timeUtils";
 import { internalMutation } from "./triggers";
-import { authQuery, joinData, parseDate } from "./utils";
+import { authQuery, parseDate } from "./utils";
+
+/**
+ * Group time entries by week and calculate hours for each week
+ */
+function groupTimeEntriesByWeek<
+  T extends { startTime: number; totalTime?: number },
+>(timeEntries: Array<T>) {
+  // Group entries by week
+  const weekGroups = new Map<number, Array<T>>();
+
+  timeEntries.forEach((entry) => {
+    const week = getWeekOfYear(new Date(entry.startTime));
+    if (!weekGroups.has(week)) {
+      weekGroups.set(week, []);
+    }
+    weekGroups.get(week)!.push(entry);
+  });
+
+  // Calculate hours for each week
+  const weeklyData = Array.from(weekGroups.entries())
+    .map(([week, entries]) => {
+      const weekTotalHours = entries.reduce(
+        (sum, entry) => sum + (entry.totalTime ?? 0),
+        0
+      );
+      const weekRegularHours = Math.min(weekTotalHours, 40);
+      const weekOvertimeHours = Math.max(weekTotalHours - 40, 0);
+
+      return {
+        week,
+        weekTotalHours,
+        weekOvertimeHours,
+        weekRegularHours,
+        timeEntries: entries,
+      };
+    })
+    .sort((a, b) => a.week - b.week);
+
+  return weeklyData;
+}
 
 /**
  * Queries
@@ -21,24 +62,76 @@ export const all = authQuery({
 });
 
 export const get = authQuery({
-  args: { _id: v.string() },
+  args: { id: v.string() },
   handler: async (ctx, args) => {
-    console.log(args._id);
-    if (!args._id) {
+    console.log(args.id);
+    if (!args.id) {
       return null;
     }
-    const record = await ctx.db.get(args._id as Id<"paySchedule">);
+    const record = await ctx.db.get(args.id as Id<"paySchedule">);
 
     if (!record) {
       return null;
     }
 
-    const [joinedRecord] = await joinData([record], {
-      timeEntries: (r) =>
-        timesDateRangeQuery(ctx, r.startDate, r.endDate).collect(),
+    const timeEntries = await timesDateRangeQuery(
+      ctx,
+      record.startDate,
+      record.endDate
+    ).collect();
+
+    // get unique employees
+    const uniqueEmployeeIds = [
+      ...new Set(timeEntries.map((entry) => entry.employeeId)),
+    ];
+    const employeePromises = uniqueEmployeeIds.map((id) => ctx.db.get(id));
+    const employees = (await Promise.all(employeePromises))
+      .filter((e) => e !== null)
+      .sort((a, b) => {
+        // sort by first name, last name
+        const nameA = `${a.nameFirst} ${a.nameLast}`.toLowerCase();
+        const nameB = `${b.nameFirst} ${b.nameLast}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+    // join time entries with employees
+    const employeesWithTimeEntries = employees.map((employee) => {
+      const employeeTimes = timeEntries.filter(
+        (entry) => entry.employeeId === employee._id
+      );
+
+      // Group time entries by week and calculate weekly hours
+      const weeklyTimeEntries = groupTimeEntriesByWeek(employeeTimes);
+
+      // Calculate period totals
+      const periodTotalHours = employeeTimes.reduce(
+        (sum, entry) => sum + (entry.totalTime ?? 0),
+        0
+      );
+      const periodRegularHours = weeklyTimeEntries.reduce(
+        (sum, week) => sum + week.weekRegularHours,
+        0
+      );
+      const periodOvertimeHours = weeklyTimeEntries.reduce(
+        (sum, week) => sum + week.weekOvertimeHours,
+        0
+      );
+
+      return {
+        ...employee,
+        periodTotalHours,
+        periodRegularHours,
+        periodOvertimeHours,
+        timeEntries: weeklyTimeEntries,
+        allTimeEntries: employeeTimes, // Keep original time entries for reference
+      };
     });
 
-    return joinedRecord;
+    return {
+      ...record,
+      timeEntries: timeEntries,
+      employees: employeesWithTimeEntries,
+    };
   },
 });
 

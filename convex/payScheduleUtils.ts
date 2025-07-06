@@ -65,6 +65,27 @@ function getNthSundayOfMonth(year: number, month: number, nth: number): number {
 }
 
 /**
+ * Find the Sunday that starts the week containing the given date
+ * (Sunday that contains or precedes the date)
+ */
+function getSundayOfWeek(date: Date): Date {
+  const dayOfWeek = date.getUTCDay(); // 0 = Sunday
+  if (dayOfWeek === 0) {
+    // Date is already a Sunday
+    return new Date(date);
+  } else {
+    // Go back to the previous Sunday
+    return new Date(
+      Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate() - dayOfWeek
+      )
+    );
+  }
+}
+
+/**
  * Get Mountain Time offset from UTC (-6 for MDT, -7 for MST)
  */
 export function getMountainTimeOffset(
@@ -96,7 +117,7 @@ export function utcDateToMDTDate(date?: Date): Date {
       year,
       month,
       day,
-      hours + mountainOffset,
+      hours - mountainOffset,
       minutes,
       seconds,
       milliseconds
@@ -105,15 +126,26 @@ export function utcDateToMDTDate(date?: Date): Date {
 }
 
 /**
- * Calculate the current week number of the year (1-based)
+ * Calculate the current week number of the year (1-based) based on Mountain Time
+ * Uses Sunday-based weeks where Week 1 contains January 1st
  * Note: This is kept for reference but pay periods are no longer calculated from weeks
  */
-function getWeekOfYear(date: Date): number {
-  const year = date.getUTCFullYear();
-  const startOfYear = new Date(Date.UTC(year, 0, 1));
-  const dayOfYear =
-    Math.floor((date.getTime() - startOfYear.getTime()) / MS_PER_DAY) + 1;
-  return Math.ceil(dayOfYear / DAYS_PER_WEEK);
+export function getWeekOfYear(date: Date): number {
+  // Convert to Mountain Time
+  const mtDate = utcDateToMDTDate(date);
+  const year = mtDate.getUTCFullYear();
+
+  // Calculate the start of week 1 (the Sunday that contains or precedes Jan 1)
+  const jan1 = new Date(Date.UTC(year, 0, 1));
+  const weekOneStart = getSundayOfWeek(jan1);
+
+  // Calculate days since the start of week 1
+  const daysSinceWeekOneStart = Math.floor(
+    (mtDate.getTime() - weekOneStart.getTime()) / MS_PER_DAY
+  );
+
+  // Calculate week number (1-based)
+  return Math.floor(daysSinceWeekOneStart / DAYS_PER_WEEK) + 1;
 }
 
 /**

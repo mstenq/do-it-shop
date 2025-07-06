@@ -65,6 +65,9 @@ function RouteComponent() {
         columns={columns}
         groupBy={groupBy}
         activeColumnIds={search.columns}
+        onRowClick={(row) => {
+          navigate({ to: "/pay-roll/$id", params: { id: row._id } });
+        }}
         sorting={search.sorting}
         setSorting={(sorting) => navigate({ search: { ...search, sorting } })}
         search={search.q}
