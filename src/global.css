@@ -143,3 +143,57 @@
 [data-lastpass-root] {
   display: none !important;
 }
+
+/* Print Form Styles - Hide everything else when printing */
+@media print {
+  /* When body has print-mode class, hide everything */
+  body.print-mode * {
+    visibility: hidden !important;
+  }
+
+  /* Show only the active print content */
+  body.print-mode .print-active,
+  body.print-mode .print-active * {
+    visibility: visible !important;
+  }
+
+  /* Position print content to fill the page */
+  body.print-mode .print-active {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: white !important;
+    z-index: 9999 !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Remove margins and padding from print container */
+  body.print-mode .print-form-container {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  @page {
+    margin: 0.5in 0.5in 0.5in 0.5in;
+    @top-left {
+      content: var(--document-name, "Document");
+      font-size: 10pt;
+      font-weight: bold;
+      color: #666;
+    }
+    @bottom-left {
+      content: var(--print-date, "");
+      font-size: 10pt;
+      color: #666;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 10pt;
+      color: #666;
+    }
+  }
+}
