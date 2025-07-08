@@ -16,6 +16,22 @@ type Props = {
 };
 
 export const PayScheduleSummary = ({ paySchedule }: Props) => {
+  const employees = paySchedule.employees;
+  const allEntries = employees.flatMap((employee) => employee.allTimeEntries);
+  const totalEntries = allEntries.length;
+  const totalRegularHours = employees.reduce(
+    (sum, emp) => sum + (emp.periodRegularHours ?? 0),
+    0
+  );
+  const totalOvertimeHours = employees.reduce(
+    (sum, emp) => sum + (emp.periodOvertimeHours ?? 0),
+    0
+  );
+  const totalHours = employees.reduce(
+    (sum, emp) => sum + (emp.periodTotalHours ?? 0),
+    0
+  );
+
   return (
     <div>
       <ReportHeader>
@@ -47,7 +63,7 @@ export const PayScheduleSummary = ({ paySchedule }: Props) => {
                   {employee.nameFirst} {employee.nameLast}
                 </TableCell>
                 <TableCell className="text-right">
-                  {employee.timeEntries.length}
+                  {employee.allTimeEntries.length}
                 </TableCell>
                 <TableCell className="text-right">
                   {formatHours(employee.periodRegularHours)}
@@ -60,6 +76,21 @@ export const PayScheduleSummary = ({ paySchedule }: Props) => {
                 </TableCell>
               </TableRow>
             ))}
+            <TableRow>
+              <TableCell className="font-bold">Grand Totals</TableCell>
+              <TableCell className="font-bold text-right">
+                {totalEntries}
+              </TableCell>
+              <TableCell className="font-bold text-right">
+                {formatHours(totalRegularHours)}
+              </TableCell>
+              <TableCell className="font-bold text-right">
+                {formatHours(totalOvertimeHours)}
+              </TableCell>
+              <TableCell className="font-bold text-right">
+                {formatHours(totalHours)}
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </div>

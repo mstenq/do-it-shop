@@ -3,11 +3,17 @@ import { Id } from "./_generated/dataModel";
 import {
   getCurrentPayPeriodInfo,
   getPayPeriodInfoForDate,
-  getWeekOfYear,
 } from "./payScheduleUtils";
 import { timesDateRangeQuery } from "./timeUtils";
 import { internalMutation } from "./triggers";
 import { authQuery, parseDate } from "./utils";
+import dayjs from "dayjs";
+import WeekOfYear from "dayjs/plugin/weekOfYear";
+import Timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+dayjs.extend(Timezone);
+dayjs.extend(WeekOfYear);
 
 /**
  * Group time entries by week and calculate hours for each week
@@ -19,7 +25,8 @@ function groupTimeEntriesByWeek<
   const weekGroups = new Map<number, Array<T>>();
 
   timeEntries.forEach((entry) => {
-    const week = getWeekOfYear(new Date(entry.startTime));
+    const date = dayjs.tz(entry.startTime, "America/Denver");
+    const week = date.week(); // Get the week number in the year
     if (!weekGroups.has(week)) {
       weekGroups.set(week, []);
     }

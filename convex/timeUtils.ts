@@ -1,7 +1,16 @@
+import dayjs from "dayjs";
+import WeekOfYear from "dayjs/plugin/weekOfYear";
+import Timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+dayjs.extend(Timezone);
+dayjs.extend(WeekOfYear);
+
 import { QueryCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { parseDate } from "./utils";
-import { utcDateToMDTDate, getMountainTimeOffset } from "./payScheduleUtils";
+
+const TIME_ZONE = "America/Denver"; // Mountain Time Zone
 
 /**
  * Time utilities for handling Mountain Time operations and time record calculations
@@ -14,70 +23,66 @@ const MILLISECONDS_IN_ALMOST_FULL_DAY =
   59 * 1000 + // 59 seconds
   999; // 999 milliseconds
 
-/**
- * Get the start of today in Mountain Time (00:00:00)
- */
-export function getStartOfTodayMDT(): Date {
-  const mdtNow = utcDateToMDTDate();
-  const year = mdtNow.getUTCFullYear();
-  const month = mdtNow.getUTCMonth();
-  const day = mdtNow.getUTCDate();
+// /**
+//  * Get the start of today in Mountain Time (00:00:00)
+//  */
+// export function getStartOfTodayMDT(): Date {
+//   const mdtNow = utcDateToMDTDate();
+//   const year = mdtNow.getUTCFullYear();
+//   const month = mdtNow.getUTCMonth();
+//   const day = mdtNow.getUTCDate();
 
-  // Get the Mountain Time offset for today
-  const mountainOffset = getMountainTimeOffset(year, month, day);
+//   // Get the Mountain Time offset for today
+//   const mountainOffset = getMountainTimeOffset(year, month, day);
 
-  // Create 00:00:00 Mountain Time and convert to UTC
-  // Since mountainOffset is negative, we subtract it to convert Mountain Time to UTC
-  return new Date(Date.UTC(year, month, day, 0 - mountainOffset, 0, 0, 0));
-}
+//   // Create 00:00:00 Mountain Time and convert to UTC
+//   // Since mountainOffset is negative, we subtract it to convert Mountain Time to UTC
+//   return new Date(Date.UTC(year, month, day, 0 - mountainOffset, 0, 0, 0));
+// }
 
-/**
- * Get the end of today in Mountain Time (23:59:59.999)
- */
-export function getEndOfTodayMDT(): Date {
-  const startOfToday = getStartOfTodayMDT();
-  const endOfToday = new Date(startOfToday);
-  endOfToday.setTime(endOfToday.getTime() + MILLISECONDS_IN_ALMOST_FULL_DAY);
-  return endOfToday;
-}
+// /**
+//  * Get the end of today in Mountain Time (23:59:59.999)
+//  */
+// export function getEndOfTodayMDT(): Date {
+//   const startOfToday = getStartOfTodayMDT();
+//   const endOfToday = new Date(startOfToday);
+//   endOfToday.setTime(endOfToday.getTime() + MILLISECONDS_IN_ALMOST_FULL_DAY);
+//   return endOfToday;
+// }
 
-/**
- * Get the start of the current week (Sunday 00:00:00) in Mountain Time
- */
-export function getStartOfCurrentWeekMDT(): Date {
-  const mdtNow = utcDateToMDTDate();
-  const year = mdtNow.getUTCFullYear();
-  const month = mdtNow.getUTCMonth();
-  const weekStartDay = mdtNow.getUTCDate() - mdtNow.getUTCDay(); // Sunday of this week
+// /**
+//  * Get the start of the current week (Sunday 00:00:00) in Mountain Time
+//  */
+// export function getStartOfCurrentWeekMDT(): Date {
+//   const mdtNow = utcDateToMDTDate();
+//   const year = mdtNow.getUTCFullYear();
+//   const month = mdtNow.getUTCMonth();
+//   const weekStartDay = mdtNow.getUTCDate() - mdtNow.getUTCDay(); // Sunday of this week
 
-  // Get the Mountain Time offset for the start of the week
-  const weekStartDate = new Date(Date.UTC(year, month, weekStartDay));
-  const mountainOffset = getMountainTimeOffset(
-    weekStartDate.getUTCFullYear(),
-    weekStartDate.getUTCMonth(),
-    weekStartDate.getUTCDate()
-  );
+//   // Get the Mountain Time offset for the start of the week
+//   const weekStartDate = new Date(Date.UTC(year, month, weekStartDay));
+//   const mountainOffset = getMountainTimeOffset(
+//     weekStartDate.getUTCFullYear(),
+//     weekStartDate.getUTCMonth(),
+//     weekStartDate.getUTCDate()
+//   );
 
-  // Create Sunday 00:00:00 Mountain Time and convert to UTC
-  return new Date(
-    Date.UTC(year, month, weekStartDay, 0 - mountainOffset, 0, 0, 0)
-  );
-}
+//   // Create Sunday 00:00:00 Mountain Time and convert to UTC
+//   return new Date(
+//     Date.UTC(year, month, weekStartDay, 0 - mountainOffset, 0, 0, 0)
+//   );
+// }
 
-/**
- * Get the end of the current week (Saturday 23:59:59.999) in Mountain Time
- */
-export function getEndOfCurrentWeekMTD(): Date {
-  const startOfWeek = getStartOfCurrentWeekMDT();
-  const endOfWeek = new Date(startOfWeek);
-  // Add 6 days worth of milliseconds plus almost a full day to get to Saturday 23:59:59.999
-  endOfWeek.setTime(
-    endOfWeek.getTime() +
-      6 * 24 * 60 * 60 * 1000 +
-      MILLISECONDS_IN_ALMOST_FULL_DAY
-  );
-  return endOfWeek;
-}
+// /**
+//  * Get the end of the current week (Saturday 23:59:59.999) in Mountain Time
+//  */
+// export function getEndOfCurrentWeekMTD(): Date {
+//   const startOfWeek = getStartOfCurrentWeekMDT();
+//   const endOfWeek = new Date(startOfWeek);
+//   endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 6);
+//   endOfWeek.setUTCHours(23, 59, 59, 999);
+//   return endOfWeek;
+// }
 
 /**
  * Format a date as HH:MM string using UTC time
@@ -200,10 +205,12 @@ export async function calculateEmployeeHours(
   payPeriodEnd: number
 ) {
   // Today's hours
-  console.log("startOfToday:", getStartOfTodayMDT());
-  console.log("endOfToday:", getEndOfTodayMDT());
-  const startOfToday = getStartOfTodayMDT().getTime();
-  const endOfToday = getEndOfTodayMDT().getTime();
+  const today = dayjs().tz(TIME_ZONE);
+  const startOfToday = today.startOf("day").valueOf(); // Start of today in milliseconds
+  const endOfToday = today.endOf("day").valueOf(); // End of today in milliseconds
+
+  // const startOfToday = getStartOfTodayMDT().getTime();
+  // const endOfToday = getEndOfTodayMDT().getTime();
 
   const todayTimes = await getCompletedTimeRecords(
     ctx,
@@ -223,8 +230,10 @@ export async function calculateEmployeeHours(
   const currentPayPeriodHours = sumTotalHours(payPeriodTimes);
 
   // Current week hours
-  const currentWeekStart = getStartOfCurrentWeekMDT().getTime();
-  const currentWeekEnd = getEndOfCurrentWeekMTD().getTime();
+  // const currentWeekStart = getStartOfCurrentWeekMDT().getTime();
+  // const currentWeekEnd = getEndOfCurrentWeekMTD().getTime();
+  const currentWeekStart = today.startOf("week").valueOf(); // Start of current week in milliseconds
+  const currentWeekEnd = today.endOf("week").valueOf(); // End of current week in milliseconds
   const currentWeekTimes = await getCompletedTimeRecords(
     ctx,
     employeeId,

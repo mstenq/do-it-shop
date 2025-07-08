@@ -6,10 +6,16 @@ import { employeeType } from "./schema";
 import {
   calculateEmployeeHours,
   getMostRecentOpenTimeRecord,
-  getStartOfTodayMDT,
 } from "./timeUtils";
 import { internalMutation } from "./triggers";
 import { authMutation, authQuery, joinData, NullP } from "./utils";
+import dayjs from "dayjs";
+import WeekOfYear from "dayjs/plugin/weekOfYear";
+import Timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+dayjs.extend(Timezone);
+dayjs.extend(WeekOfYear);
 
 /**
  * Queries
@@ -80,7 +86,8 @@ export const all = authQuery({
           : NullP,
       mostRecentOpenTime: async (record) => {
         // Get start of today timestamp
-        const startOfToday = getStartOfTodayMDT().getTime();
+        const today = dayjs.tz("America/Denver");
+        const startOfToday = today.startOf("day").valueOf(); // Start of today in milliseconds
 
         // Find the most recent open time record for this employee
         return await getMostRecentOpenTimeRecord(ctx, record._id, startOfToday);

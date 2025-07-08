@@ -12,7 +12,7 @@ type Props = {
 
 export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
   return (
-    <div className="min-h-screen bg-white print:p-6 page-break-after-always">
+    <div className="min-h-screen print:p-6 page-break-after-always">
       <ReportHeader>
         <div className="text-right">
           <div className="text-lg font-bold">
@@ -32,49 +32,36 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
       <div className="space-y-6">
         {employee.timeEntries.map((timeEntry) => (
           <div key={timeEntry.week}>
-            {/* Week Header */}
-            <div className="">
-              <h3 className="px-3 py-2 text-base font-bold bg-gray-100 border-t border-l border-r border-gray-300">
-                Week {timeEntry.week}
-              </h3>
-            </div>
-
             {/* Time Entry Table */}
-            <div className="border border-b-0 border-gray-300">
+            <div className="border border-b-0 border-muted">
               {/* Table Header */}
-              <div className="grid grid-cols-5 text-sm font-medium border-b border-gray-300 bg-gray-50">
-                <div className="p-2 border-r border-gray-300">Date</div>
-                <div className="p-2 text-right border-r border-gray-300">
-                  Time In
-                </div>
-                <div className="p-2 text-right border-r border-gray-300">
-                  Time Out
-                </div>
-                <div className="p-2 text-right border-r border-gray-300">
-                  Total
-                </div>
-                <div className="p-2 text-right">Daily Total</div>
+              <div className="grid grid-cols-5 text-sm font-medium border-b border-muted bg-muted">
+                <div className="p-1 border-muted">Date</div>
+                <div className="p-1 text-right border-muted">Time In</div>
+                <div className="p-1 text-right border-muted">Time Out</div>
+                <div className="p-1 text-right border-muted">Total</div>
+                <div className="p-1 text-right">Daily Total</div>
               </div>
 
               {/* Time Entry Rows */}
               {timeEntry.timeEntries.map((record, index) => (
                 <div
                   key={record._id}
-                  className="grid grid-cols-5 text-sm border-b border-gray-300"
+                  className="grid grid-cols-5 text-xs border-b border-muted"
                 >
-                  <div className="p-2 border-r border-gray-300">
+                  <div className="p-1 border-muted">
                     {formatDate(new Date(record.startTime), "M/d/yyyy")}
                   </div>
-                  <div className="p-2 text-right border-r border-gray-300">
+                  <div className="p-1 text-right border-muted">
                     {formatTime(record.startTime)}
                   </div>
-                  <div className="p-2 text-right border-r border-gray-300">
+                  <div className="p-1 text-right border-muted">
                     {formatTime(record.endTime)}
                   </div>
-                  <div className="p-2 text-right border-r border-gray-300">
+                  <div className="p-1 text-right border-muted">
                     {formatHours(record.totalTime)} hrs
                   </div>
-                  <div className="p-2 text-right">
+                  <div className="p-1 text-right">
                     {/* Show daily total only for the last entry of each day */}
                     {index === timeEntry.timeEntries.length - 1 ||
                     formatDate(new Date(record.startTime), "M/d/yyyy") !==
@@ -94,20 +81,30 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
 
             {/* Week Summary */}
             <div className="grid grid-cols-5 text-right">
-              <div className="col-start-3 p-2 border-b border-l border-r border-gray-300">
-                <div className="text-xs font-normal">Week Reg Hours</div>
+              <div className="col-span-2 px-1 py-3 font-bold text-left border-b border-l border-muted">
+                Week {timeEntry.week}
+              </div>
+
+              <div className="col-start-3 p-1 border-b border-muted">
+                <div className="text-xs font-normal text-muted-foreground">
+                  Week Reg Hours
+                </div>
                 <div className="font-bold ">
                   {formatHours(timeEntry.weekRegularHours)}
                 </div>
               </div>
-              <div className="col-start-4 p-2 border-b border-r border-gray-300">
-                <div className="text-xs font-normal">Week OT Hours</div>
+              <div className="col-start-4 p-1 border-b border-muted">
+                <div className="text-xs font-normal text-muted-foreground">
+                  Week Overtime Hours
+                </div>
                 <div className="font-bold ">
                   {formatHours(timeEntry.weekOvertimeHours)}
                 </div>
               </div>
-              <div className="col-start-5 p-2 border-b border-r">
-                <div className="text-xs font-normal">Week Total Hours</div>
+              <div className="col-start-5 p-1 border-b border-r">
+                <div className="text-xs font-normal text-muted-foreground">
+                  Week Total Hours
+                </div>
                 <div className="font-bold ">
                   {formatHours(timeEntry.weekTotalHours)}
                 </div>
@@ -118,26 +115,26 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
       </div>
 
       {/* Grand Totals */}
-      <div className="mt-8 mb-8 print:mb-0">
-        <div className="inline-block border-2 border-black">
-          <div className="px-4 py-2 font-bold text-white bg-black">
+      <div className="flex justify-end mt-8 mb-8 print:mb-0">
+        <div className="flex text-sm border-2 border-foreground">
+          <div className="px-4 pt-1 font-bold text-background bg-foreground">
             Grand Totals
           </div>
-          <div className="grid grid-cols-3 bg-gray-50">
-            <div className="p-3 text-center border-r border-gray-300">
-              <div className="font-medium">Total Reg Hours</div>
+          <div className="grid grid-cols-3 bg-background">
+            <div className="px-3 py-1 text-right border-r border-muted">
+              <div className="">Regular Hours</div>
               <div className="font-bold">
                 {formatHours(employee.periodRegularHours)}
               </div>
             </div>
-            <div className="p-3 text-center border-r border-gray-300">
-              <div className="font-medium">Total OT Hours</div>
+            <div className="px-3 py-1 text-right border-r border-muted">
+              <div className="">Overtime Hours</div>
               <div className="font-bold">
                 {formatHours(employee.periodOvertimeHours)}
               </div>
             </div>
-            <div className="p-3 text-center">
-              <div className="font-medium">Total Hours</div>
+            <div className="px-3 py-1 text-right">
+              <div className="">Total Hours</div>
               <div className="font-bold">
                 {formatHours(employee.periodTotalHours)}
               </div>

@@ -111,9 +111,7 @@ export function GlobalSearch() {
         onClick={() => setOpen(true)}
       >
         <SearchIcon className="w-4 h-4" />
-        <kbd className="p-1 -mr-2.5 font-sans rounded text-xs border bg-background">
-          {shortcutText}
-        </kbd>
+        <kbd className="font-sans text-xs rounded ">{shortcutText}</kbd>
       </Button>
 
       <CommandDialog shouldFilter={false} open={open} onOpenChange={setOpen}>

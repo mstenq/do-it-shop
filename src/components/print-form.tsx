@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useId } from "react";
-import { Button } from "./ui/button";
-import { PrinterIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PrinterIcon } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { Button } from "./ui/button";
 
 type Props = {
   name?: string;
@@ -12,31 +12,30 @@ type Props = {
 export const PrintForm = ({ name, className, children }: Props) => {
   const [isPrinting, setIsPrinting] = useState(false);
   const printContentRef = useRef<HTMLDivElement>(null);
+  const [originalTheme, setOriginalTheme] = useState("");
+
   const uniqueId = useId(); // Generate unique ID for this print form instance
 
   useEffect(() => {
     const controller = new AbortController();
 
     const handleBeforePrint = () => {
-      // Only handle global print events if this specific form is being printed
-      if (isPrinting) {
-        const rootElement = document.documentElement;
-        const printElement = printContentRef.current;
+      const rootElement = document.documentElement;
+      const printElement = printContentRef.current;
 
-        if (printElement) {
-          document.body.classList.add("print-mode");
-          printElement.classList.add("print-active");
+      if (printElement) {
+        document.body.classList.add("print-mode");
+        printElement.classList.add("print-active");
 
-          // Set CSS custom properties for @page margin boxes
-          rootElement.style.setProperty(
-            "--document-name",
-            `"${name || "Document"}"`
-          );
-          rootElement.style.setProperty(
-            "--print-date",
-            `"${new Date().toLocaleDateString()}"`
-          );
-        }
+        // Set CSS custom properties for @page margin boxes
+        rootElement.style.setProperty(
+          "--document-name",
+          `"${name || "Document"}"`
+        );
+        rootElement.style.setProperty(
+          "--print-date",
+          `"${new Date().toLocaleDateString()}"`
+        );
       }
     };
 
@@ -45,6 +44,11 @@ export const PrintForm = ({ name, className, children }: Props) => {
       // Clean up all print classes and custom properties
       const rootElement = document.documentElement;
       document.body.classList.remove("print-mode");
+      console.log("Restoring original theme:", originalTheme);
+      if (originalTheme === "dark") {
+        rootElement.classList.remove("light");
+        rootElement.classList.add("dark"); // Restore original theme
+      }
       rootElement.style.removeProperty("--document-name");
       rootElement.style.removeProperty("--print-date");
 
@@ -63,7 +67,7 @@ export const PrintForm = ({ name, className, children }: Props) => {
     return () => {
       controller.abort();
     };
-  }, [isPrinting]);
+  }, [originalTheme, name]);
 
   const handlePrintClick = () => {
     if (!printContentRef.current) return;
@@ -71,6 +75,9 @@ export const PrintForm = ({ name, className, children }: Props) => {
     // Fallback to the CSS method if popup is blocked
     setIsPrinting(true);
     const rootElement = document.documentElement;
+    setOriginalTheme(rootElement.className);
+    console.log("Original theme:", rootElement.className);
+    rootElement.className = "light"; // Set a specific theme for printing
     const allPrintContents = document.querySelectorAll(".print-content");
     allPrintContents.forEach((el) => el.classList.remove("print-active"));
 
@@ -97,7 +104,10 @@ export const PrintForm = ({ name, className, children }: Props) => {
       </div>
       <div
         ref={printContentRef}
-        className="p-6 print:p-0 print-content"
+        className={cn(
+          "p-6 print:p-0 print-content",
+          !isPrinting && "print:hidden"
+        )}
         data-print-id={uniqueId}
       >
         {children}

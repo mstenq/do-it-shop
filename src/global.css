@@ -178,7 +178,7 @@
   }
 
   @page {
-    margin: 0.5in 0.5in 0.5in 0.5in;
+    margin: 0.5in 0.25in 0.5in 0.25in;
     @top-left {
       content: var(--document-name, "Document");
       font-size: 10pt;
