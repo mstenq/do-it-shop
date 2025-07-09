@@ -1,6 +1,15 @@
 import { Infer, v } from "convex/values";
 import { tableName } from "./schema";
 import { authQuery } from "./utils";
+import dayjs from "dayjs";
+import WeekOfYear from "dayjs/plugin/weekOfYear";
+import Timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import Duration from "dayjs/plugin/duration";
+dayjs.extend(utc);
+dayjs.extend(Timezone);
+dayjs.extend(WeekOfYear);
+dayjs.extend(Duration);
 
 type TableName = Infer<typeof tableName>;
 type SearchResultItem = {
@@ -45,7 +54,7 @@ export const all = authQuery({
             _id: String(schedule._id),
             table: "paySchedule",
             title: schedule.name,
-            subtitle: `${schedule.startDate} - ${schedule.endDate}`,
+            subtitle: `${dayjs.tz(schedule.startDate, "America/Denver").format("M/D/YYYY")} - ${dayjs.tz(schedule.endDate, "America/Denver").format("M/D/YYYY")}`,
           }) satisfies SearchResultItem
       ),
     ];

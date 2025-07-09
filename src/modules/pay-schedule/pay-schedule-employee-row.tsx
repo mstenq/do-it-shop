@@ -3,6 +3,7 @@ import { ConvexType } from "@/utils/convex-type";
 import { formatHours } from "@/utils/number-formatters";
 import { formatTime } from "@/utils/time-formatters";
 import { formatDate } from "date-fns";
+import React from "react";
 
 type EmployeeWithTimes = ConvexType<"paySchedule.get">["employees"][number];
 type Props = {
@@ -36,52 +37,65 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
             <div className="border border-b-0 border-muted">
               {/* Table Header */}
               <div className="grid grid-cols-5 text-sm font-medium border-b border-muted bg-muted">
-                <div className="p-1 border-muted">Date</div>
+                <div className="p-1 pl-3 border-muted">Date</div>
                 <div className="p-1 text-right border-muted">Time In</div>
                 <div className="p-1 text-right border-muted">Time Out</div>
                 <div className="p-1 text-right border-muted">Total</div>
-                <div className="p-1 text-right">Daily Total</div>
+                <div className="p-1 pr-3 text-right">Daily Total</div>
               </div>
 
               {/* Time Entry Rows */}
-              {timeEntry.timeEntries.map((record, index) => (
-                <div
-                  key={record._id}
-                  className="grid grid-cols-5 text-xs border-b border-muted"
-                >
-                  <div className="p-1 border-muted">
-                    {formatDate(new Date(record.startTime), "M/d/yyyy")}
-                  </div>
-                  <div className="p-1 text-right border-muted">
-                    {formatTime(record.startTime)}
-                  </div>
-                  <div className="p-1 text-right border-muted">
-                    {formatTime(record.endTime)}
-                  </div>
-                  <div className="p-1 text-right border-muted">
-                    {formatHours(record.totalTime)} hrs
-                  </div>
-                  <div className="p-1 text-right">
-                    {/* Show daily total only for the last entry of each day */}
-                    {index === timeEntry.timeEntries.length - 1 ||
-                    formatDate(new Date(record.startTime), "M/d/yyyy") !==
-                      formatDate(
-                        new Date(
-                          timeEntry.timeEntries[index + 1]?.startTime ||
-                            record.startTime
-                        ),
-                        "M/d/yyyy"
-                      )
-                      ? `${formatHours(record.totalTime)} hrs`
-                      : ""}
-                  </div>
-                </div>
-              ))}
+              <div className="grid grid-cols-5 text-xs">
+                {timeEntry.days.map((day) =>
+                  day.dayTimeEntries.map((record, index) => (
+                    <React.Fragment key={record._id}>
+                      {index === 0 && (
+                        <div
+                          className="p-1 pl-3 border-t border-muted "
+                          style={{
+                            gridRow: `span ${day.dayTimeEntries.length}`,
+                          }}
+                        >
+                          {day.date}
+                        </div>
+                      )}
+                      <div
+                        data-index={index}
+                        className="p-1 text-right border-muted data-[index=0]:border-t"
+                      >
+                        {formatTime(record.startTime)}
+                      </div>
+                      <div
+                        data-index={index}
+                        className="p-1 text-right border-muted data-[index=0]:border-t"
+                      >
+                        {formatTime(record.endTime)}
+                      </div>
+                      <div
+                        data-index={index}
+                        className="p-1 text-right border-muted data-[index=0]:border-t"
+                      >
+                        {formatHours(record.totalTime)} hrs
+                      </div>
+                      {index === 0 && (
+                        <div
+                          className="h-full p-1 pr-3 text-right border-t border-muted place-content-end"
+                          style={{
+                            gridRow: `span ${day.dayTimeEntries.length}`,
+                          }}
+                        >
+                          {formatHours(day.dayTotalHours)} hrs
+                        </div>
+                      )}
+                    </React.Fragment>
+                  ))
+                )}
+              </div>
             </div>
 
             {/* Week Summary */}
-            <div className="grid grid-cols-5 text-right">
-              <div className="col-span-2 px-1 py-3 font-bold text-left border-b border-l border-muted">
+            <div className="grid grid-cols-5 text-right border-t border-muted">
+              <div className="col-span-2 p-3 font-bold text-left border-b border-l border-muted">
                 Week {timeEntry.week}
               </div>
 
@@ -97,11 +111,11 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
                 <div className="text-xs font-normal text-muted-foreground">
                   Week Overtime Hours
                 </div>
-                <div className="font-bold ">
+                <div className="font-bold">
                   {formatHours(timeEntry.weekOvertimeHours)}
                 </div>
               </div>
-              <div className="col-start-5 p-1 border-b border-r">
+              <div className="col-start-5 p-1 pr-3 border-b border-r">
                 <div className="text-xs font-normal text-muted-foreground">
                   Week Total Hours
                 </div>

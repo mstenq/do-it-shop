@@ -6,7 +6,7 @@ import { useMemo } from "react";
 export function usePayScheduleData() {
   const search = Route.useSearch();
 
-  const data = useQuery(api.paySchedule.all);
+  const data = useQuery(api.paySchedule.all, {});
 
   const filteredData = useMemo(() => {
     if (!data) return data;

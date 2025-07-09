@@ -11,58 +11,75 @@ import dayjs from "dayjs";
 import WeekOfYear from "dayjs/plugin/weekOfYear";
 import Timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
+import CustomParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(utc);
 dayjs.extend(Timezone);
 dayjs.extend(WeekOfYear);
+dayjs.extend(CustomParseFormat);
 
 /**
  * Group time entries by week and calculate hours for each week
  */
-function groupTimeEntriesByWeek<
-  T extends { startTime: number; totalTime?: number },
->(timeEntries: Array<T>) {
+function groupTimeEntries<T extends { startTime: number; totalTime?: number }>(
+  timeEntries: Array<T>,
+  groupBy: (item: T) => number
+) {
   // Group entries by week
-  const weekGroups = new Map<number, Array<T>>();
+  const groups = new Map<number, Array<T>>();
 
   timeEntries.forEach((entry) => {
-    const date = dayjs.tz(entry.startTime, "America/Denver");
-    const week = date.week(); // Get the week number in the year
-    if (!weekGroups.has(week)) {
-      weekGroups.set(week, []);
+    const groupKey = groupBy(entry);
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, []);
     }
-    weekGroups.get(week)!.push(entry);
+    groups.get(groupKey)!.push(entry);
   });
 
   // Calculate hours for each week
-  const weeklyData = Array.from(weekGroups.entries())
-    .map(([week, entries]) => {
-      const weekTotalHours = entries.reduce(
+  const groupData = Array.from(groups.entries())
+    .map(([group, entries]) => {
+      const groupTotalHours = entries.reduce(
         (sum, entry) => sum + (entry.totalTime ?? 0),
         0
       );
-      const weekRegularHours = Math.min(weekTotalHours, 40);
-      const weekOvertimeHours = Math.max(weekTotalHours - 40, 0);
+      const groupRegularHours = Math.min(groupTotalHours, 40);
+      const groupOvertimeHours = Math.max(groupTotalHours - 40, 0);
 
       return {
-        week,
-        weekTotalHours,
-        weekOvertimeHours,
-        weekRegularHours,
+        group,
+        groupTotalHours,
+        groupOvertimeHours,
+        groupRegularHours,
         timeEntries: entries.sort((a, b) => a.startTime - b.startTime), // Sort by start time
       };
     })
-    .sort((a, b) => a.week - b.week);
+    .sort((a, b) => a.group - b.group);
 
-  return weeklyData;
+  return groupData;
 }
 
 /**
  * Queries
  */
 export const all = authQuery({
-  args: {},
+  args: { start: v.optional(v.number()), end: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    const records = await ctx.db.query("paySchedule").collect();
+    const records = await ctx.db
+      .query("paySchedule")
+      .withIndex("by_startDate", (q) => {
+        if (args.start && args.end) {
+          return q.gte("startDate", args.start).lte("startDate", args.end);
+        } else if (args.start) {
+          return q.gte("startDate", args.start);
+        } else if (args.end) {
+          return q.lte("startDate", args.end);
+        } else {
+          return q;
+        }
+      })
+      .order("desc")
+      .collect();
 
     return records;
   },
@@ -108,7 +125,31 @@ export const get = authQuery({
       );
 
       // Group time entries by week and calculate weekly hours
-      const weeklyTimeEntries = groupTimeEntriesByWeek(employeeTimes);
+      const weeklyTimeEntries = groupTimeEntries(employeeTimes, (entry) => {
+        return dayjs.tz(entry.startTime, "America/Denver").week();
+      });
+
+      const formattedWeeklyEntries = weeklyTimeEntries.map((week) => {
+        const dailyTimeEntries = groupTimeEntries(week.timeEntries, (entry) => {
+          return dayjs
+            .tz(entry.startTime, "America/Denver")
+            .startOf("day")
+            .valueOf();
+        });
+        const formattedDailyEntries = dailyTimeEntries.map((day) => ({
+          date: dayjs.tz(day.group, "America/Denver").format("M/D/YYYY"),
+          dayTotalHours: day.groupTotalHours,
+          dayTimeEntries: day.timeEntries,
+        }));
+        return {
+          week: week.group,
+          weekTotalHours: week.groupTotalHours,
+          weekRegularHours: week.groupRegularHours,
+          weekOvertimeHours: week.groupOvertimeHours,
+          weekTimeEntries: week.timeEntries,
+          days: formattedDailyEntries,
+        };
+      });
 
       // Calculate period totals
       const periodTotalHours = employeeTimes.reduce(
@@ -116,11 +157,11 @@ export const get = authQuery({
         0
       );
       const periodRegularHours = weeklyTimeEntries.reduce(
-        (sum, week) => sum + week.weekRegularHours,
+        (sum, week) => sum + week.groupRegularHours,
         0
       );
       const periodOvertimeHours = weeklyTimeEntries.reduce(
-        (sum, week) => sum + week.weekOvertimeHours,
+        (sum, week) => sum + week.groupOvertimeHours,
         0
       );
 
@@ -129,7 +170,7 @@ export const get = authQuery({
         periodTotalHours,
         periodRegularHours,
         periodOvertimeHours,
-        timeEntries: weeklyTimeEntries,
+        timeEntries: formattedWeeklyEntries,
         allTimeEntries: employeeTimes, // Keep original time entries for reference
       };
     });

@@ -86,11 +86,15 @@ export const all = authQuery({
           : NullP,
       mostRecentOpenTime: async (record) => {
         // Get start of today timestamp
-        const today = dayjs.tz("America/Denver");
-        const startOfToday = today.startOf("day").valueOf(); // Start of today in milliseconds
+        const today = dayjs().tz("America/Denver");
+        const startOfToday = today.startOf("day"); // Start of today in milliseconds
 
         // Find the most recent open time record for this employee
-        return await getMostRecentOpenTimeRecord(ctx, record._id, startOfToday);
+        return await getMostRecentOpenTimeRecord(
+          ctx,
+          record._id,
+          startOfToday.valueOf()
+        );
       },
     });
 

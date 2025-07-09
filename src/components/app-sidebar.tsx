@@ -28,12 +28,6 @@ const useDate = () => {
         title: "Employees",
         url: "/employees",
         icon: IdCardIcon,
-        items: [
-          {
-            title: "Positions",
-            url: "/positions",
-          },
-        ],
       },
       {
         title: "Pay Roll",

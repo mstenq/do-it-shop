@@ -40,8 +40,7 @@ export const timeEntrySchema = z
       const startMinutes = parseTimeToMinutes(data.startTime);
       const endMinutes = parseTimeToMinutes(data.endTime);
 
-      // Allow overnight shifts (end time next day)
-      return endMinutes >= startMinutes || endMinutes < startMinutes;
+      return endMinutes > startMinutes;
     },
     {
       message: "End time must be after start time",

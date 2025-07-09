@@ -9,11 +9,23 @@ import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { TimeFormFields, timeEntrySchema, TimeFormData } from "./time-form";
 import { api } from "@convex/api";
 import { parseDateAndTime, timestampToTimeString } from "@/utils/date-utils";
 import { useQuery } from "convex-helpers/react/cache";
+import { Spacer } from "@/components/spacer";
 
 interface EditTimeFormProps {
   id: Id<"times">;
@@ -31,6 +43,9 @@ export const EditTimeForm = ({
 
   // Setup mutation for updating time entry
   const updateTime = useMutation(api.times.update);
+
+  // Setup mutation for deleting time entry
+  const deleteTime = useMutation(api.times.destroy);
 
   // Setup form using zod schema and react-hook-form
   const form = useForm<TimeFormData>({
@@ -82,6 +97,18 @@ export const EditTimeForm = ({
     }
   };
 
+  // Handle delete
+  const handleDelete = async () => {
+    try {
+      await deleteTime({ id });
+      toast.success("Time entry deleted successfully");
+      onSuccess?.();
+    } catch (error) {
+      console.error("Failed to delete time entry:", error);
+      toast.error("Failed to delete time entry");
+    }
+  };
+
   // Show loading spinner while data is loading
   if (timeEntry === undefined) {
     return (
@@ -116,7 +143,33 @@ export const EditTimeForm = ({
         </div>
 
         {/* Form Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <div className="flex justify-between gap-3 pt-4 border-t">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="destructive">
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Time Entry</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this time entry? This action
+                  cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  buttonProps={{ variant: "destructive" }}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <Spacer />
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel

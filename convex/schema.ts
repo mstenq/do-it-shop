@@ -56,6 +56,7 @@ export default defineSchema({
     searchIndex: v.optional(v.string()),
   })
     .index("by_name", ["name"])
+    .index("by_startDate", ["startDate"])
     .searchIndex("search", {
       searchField: "searchIndex",
     }),
