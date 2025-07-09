@@ -60,7 +60,7 @@ export function HourlyEmployeeCard() {
 
   return (
     <Card>
-      <ScrollArea className="min-w-[580px] max-h-[calc(100vh-189px)] overflow-y-auto">
+      <ScrollArea className="xl:min-w-[500px] xl:max-h-[calc(100vh-189px)] overflow-y-auto">
         <ScrollBar orientation="vertical" />
         <CardContent>
           <div className="pt-3 ">

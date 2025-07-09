@@ -126,7 +126,7 @@ export function TimesTable() {
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className=" max-h-[calc(100vh-297px)] overflow-y-auto">
+        <ScrollArea className=" xl:max-h-[calc(100vh-297px)] overflow-y-auto">
           <ScrollBar orientation="vertical" />
           <Table className="">
             <TableHeader>

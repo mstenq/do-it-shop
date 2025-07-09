@@ -98,7 +98,12 @@ export const PrintForm = ({ name, className, children }: Props) => {
     <div className={cn("w-full border print-form-container", className)}>
       <div className="flex justify-between p-6 print:hidden">
         <div className="text-lg font-bold">{name}</div>
-        <Button size="icon" variant="outline" onClick={handlePrintClick}>
+        <Button
+          size="icon"
+          variant="outline"
+          className=""
+          onClick={handlePrintClick}
+        >
           <PrinterIcon />
         </Button>
       </div>

@@ -33,7 +33,7 @@ function RouteComponent() {
         </PrintForm>
         <PrintForm
           name="Pay Roll Detail"
-          className="max-h-[calc(100vh-140px)] overflow-y-auto"
+          className="2xl:max-h-[calc(100vh-140px)] overflow-y-auto"
         >
           <div>
             {paySchedule?.employees.map((employee) => (

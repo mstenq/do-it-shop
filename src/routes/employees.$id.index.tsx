@@ -19,6 +19,7 @@ import { Id } from "@convex/dataModel";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "convex-helpers/react/cache";
 import dayjs from "dayjs";
+import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/employees/$id/")({
@@ -122,14 +123,14 @@ function RouteComponent({
   return (
     <div className="space-y-4">
       <div className="p-0">
-        <div className="flex flex-row items-end justify-between gap-4 pt-2 pb-2">
+        <div className="flex flex-col justify-between gap-4 pt-2 pb-2 2xl:items-end 2xl:flex-row">
           <div>
             <CardTitle>Timesheet</CardTitle>
             <CardDescription>Time entries for this employee</CardDescription>
           </div>
-          <div className="flex items-end gap-4">
-            <div>
-              <label className="block mb-1 text-xs font-medium">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="w-full 2xl:w-auto">
+              <label className="block mb-1 text-xs font-medium ">
                 Pay Period
               </label>
               <Select
@@ -152,7 +153,7 @@ function RouteComponent({
                 </SelectContent>
               </Select>
             </div>
-            <div>
+            <div className="flex-grow">
               <label className="block mb-1 text-xs font-medium">
                 Start Date
               </label>
@@ -164,10 +165,10 @@ function RouteComponent({
                     e.target.value ? new Date(e.target.value) : undefined
                   )
                 }
-                className="w-36"
+                className=""
               />
             </div>
-            <div>
+            <div className="flex-grow">
               <label className="block mb-1 text-xs font-medium">End Date</label>
               <Input
                 type="date"
@@ -177,11 +178,13 @@ function RouteComponent({
                     e.target.value ? new Date(e.target.value) : undefined
                   )
                 }
-                className="w-36"
+                className=""
               />
             </div>
 
-            <Button onClick={showCreateForm}>Add Time</Button>
+            <Button size="icon" onClick={showCreateForm}>
+              <PlusIcon />
+            </Button>
           </div>
         </div>
         <div className="">
@@ -191,7 +194,7 @@ function RouteComponent({
             columns={columns}
             activeColumnIds={["date", "startTime", "endTime", "totalTime"]}
             groupBy={groupBy}
-            className="max-h-[calc(100svh-190px)]"
+            className="2xl:max-h-[calc(100svh-190px)]"
             sorting={[
               { id: "week", desc: true },
               { id: "date", desc: false },
