@@ -31,8 +31,8 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
 
       {/* Time Entries by Week */}
       <div className="space-y-6">
-        {employee.timeEntries.map((timeEntry) => (
-          <div key={timeEntry.week}>
+        {employee.weekGroups.map((weekGroup) => (
+          <div key={weekGroup.week}>
             {/* Time Entry Table */}
             <div className="border border-b-0 border-muted">
               {/* Table Header */}
@@ -46,7 +46,7 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
 
               {/* Time Entry Rows */}
               <div className="grid grid-cols-5 text-xs">
-                {timeEntry.days.map((day) =>
+                {weekGroup.days.map((day) =>
                   day.dayTimeEntries.map((record, index) => (
                     <React.Fragment key={record._id}>
                       {index === 0 && (
@@ -96,7 +96,7 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
             {/* Week Summary */}
             <div className="grid grid-cols-5 text-right border-t border-muted">
               <div className="col-span-2 p-3 font-bold text-left border-b border-l border-muted">
-                Week {timeEntry.week}
+                Week {weekGroup.week}
               </div>
 
               <div className="col-start-3 p-1 border-b border-muted">
@@ -104,7 +104,7 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
                   Week Reg Hours
                 </div>
                 <div className="font-bold ">
-                  {formatHours(timeEntry.weekRegularHours)}
+                  {formatHours(weekGroup.weekRegularHours)}
                 </div>
               </div>
               <div className="col-start-4 p-1 border-b border-muted">
@@ -112,7 +112,7 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
                   Week Overtime Hours
                 </div>
                 <div className="font-bold">
-                  {formatHours(timeEntry.weekOvertimeHours)}
+                  {formatHours(weekGroup.weekOvertimeHours)}
                 </div>
               </div>
               <div className="col-start-5 p-1 pr-3 border-b border-r">
@@ -120,7 +120,7 @@ export const PayScheduleEmployeeRow = ({ employee, paySchedule }: Props) => {
                   Week Total Hours
                 </div>
                 <div className="font-bold ">
-                  {formatHours(timeEntry.weekTotalHours)}
+                  {formatHours(weekGroup.weekTotalHours)}
                 </div>
               </div>
             </div>

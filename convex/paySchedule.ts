@@ -146,7 +146,6 @@ export const get = authQuery({
           weekTotalHours: week.groupTotalHours,
           weekRegularHours: week.groupRegularHours,
           weekOvertimeHours: week.groupOvertimeHours,
-          weekTimeEntries: week.timeEntries,
           days: formattedDailyEntries,
         };
       });
@@ -170,7 +169,7 @@ export const get = authQuery({
         periodTotalHours,
         periodRegularHours,
         periodOvertimeHours,
-        timeEntries: formattedWeeklyEntries,
+        weekGroups: formattedWeeklyEntries,
         allTimeEntries: employeeTimes, // Keep original time entries for reference
       };
     });
