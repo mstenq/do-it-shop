@@ -12,7 +12,13 @@ import { useStableQuery } from "@/hooks/use-stable-query";
 import { ConvexType } from "@/utils/convex-type";
 import { api } from "@convex/api";
 import { useNavigate } from "@tanstack/react-router";
-import { FileIcon, IdCardIcon, SearchIcon, Star } from "lucide-react";
+import {
+  FileIcon,
+  IdCardIcon,
+  SearchIcon,
+  Star,
+  UsersIcon,
+} from "lucide-react";
 import React, { useDeferredValue, useEffect, useState } from "react";
 
 type SearchItem = ConvexType<"search.all">[number];
@@ -22,6 +28,8 @@ const ResultIcon = ({ table: type }: { table: Table }) => {
   switch (type) {
     case "employees":
       return <IdCardIcon className="w-4 h-4" />;
+    case "customers":
+      return <UsersIcon className="w-4 h-4" />;
     default:
       return <FileIcon className="w-4 h-4" />;
   }
@@ -75,6 +83,9 @@ export function GlobalSearch() {
     }
     if (item.table === "paySchedule") {
       navigate({ to: "/pay-roll/$id", params: { id: item._id } });
+    }
+    if (item.table === "customers") {
+      navigate({ to: "/customers/$id", params: { id: item._id } });
     }
     setSearchValue("");
     setOpen(false);

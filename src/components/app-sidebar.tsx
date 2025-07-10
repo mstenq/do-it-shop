@@ -1,4 +1,11 @@
-import { FileClockIcon, House, IdCardIcon, PiggyBankIcon } from "lucide-react";
+import {
+  BookUserIcon,
+  FileClockIcon,
+  House,
+  IdCardIcon,
+  PiggyBankIcon,
+  UsersIcon,
+} from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -33,6 +40,11 @@ const useDate = () => {
         title: "Pay Roll",
         url: "/pay-roll",
         icon: PiggyBankIcon,
+      },
+      {
+        title: "Customers",
+        url: "/customers",
+        icon: UsersIcon,
       },
     ],
   };

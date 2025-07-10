@@ -1,0 +1,114 @@
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ImageUploadInput } from "@/components/ui/image-upload-input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+
+export const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+  address: z.object({
+    street: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+  }),
+});
+
+export type FormData = z.infer<typeof schema>;
+
+type Props = {
+  form: UseFormReturn<FormData>;
+  photoUrl?: string | null;
+};
+
+const formItemClassName =
+  "sm:grid items-center gap-4 grid-cols-[180px_1fr] col-span-full sm:space-y-0";
+
+export const CustomersForm = ({ form, photoUrl }: Props) => {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="space-y-3">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <h2 className="py-1 text-lg font-semibold">Address</h2>
+
+        <FormField
+          control={form.control}
+          name="address.street"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>Street Address</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="address.city"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>City</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="address.state"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>State</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="address.zip"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>Zip</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+};

@@ -5,7 +5,7 @@ export const address = v.object({
   street: v.optional(v.string()),
   city: v.optional(v.string()),
   state: v.optional(v.string()),
-  zipCode: v.optional(v.string()),
+  zip: v.optional(v.string()),
   country: v.optional(v.string()),
 });
 

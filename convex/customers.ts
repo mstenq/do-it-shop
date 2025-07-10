@@ -75,8 +75,9 @@ export const update = authMutation({
     id: v.id("customers"), // Required ID for updates
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
-      ...args,
+    const { id, ...rest } = args;
+    await ctx.db.patch(id, {
+      ...rest,
     });
     return;
   },

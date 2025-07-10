@@ -12,14 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PayRollRouteImport } from './routes/pay-roll'
 import { Route as EmployeesRouteImport } from './routes/employees'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CustomersRouteImport } from './routes/customers'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PayRollIndexRouteImport } from './routes/pay-roll.index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
+import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as PayRollIdRouteImport } from './routes/pay-roll.$id'
 import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
 import { Route as DashboardWaitingOnRouteImport } from './routes/dashboard.waiting-on'
 import { Route as DashboardProjectsRouteImport } from './routes/dashboard.projects'
 import { Route as DashboardOverviewRouteImport } from './routes/dashboard.overview'
+import { Route as CustomersIdRouteImport } from './routes/customers.$id'
 import { Route as EmployeesIdIndexRouteImport } from './routes/employees.$id.index'
 
 const PayRollRoute = PayRollRouteImport.update({
@@ -37,6 +40,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomersRoute = CustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -51,6 +59,11 @@ const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => EmployeesRoute,
+} as any)
+const CustomersIndexRoute = CustomersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CustomersRoute,
 } as any)
 const PayRollIdRoute = PayRollIdRouteImport.update({
   id: '/$id',
@@ -77,6 +90,11 @@ const DashboardOverviewRoute = DashboardOverviewRouteImport.update({
   path: '/overview',
   getParentRoute: () => DashboardRoute,
 } as any)
+const CustomersIdRoute = CustomersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => CustomersRoute,
+} as any)
 const EmployeesIdIndexRoute = EmployeesIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -85,14 +103,17 @@ const EmployeesIdIndexRoute = EmployeesIdIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
   '/pay-roll': typeof PayRollRouteWithChildren
+  '/customers/$id': typeof CustomersIdRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/pay-roll/$id': typeof PayRollIdRoute
+  '/customers/': typeof CustomersIndexRoute
   '/employees/': typeof EmployeesIndexRoute
   '/pay-roll/': typeof PayRollIndexRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
@@ -100,10 +121,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/customers/$id': typeof CustomersIdRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/pay-roll/$id': typeof PayRollIdRoute
+  '/customers': typeof CustomersIndexRoute
   '/employees': typeof EmployeesIndexRoute
   '/pay-roll': typeof PayRollIndexRoute
   '/employees/$id': typeof EmployeesIdIndexRoute
@@ -111,14 +134,17 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
   '/pay-roll': typeof PayRollRouteWithChildren
+  '/customers/$id': typeof CustomersIdRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
   '/pay-roll/$id': typeof PayRollIdRoute
+  '/customers/': typeof CustomersIndexRoute
   '/employees/': typeof EmployeesIndexRoute
   '/pay-roll/': typeof PayRollIndexRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
@@ -127,14 +153,17 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/customers'
     | '/dashboard'
     | '/employees'
     | '/pay-roll'
+    | '/customers/$id'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/pay-roll/$id'
+    | '/customers/'
     | '/employees/'
     | '/pay-roll/'
     | '/employees/$id/'
@@ -142,24 +171,29 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/customers/$id'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/pay-roll/$id'
+    | '/customers'
     | '/employees'
     | '/pay-roll'
     | '/employees/$id'
   id:
     | '__root__'
     | '/'
+    | '/customers'
     | '/dashboard'
     | '/employees'
     | '/pay-roll'
+    | '/customers/$id'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees/$id'
     | '/pay-roll/$id'
+    | '/customers/'
     | '/employees/'
     | '/pay-roll/'
     | '/employees/$id/'
@@ -167,6 +201,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CustomersRoute: typeof CustomersRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   EmployeesRoute: typeof EmployeesRouteWithChildren
   PayRollRoute: typeof PayRollRouteWithChildren
@@ -195,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customers': {
+      id: '/customers'
+      path: '/customers'
+      fullPath: '/customers'
+      preLoaderRoute: typeof CustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -215,6 +257,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/employees/'
       preLoaderRoute: typeof EmployeesIndexRouteImport
       parentRoute: typeof EmployeesRoute
+    }
+    '/customers/': {
+      id: '/customers/'
+      path: '/'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof CustomersIndexRouteImport
+      parentRoute: typeof CustomersRoute
     }
     '/pay-roll/$id': {
       id: '/pay-roll/$id'
@@ -251,6 +300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardOverviewRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/customers/$id': {
+      id: '/customers/$id'
+      path: '/$id'
+      fullPath: '/customers/$id'
+      preLoaderRoute: typeof CustomersIdRouteImport
+      parentRoute: typeof CustomersRoute
+    }
     '/employees/$id/': {
       id: '/employees/$id/'
       path: '/'
@@ -260,6 +316,20 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface CustomersRouteChildren {
+  CustomersIdRoute: typeof CustomersIdRoute
+  CustomersIndexRoute: typeof CustomersIndexRoute
+}
+
+const CustomersRouteChildren: CustomersRouteChildren = {
+  CustomersIdRoute: CustomersIdRoute,
+  CustomersIndexRoute: CustomersIndexRoute,
+}
+
+const CustomersRouteWithChildren = CustomersRoute._addFileChildren(
+  CustomersRouteChildren,
+)
 
 interface DashboardRouteChildren {
   DashboardOverviewRoute: typeof DashboardOverviewRoute
@@ -318,6 +388,7 @@ const PayRollRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CustomersRoute: CustomersRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   EmployeesRoute: EmployeesRouteWithChildren,
   PayRollRoute: PayRollRouteWithChildren,
