@@ -1,5 +1,7 @@
 import { Spacer } from "@/components/spacer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { api } from "@convex/api";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "convex-helpers/react/cache";
@@ -26,6 +28,15 @@ function RouteComponent() {
     <div className="flex flex-col h-[calc(100vh-65px)] gap-4 xl:flex-row">
       <div className="xl:min-w-[380px] py-4 pl-4 max-xl:pr-4">
         <div className="flex items-center">
+          <Badge
+            variant={"secondary"}
+            className={cn(
+              "text-xs",
+              employee.isActive ? "text-green-500" : "text-red-600 opacity-70"
+            )}
+          >
+            {employee.isActive ? "Active" : "Inactive"}
+          </Badge>
           <Spacer />
           <Button variant="outline" className="" asChild>
             <Link to="." search={{ showEdit: employee._id }}>

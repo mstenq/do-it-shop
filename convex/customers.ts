@@ -50,6 +50,7 @@ export const get = authQuery({
 const commonArgs = {
   name: v.optional(v.string()),
   address: v.optional(address),
+  website: v.optional(v.string()),
   notes: v.optional(v.string()),
 };
 

@@ -29,6 +29,7 @@ export default defineSchema({
     name: v.string(),
     address: v.optional(address),
     notes: v.optional(v.string()),
+    website: v.optional(v.string()),
 
     // Standard fields
     isDeleted: v.optional(v.boolean()),

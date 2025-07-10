@@ -10,6 +10,8 @@ import { ImageUploadInput } from "@/components/ui/image-upload-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
@@ -20,6 +22,7 @@ export const schema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   phoneNumber: z.string().optional(),
   photoStorageId: z.string().optional(),
+  isActive: z.boolean().default(true),
   type: z.enum(["hourly", "salary", "piece-work"]),
 });
 
@@ -132,9 +135,26 @@ export const EmployeesForm = ({ form, photoUrl }: Props) => {
 
         <FormField
           control={form.control}
-          name="photoStorageId"
+          name="isActive"
           render={({ field }) => (
             <FormItem className={cn(formItemClassName)}>
+              <FormLabel>Is Active?</FormLabel>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="photoStorageId"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName, "pt-6")}>
               <FormLabel className="self-start">Image</FormLabel>
               <FormControl>
                 <ImageUploadInput

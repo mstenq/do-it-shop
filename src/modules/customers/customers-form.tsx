@@ -11,12 +11,15 @@ import { ImageUploadInput } from "@/components/ui/image-upload-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
 export const schema = z.object({
   name: z.string().min(1, "Name is required"),
+  website: z.string().url("Must be a valid URL").optional(),
+  notes: z.string().optional(),
   address: z.object({
     street: z.string().optional(),
     city: z.string().optional(),
@@ -47,6 +50,20 @@ export const CustomersForm = ({ form, photoUrl }: Props) => {
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="website"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>Website</FormLabel>
+              <FormControl>
+                <Input {...field} type="url" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -106,6 +123,20 @@ export const CustomersForm = ({ form, photoUrl }: Props) => {
               <FormLabel>Zip</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName, "pt-8")}>
+              <FormLabel className="self-start">Notes</FormLabel>
+              <FormControl>
+                <Textarea {...field} rows={3} />
               </FormControl>
               <FormMessage />
             </FormItem>
