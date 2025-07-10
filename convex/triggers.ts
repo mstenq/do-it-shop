@@ -50,6 +50,24 @@ triggers.register("paySchedule", async (ctx, change) => {
   }
 });
 
+triggers.register("customers", async (ctx, change) => {
+  console.log("Customer trigger", change);
+  if (change.newDoc) {
+    // Build search index from relevant fields
+    const searchParts = [
+      change.newDoc.name,
+      change.newDoc.address?.street,
+    ].filter(Boolean);
+
+    const searchIndex = searchParts.join(" ");
+
+    // Update denormalized field. Check first to avoid recursion
+    if (change.newDoc.searchIndex !== searchIndex) {
+      await ctx.db.patch(change.id, { searchIndex });
+    }
+  }
+});
+
 triggers.register("times", async (ctx, change) => {
   console.log("times trigger", change);
 

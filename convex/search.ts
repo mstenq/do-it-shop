@@ -38,6 +38,13 @@ export const all = authQuery({
       .withSearchIndex("search", (q) => q.search("searchIndex", args.q))
       .take(LIMIT);
 
+    const customers = await ctx.db
+      .query("customers")
+      .withSearchIndex("search", (q) =>
+        q.search("searchIndex", args.q).eq("isDeleted", false)
+      )
+      .take(LIMIT);
+
     const searchResults: SearchResultItem[] = [
       ...(employees ?? []).map(
         (e) =>
@@ -55,6 +62,17 @@ export const all = authQuery({
             table: "paySchedule",
             title: schedule.name,
             subtitle: `${dayjs.tz(schedule.startDate, "America/Denver").format("M/D/YYYY")} - ${dayjs.tz(schedule.endDate, "America/Denver").format("M/D/YYYY")}`,
+          }) satisfies SearchResultItem
+      ),
+      ...(customers ?? []).map(
+        (customer) =>
+          ({
+            _id: String(customer._id),
+            table: "customers",
+            title: customer.name,
+            subtitle: customer.address?.city
+              ? `${customer.address.city}${customer.address.state ? `, ${customer.address.state}` : ""}`
+              : "",
           }) satisfies SearchResultItem
       ),
     ];

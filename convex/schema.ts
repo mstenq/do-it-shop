@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const address = v.object({
+export const address = v.object({
   street: v.optional(v.string()),
   city: v.optional(v.string()),
   state: v.optional(v.string()),
@@ -18,10 +18,24 @@ export const employeeType = v.union(
 export const tableName = v.union(
   v.literal("employees"),
   v.literal("paySchedule"),
-  v.literal("times")
+  v.literal("times"),
+  v.literal("customers")
 );
 
 export default defineSchema({
+  customers: defineTable({
+    name: v.string(),
+    address: v.optional(address),
+    notes: v.optional(v.string()),
+
+    // Standard fields
+    isDeleted: v.optional(v.boolean()),
+    searchIndex: v.optional(v.string()),
+  }).searchIndex("search", {
+    searchField: "searchIndex",
+    filterFields: ["isDeleted"],
+  }),
+
   employees: defineTable({
     nameFirst: v.string(),
     nameLast: v.string(),
