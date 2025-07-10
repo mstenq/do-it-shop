@@ -24,7 +24,7 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-65px)] gap-4 xl:flex-row">
-      <div className="xl:min-w-[380px] py-4 pl-4">
+      <div className="xl:min-w-[380px] py-4 pl-4 max-xl:pr-4">
         <div className="flex items-center">
           <Spacer />
           <Button variant="outline" className="" asChild>

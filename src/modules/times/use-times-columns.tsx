@@ -81,12 +81,12 @@ export function useTimesColumns() {
           const overtime = totalTime > 40 ? totalTime - 40 : 0;
           const week = getWeek(new Date(rows[0].startTime));
           return (
-            <div className="flex flex-row items-end justify-between gap-1 pl-3">
+            <div className="flex flex-col justify-between gap-1 sm:pl-3 sm:items-end sm:flex-row">
               <div className="flex items-center gap-2 mb-1 text-lg font-bold text-primary">
                 Week {week}
               </div>
               <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex gap-4 p-2 font-medium rounded shadow bg-background text-muted-foreground">
+                <div className="flex w-full gap-4 p-2 font-medium rounded shadow bg-background text-muted-foreground justify-evenly">
                   <div>
                     <div className="text-xs">Regular Time</div>
                     <div className="font-bold text-foreground">
@@ -132,9 +132,10 @@ export function useTimesColumns() {
           const date = format(new Date(rows[0].startTime), "MMMM dd, yyyy");
           return (
             <>
-              <td className="py-2 pl-6 font-bold bg-muted/50">{date}</td>
-              <td className="bg-muted/50"></td>
-              <td className="bg-muted/50"></td>
+              <td colSpan={3} className="py-2 pl-6 font-bold bg-muted/50">
+                {date}
+              </td>
+
               <td className="pr-3 font-bold text-right bg-muted/50">
                 {formatHours(totalTime)}
               </td>
