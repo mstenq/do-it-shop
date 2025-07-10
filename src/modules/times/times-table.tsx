@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollAreaWithShadows } from "@/components/scroll-area-with-shadows";
 import {
   Table,
   TableBody,
@@ -126,9 +126,13 @@ export function TimesTable() {
         </div>
       </CardHeader>
       <CardContent className="max-sm:p-0">
-        <ScrollArea className=" xl:max-h-[calc(100vh-297px)] overflow-auto">
-          <ScrollBar orientation="vertical" />
-          <ScrollBar orientation="horizontal" />
+        <ScrollAreaWithShadows
+          className="xl:max-h-[calc(100vh-297px)] overflow-auto"
+          orientation="both"
+          shadowColor="rgb(0, 0, 0)"
+          shadowOpacity={0.1}
+          animationDuration="300ms"
+        >
           <Table className="">
             <TableHeader>
               <TableRow className="">
@@ -172,7 +176,7 @@ export function TimesTable() {
               ))}
             </TableBody>
           </Table>
-        </ScrollArea>
+        </ScrollAreaWithShadows>
       </CardContent>
       <AlertDialog
         open={Boolean(timeEntryToDelete)}
