@@ -139,6 +139,12 @@
   }
 }
 
+@layer utilities {
+  .sm-non-card {
+    @apply max-sm:border-none max-sm:shadow-none;
+  }
+}
+
 [data-lastpass-icon-root],
 [data-lastpass-root] {
   display: none !important;

@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { ConvexType } from "@/utils/convex-type";
 import { formatHours } from "@/utils/number-formatters";
 import { api } from "@convex/api";
@@ -59,18 +60,18 @@ export function HourlyEmployeeCard() {
   };
 
   return (
-    <Card>
+    <Card className="sm-non-card">
       <ScrollArea className="xl:min-w-[500px] xl:max-h-[calc(100vh-189px)] overflow-y-auto">
         <ScrollBar orientation="vertical" />
-        <CardContent>
+        <CardContent className="max-sm:p-0">
           <div className="pt-3 ">
             <div className="divide-y">
               {employees.map((employee) => (
                 <div
                   key={employee._id}
-                  className="flex items-center justify-between py-1.5 "
+                  className="flex  flex-col sm:items-center justify-between py-1.5 sm:flex-row gap-3"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 ">
                     <Avatar className="w-12 h-12">
                       <AvatarImage
                         src={employee.photo ?? ""}
@@ -105,11 +106,11 @@ export function HourlyEmployeeCard() {
                       variant={"ghost"}
                       size="sm"
                       disabled={Boolean(employee.mostRecentOpenTime)}
-                      className={
-                        !Boolean(employee.mostRecentOpenTime)
-                          ? "text-primary hover:text-primary"
-                          : ""
-                      }
+                      className={cn(
+                        "max-sm:w-full",
+                        employee.mostRecentOpenTime &&
+                          "text-primary hover:text-primary"
+                      )}
                       onClick={() => handleClockIn(employee)}
                     >
                       Clock In
@@ -118,11 +119,11 @@ export function HourlyEmployeeCard() {
                       variant={"ghost"}
                       size="sm"
                       disabled={employee.mostRecentOpenTime === null}
-                      className={
-                        employee.mostRecentOpenTime !== null
-                          ? "text-primary hover:text-primary"
-                          : ""
-                      }
+                      className={cn(
+                        "max-sm:w-full",
+                        employee.mostRecentOpenTime !== null &&
+                          "text-primary hover:text-primary"
+                      )}
                       onClick={() => handleClockOut(employee)}
                     >
                       Clock Out

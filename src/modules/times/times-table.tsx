@@ -107,9 +107,9 @@ export function TimesTable() {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <Card className="w-full sm-non-card">
+      <CardHeader className="max-sm:p-0">
+        <div className="flex flex-col justify-between gap-3 sm:items-center sm:flex-row max-sm:pb-5">
           <div>
             <CardTitle>Time Entries</CardTitle>
             <CardDescription>
@@ -125,20 +125,21 @@ export function TimesTable() {
           />
         </div>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className=" xl:max-h-[calc(100vh-297px)] overflow-y-auto">
+      <CardContent className="max-sm:p-0">
+        <ScrollArea className=" xl:max-h-[calc(100vh-297px)] overflow-auto">
           <ScrollBar orientation="vertical" />
+          <ScrollBar orientation="horizontal" />
           <Table className="">
             <TableHeader>
               <TableRow className="">
-                <TableHead className="">Employee</TableHead>
-                <TableHead className="text-right">Time In</TableHead>
-                <TableHead className="text-right">Time Out</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="min-w-40">Employee</TableHead>
+                <TableHead className="text-right min-w-24">Time In</TableHead>
+                <TableHead className="w-24 text-right">Time Out</TableHead>
+                <TableHead className="w-24 text-right">Total</TableHead>
                 <TableHead className="w-8"></TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="overflow-y-auto">
+            <TableBody className="">
               {filteredTimeEntries.map((entry) => (
                 <TableRow
                   key={entry._id}
