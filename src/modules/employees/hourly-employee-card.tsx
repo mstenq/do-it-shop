@@ -69,7 +69,7 @@ export function HourlyEmployeeCard() {
               {employees.map((employee) => (
                 <div
                   key={employee._id}
-                  className="flex  flex-col sm:items-center justify-between py-1.5 sm:flex-row gap-3"
+                  className="flex   justify-between py-1.5  gap-3"
                 >
                   <div className="flex items-center gap-4 ">
                     <Avatar className="w-12 h-12">
@@ -101,14 +101,14 @@ export function HourlyEmployeeCard() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col items-center gap-3 md:flex-row">
                     <Button
                       variant={"ghost"}
                       size="sm"
                       disabled={Boolean(employee.mostRecentOpenTime)}
                       className={cn(
                         "max-sm:w-full",
-                        employee.mostRecentOpenTime &&
+                        !employee.mostRecentOpenTime &&
                           "text-primary hover:text-primary"
                       )}
                       onClick={() => handleClockIn(employee)}

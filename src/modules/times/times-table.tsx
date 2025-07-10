@@ -138,8 +138,8 @@ export function TimesTable() {
               <TableRow className="">
                 <TableHead className="min-w-40">Employee</TableHead>
                 <TableHead className="text-right min-w-24">Time In</TableHead>
-                <TableHead className="w-24 text-right">Time Out</TableHead>
-                <TableHead className="w-24 text-right">Total</TableHead>
+                <TableHead className="text-right min-w-24">Time Out</TableHead>
+                <TableHead className="text-right min-w-24">Total</TableHead>
                 <TableHead className="w-8"></TableHead>
               </TableRow>
             </TableHeader>
