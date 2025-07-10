@@ -25,6 +25,7 @@ import type * as timeUtils from "../timeUtils.js";
 import type * as times from "../times.js";
 import type * as triggers from "../triggers.js";
 import type * as utils from "../utils.js";
+import type * as valueList from "../valueList.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   times: typeof times;
   triggers: typeof triggers;
   utils: typeof utils;
+  valueList: typeof valueList;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

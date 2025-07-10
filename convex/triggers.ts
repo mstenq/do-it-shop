@@ -53,6 +53,53 @@ triggers.register("paySchedule", async (ctx, change) => {
 triggers.register("customers", async (ctx, change) => {
   console.log("Customer trigger", change);
   if (change.newDoc) {
+    /**
+     * SYNC STATES VALUE LIST
+     */
+    const state = change.newDoc.address?.state?.trim();
+
+    if (state) {
+      // see if state already exists
+      const existingState = await ctx.db
+        .query("valueLists")
+        .withIndex("by_group_value", (q) =>
+          q.eq("group", "states").eq("value", state)
+        )
+        .first();
+      if (!existingState) {
+        // create new state if it doesn't exist
+        await ctx.db.insert("valueLists", {
+          group: "states",
+          value: state,
+        });
+      }
+    }
+
+    /**
+     * SYNC CITIES VALUE LIST
+     */
+
+    const city = change.newDoc.address?.city?.trim();
+    if (city) {
+      // see if city already exists
+      const existingCity = await ctx.db
+        .query("valueLists")
+        .withIndex("by_group_value", (q) =>
+          q.eq("group", "cities").eq("value", city)
+        )
+        .first();
+      if (!existingCity) {
+        // create new city if it doesn't exist
+        await ctx.db.insert("valueLists", {
+          group: "cities",
+          value: city,
+        });
+      }
+    }
+
+    /**
+     * HANDLE SEARCH INDEX
+     */
     // Build search index from relevant fields
     const searchParts = [
       change.newDoc.name,

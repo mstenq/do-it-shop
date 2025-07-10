@@ -9,6 +9,8 @@ export const address = v.object({
   country: v.optional(v.string()),
 });
 
+export const groups = v.union(v.literal("states"), v.literal("cities"));
+
 export const employeeType = v.union(
   v.literal("hourly"),
   v.literal("salary"),
@@ -85,6 +87,11 @@ export default defineSchema({
   })
     .index("by_startTime", ["startTime"])
     .index("by_employeeId_startTime", ["employeeId", "startTime"]),
+
+  valueLists: defineTable({
+    group: groups,
+    value: v.string(),
+  }).index("by_group_value", ["group", "value"]),
 
   // Temp tables
   fmEmployees: defineTable({

@@ -1,3 +1,4 @@
+import { DataList } from "@/components/data-list";
 import {
   FormControl,
   FormDescription,
@@ -74,8 +75,9 @@ export const CustomersForm = ({ form, photoUrl }: Props) => {
             <FormItem className={cn(formItemClassName)}>
               <FormLabel>City</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} list="cities" />
               </FormControl>
+              <DataList group="cities" />
               <FormMessage />
             </FormItem>
           )}
@@ -88,8 +90,9 @@ export const CustomersForm = ({ form, photoUrl }: Props) => {
             <FormItem className={cn(formItemClassName)}>
               <FormLabel>State</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} list="states" />
               </FormControl>
+              <DataList group="states" />
               <FormMessage />
             </FormItem>
           )}
