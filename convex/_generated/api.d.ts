@@ -16,6 +16,7 @@ import type {
 import type * as crons from "../crons.js";
 import type * as customers from "../customers.js";
 import type * as employees from "../employees.js";
+import type * as jobs from "../jobs.js";
 import type * as migrate from "../migrate.js";
 import type * as paySchedule from "../paySchedule.js";
 import type * as payScheduleUtils from "../payScheduleUtils.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   customers: typeof customers;
   employees: typeof employees;
+  jobs: typeof jobs;
   migrate: typeof migrate;
   paySchedule: typeof paySchedule;
   payScheduleUtils: typeof payScheduleUtils;

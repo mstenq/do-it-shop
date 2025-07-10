@@ -1,6 +1,6 @@
 import { Infer, v } from "convex/values";
 import { tableName } from "./schema";
-import { authQuery } from "./utils";
+import { authQuery, joinData, NullP } from "./utils";
 import dayjs from "dayjs";
 import WeekOfYear from "dayjs/plugin/weekOfYear";
 import Timezone from "dayjs/plugin/timezone";
@@ -45,6 +45,19 @@ export const all = authQuery({
       )
       .take(LIMIT);
 
+    const jobs = await ctx.db
+      .query("jobs")
+      .withSearchIndex("search", (q) =>
+        q.search("searchIndex", args.q).eq("isDeleted", false)
+      )
+      .take(LIMIT);
+
+    // Join related data for jobs
+    const joinedJobs = await joinData(jobs, {
+      customer: (j) => (j.customerId ? ctx.db.get(j.customerId) : NullP),
+      employee: (j) => (j.employeeId ? ctx.db.get(j.employeeId) : NullP),
+    });
+
     const searchResults: SearchResultItem[] = [
       ...(employees ?? []).map(
         (e) =>
@@ -75,8 +88,38 @@ export const all = authQuery({
               : "",
           }) satisfies SearchResultItem
       ),
+      ...(joinedJobs ?? []).map(
+        (job) =>
+          ({
+            _id: String(job._id),
+            table: "jobs",
+            title: job.description,
+            subtitle: job.customer?.name
+              ? `${job.customer.name} - ${job.status}`
+              : job.status,
+          }) satisfies SearchResultItem
+      ),
     ];
 
     return searchResults;
+  },
+});
+
+export const customers = authQuery({
+  args: { q: v.string() },
+  handler: async (ctx, args) => {
+    console.log("Customer search query:", args.q);
+
+    const customers = await ctx.db
+      .query("customers")
+      .withSearchIndex("searchCustomerName", (q) =>
+        q.search("name", args.q).eq("isDeleted", false)
+      )
+      .take(LIMIT);
+
+    return customers.map((c) => ({
+      _id: String(c._id),
+      name: c.name,
+    }));
   },
 });

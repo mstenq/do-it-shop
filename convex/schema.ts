@@ -17,11 +17,25 @@ export const employeeType = v.union(
   v.literal("piece-work")
 );
 
+export const jobStatus = v.union(
+  v.literal("hot"),
+  v.literal("cold"),
+  v.literal("normal")
+);
+
+export const jobStage = v.union(
+  v.literal("todo"),
+  v.literal("in-progress"),
+  v.literal("back-burner"),
+  v.literal("completed")
+);
+
 export const tableName = v.union(
   v.literal("employees"),
   v.literal("paySchedule"),
   v.literal("times"),
-  v.literal("customers")
+  v.literal("customers"),
+  v.literal("jobs")
 );
 
 export default defineSchema({
@@ -32,12 +46,17 @@ export default defineSchema({
     website: v.optional(v.string()),
 
     // Standard fields
-    isDeleted: v.optional(v.boolean()),
+    isDeleted: v.boolean(),
     searchIndex: v.optional(v.string()),
-  }).searchIndex("search", {
-    searchField: "searchIndex",
-    filterFields: ["isDeleted"],
-  }),
+  })
+    .searchIndex("search", {
+      searchField: "searchIndex",
+      filterFields: ["isDeleted"],
+    })
+    .searchIndex("searchCustomerName", {
+      searchField: "name",
+      filterFields: ["isDeleted"],
+    }),
 
   employees: defineTable({
     nameFirst: v.string(),
@@ -89,12 +108,33 @@ export default defineSchema({
     .index("by_startTime", ["startTime"])
     .index("by_employeeId_startTime", ["employeeId", "startTime"]),
 
+  jobs: defineTable({
+    customerId: v.id("customers"),
+    description: v.string(),
+    notes: v.optional(v.string()),
+    employeeId: v.optional(v.id("employees")),
+    dueDate: v.optional(v.number()),
+    status: jobStatus,
+    stage: jobStage,
+    isCompleted: v.boolean(), // trigger will set this based on stage
+    quantity: v.optional(v.string()),
+
+    // Standard fields
+    isDeleted: v.boolean(),
+    searchIndex: v.optional(v.string()),
+  })
+    .index("by_isCompleted", ["isCompleted"])
+    .searchIndex("search", {
+      searchField: "searchIndex",
+      filterFields: ["isDeleted"],
+    }),
+
   valueLists: defineTable({
     group: groups,
     value: v.string(),
   }).index("by_group_value", ["group", "value"]),
 
-  // Temp tables
+  // Temp import tables
   fmEmployees: defineTable({
     email: v.string(),
     filemakerId: v.string(),

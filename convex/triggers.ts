@@ -115,6 +115,28 @@ triggers.register("customers", async (ctx, change) => {
   }
 });
 
+triggers.register("jobs", async (ctx, change) => {
+  console.log("Jobs trigger", change);
+  if (change.newDoc) {
+    if (change.newDoc.stage === "completed" && !change.newDoc.isCompleted) {
+      await ctx.db.patch(change.id, { isCompleted: true });
+    }
+
+    /**
+     * Handle seach index
+     */
+    // Build search index from relevant fields
+    const searchParts = [change.newDoc.description].filter(Boolean);
+
+    const searchIndex = searchParts.join(" ");
+
+    // Update denormalized field. Check first to avoid recursion
+    if (change.newDoc.searchIndex !== searchIndex) {
+      await ctx.db.patch(change.id, { searchIndex });
+    }
+  }
+});
+
 triggers.register("times", async (ctx, change) => {
   console.log("times trigger", change);
 
