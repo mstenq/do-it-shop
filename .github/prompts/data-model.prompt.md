@@ -29,7 +29,6 @@ export const tableName = v.union(
 // Add table definition
 yourNewTable: defineTable({
   // Standard fields (required for all tables)
-  id: v.string(),
   isDeleted: v.optional(v.boolean()),
   searchIndex: v.optional(v.string()),
   
@@ -44,18 +43,8 @@ yourNewTable: defineTable({
   }),
 ```
 
-### 2. Incrementor Setup (`convex/incrementors.ts`)
 
-Add the table prefix to the `tablePrefixes` object:
-
-```typescript
-const tablePrefixes: Record<Infer<typeof tableName>, string> = {
-  // ...existing prefixes...
-  yourNewTable: "YNT", // Use 3-letter prefix for your table
-};
-```
-
-### 3. Convex Functions (`convex/yourNewTable.ts`)
+### 2. Convex Functions (`convex/yourNewTable.ts`)
 
 Create a new file with the following structure based on the `publicTransports.ts` pattern:
 
@@ -90,12 +79,12 @@ export const all = authQuery({
 });
 
 export const get = authQuery({
-  args: { _id: v.string() },
+  args: { id: v.string() },
   handler: async (ctx, args) => {
-    if (!args._id) {
+    if (!args.id) {
       return null;
     }
-    const record = await ctx.db.get(args._id as Id<"tableName">);
+    const record = await ctx.db.get(args.id as Id<"tableName">);
 
     if (!record) {
       return null;
@@ -130,30 +119,20 @@ export const add = authMutation({
     // Other required fields...
   },
   handler: async (ctx, args) => {
-    const nextAvailableId: string = await ctx.runMutation(
-      internal.incrementors.getNextId,
-      {
-        tableName: "yourNewTable",
-      }
-    );
-
-    await ctx.db.insert("yourNewTable", {
+    return ctx.db.insert("yourNewTable", {
       ...args,
-      id: nextAvailableId,
       isDeleted: false,
     });
-
-    return nextAvailableId;
   },
 });
 
 export const update = authMutation({
   args: {
-    _id: v.id("yourNewTable"),
     ...commonArgs,
+    id: v.id("yourNewTable"), // Required ID for updates
   },
-  handler: async (ctx, { _id, ...args }) => {
-    await ctx.db.patch(_id, {
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
       ...args,
     });
     return;
@@ -181,7 +160,7 @@ export const restore = authMutation({
 });
 ```
 
-### 4. Trigger Registration (`convex/triggers.ts`)
+### 3. Trigger Registration (`convex/triggers.ts`)
 
 Add a trigger to maintain the searchIndex field:
 
@@ -191,19 +170,10 @@ triggers.register("yourNewTable", async (ctx, change) => {
   if (change.newDoc) {
     // Build search index from relevant fields
     const searchParts = [
-      change.newDoc.id,
       change.newDoc.name,
       change.newDoc.description,
       // Add other searchable fields
     ].filter(Boolean);
-
-    // Add related data to search index if needed
-    // const relatedRecord = change.newDoc.relatedTableId
-    //   ? await ctx.db.get(change.newDoc.relatedTableId)
-    //   : null;
-    // if (relatedRecord) {
-    //   searchParts.push(relatedRecord.name);
-    // }
 
     const searchIndex = searchParts.join(" ");
 
@@ -215,7 +185,7 @@ triggers.register("yourNewTable", async (ctx, change) => {
 });
 ```
 
-### 5. Search Integration (`convex/search.ts`)
+### 4. Search Integration (`convex/search.ts`)
 
 Add the new table to the global search:
 
@@ -248,7 +218,6 @@ export const all = authQuery({
         (record) =>
           ({
             _id: String(record._id),
-            id: record.id,
             table: "yourNewTable",
             title: record.name,
             subtitle: record.description ?? "",
@@ -256,7 +225,6 @@ export const all = authQuery({
       ),
     ];
 
-    console.log("Search results:", searchResults);
     return searchResults;
   },
 });
@@ -282,9 +250,8 @@ Use these existing implementations as references:
 
 After implementation, verify:
 
-- [ ] Schema includes all standard fields (id, isDeleted, searchIndex)
+- [ ] Schema includes all standard fields (isDeleted, searchIndex)
 - [ ] Proper indexes are defined (search)
-- [ ] Incrementor prefix is added to tablePrefixes
 - [ ] All CRUD operations work (add, update, destroy, restore)
 - [ ] Trigger updates searchIndex correctly
 - [ ] Search integration returns expected results
