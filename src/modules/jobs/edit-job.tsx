@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "../../components/ui/button";
 import { Form } from "../../components/ui/form";
 import { ScrollArea } from "../../components/ui/scroll-area";
+import { toast } from "sonner";
 
 export function EditJob() {
   const navigate = useNavigate();
@@ -67,7 +68,16 @@ function EditJobForm({ job }: { job: ConvexType<"jobs.get"> }) {
 
   const update = useMutation(api.jobs.update);
 
-  const validatedInput = schema.safeParse(job).data;
+  const { data: validatedInput, error } = schema.safeParse({
+    ...job,
+    customerName: job?.customer?.name ?? "",
+    dueDate: new Date(job?.dueDate ?? "").toISOString().split("T")[0] || "",
+  });
+
+  if (error) {
+    toast.error("Invalid job data: " + error.message);
+  }
+  console.log("EditJobForm", validatedInput);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),

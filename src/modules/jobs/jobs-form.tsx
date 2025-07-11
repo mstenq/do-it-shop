@@ -18,6 +18,7 @@ import { useQuery } from "convex-helpers/react/cache";
 import { useDeferredValue } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { z } from "zod";
+import { EmployeePicker } from "../employees";
 
 export const jobStatus = z.enum([
   "ready",
@@ -87,9 +88,130 @@ export const JobsForm = ({ form }: Props) => {
           name="description"
           render={({ field }) => (
             <FormItem className={cn(formItemClassName)}>
-              <FormLabel className="self-start">Description</FormLabel>
+              <FormLabel className="self-start">Job Description</FormLabel>
               <FormControl>
                 <Textarea rows={3} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel className="self-start">Notes</FormLabel>
+              <FormControl>
+                <Textarea rows={3} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="employeeId"
+          render={({ field }) => (
+            <EmployeePicker
+              className={cn(formItemClassName)}
+              value={field.value}
+              onSelect={field.onChange}
+              placeholder="leave blank for all employees"
+            />
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dueDate"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName)}>
+              <FormLabel>Due Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="priority"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName, "pt-6")}>
+              <FormLabel className="self-start">Priority</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex flex-row items-center gap-4"
+                >
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="high" />
+                    </FormControl>
+                    <FormLabel className="font-normal">High</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="medium" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Medium</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="low" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Low</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem className={cn(formItemClassName, "pt-6")}>
+              <FormLabel className="self-start">Status</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex flex-col "
+                >
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="ready" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Ready</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="waiting" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Waiting</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="in-progress" />
+                    </FormControl>
+                    <FormLabel className="font-normal">In Progress</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-baseline gap-3">
+                    <FormControl>
+                      <RadioGroupItem value="back-burner" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Back Burner</FormLabel>
+                  </FormItem>
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
