@@ -53,49 +53,15 @@ triggers.register("paySchedule", async (ctx, change) => {
 triggers.register("customers", async (ctx, change) => {
   console.log("Customer trigger", change);
   if (change.newDoc) {
-    /**
-     * SYNC STATES VALUE LIST
-     */
-    const state = change.newDoc.address?.state?.trim();
+    ctx.runMutation(internal.valueList.upsert, {
+      group: "states",
+      value: change.newDoc.address?.state,
+    });
 
-    if (state) {
-      // see if state already exists
-      const existingState = await ctx.db
-        .query("valueLists")
-        .withIndex("by_group_value", (q) =>
-          q.eq("group", "states").eq("value", state)
-        )
-        .first();
-      if (!existingState) {
-        // create new state if it doesn't exist
-        await ctx.db.insert("valueLists", {
-          group: "states",
-          value: state,
-        });
-      }
-    }
-
-    /**
-     * SYNC CITIES VALUE LIST
-     */
-
-    const city = change.newDoc.address?.city?.trim();
-    if (city) {
-      // see if city already exists
-      const existingCity = await ctx.db
-        .query("valueLists")
-        .withIndex("by_group_value", (q) =>
-          q.eq("group", "cities").eq("value", city)
-        )
-        .first();
-      if (!existingCity) {
-        // create new city if it doesn't exist
-        await ctx.db.insert("valueLists", {
-          group: "cities",
-          value: city,
-        });
-      }
-    }
+    ctx.runMutation(internal.valueList.upsert, {
+      group: "cities",
+      value: change.newDoc.address?.city,
+    });
 
     /**
      * HANDLE SEARCH INDEX
@@ -118,6 +84,17 @@ triggers.register("customers", async (ctx, change) => {
 triggers.register("jobs", async (ctx, change) => {
   console.log("Jobs trigger", change);
   if (change.newDoc) {
+    /**
+     * SYNC STATES VALUE LIST
+     */
+    ctx.runMutation(internal.valueList.upsert, {
+      group: "jobDescriptions",
+      value: change.newDoc.description,
+    });
+
+    /**
+     * Handle isCompleted flag
+     */
     if (change.newDoc.stage === "completed" && !change.newDoc.isCompleted) {
       await ctx.db.patch(change.id, { isCompleted: true });
     }
@@ -161,7 +138,7 @@ triggers.register("times", async (ctx, change) => {
       await ctx.db.patch(change.id, { totalTime });
 
       // trigger employee hour calculations
-      ctx.scheduler.runAfter(1000, internal.employees.calculateHours, {
+      ctx.scheduler.runAfter(500, internal.employees.calculateHours, {
         id: change.newDoc.employeeId,
       });
     }

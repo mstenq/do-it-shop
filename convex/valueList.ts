@@ -6,6 +6,7 @@ import {
 } from "./timeUtils";
 import { authMutation, authQuery, joinData, NullP } from "./utils";
 import { groups } from "./schema";
+import { internalMutation } from "./triggers";
 
 /**
  * Re-export query functions for backward compatibility
@@ -29,5 +30,31 @@ export const all = authQuery({
       .collect();
 
     return results;
+  },
+});
+
+export const upsert = internalMutation({
+  args: {
+    group: groups,
+    value: v.optional(v.string()),
+  },
+  handler: async (ctx, { group, value }) => {
+    if (!value || value.trim() === "") {
+      return;
+    }
+    console.log("Upserting value list item:", value);
+    const existing = await ctx.db
+      .query("valueLists")
+      .withIndex("by_group_value", (q) =>
+        q.eq("group", group).eq("value", value.trim())
+      )
+      .first();
+
+    if (!existing) {
+      return ctx.db.insert("valueLists", {
+        group,
+        value: value.trim(),
+      });
+    }
   },
 });

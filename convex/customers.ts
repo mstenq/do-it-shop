@@ -3,6 +3,7 @@ import { internal } from "./_generated/api";
 import { authMutation, authQuery, joinData, NullP } from "./utils";
 import { Id } from "./_generated/dataModel";
 import { address } from "./schema";
+import { MutationCtx } from "./_generated/server";
 
 /**
  * Queries
@@ -103,3 +104,26 @@ export const restore = authMutation({
     return args.ids;
   },
 });
+
+export const getOrCreateCustomer = async (ctx: MutationCtx, name: string) => {
+  // lookup customer by name
+  let customerId = await ctx.db
+    .query("customers")
+    .withIndex("by_name", (q) => q.eq("name", name.trim()))
+    .first()
+    .then((c) => c?._id);
+
+  // If customer doesn't exist, create a new one
+  if (!customerId) {
+    customerId = await ctx.db.insert("customers", {
+      name: name.trim(),
+      isDeleted: false,
+    });
+  }
+
+  if (!customerId) {
+    throw new Error("Failed to create or retrieve customer");
+  }
+
+  return customerId;
+};

@@ -1,5 +1,5 @@
 import { Infer, v } from "convex/values";
-import { tableName } from "./schema";
+import { groups, tableName } from "./schema";
 import { authQuery, joinData, NullP } from "./utils";
 import dayjs from "dayjs";
 import WeekOfYear from "dayjs/plugin/weekOfYear";
@@ -115,11 +115,30 @@ export const customers = authQuery({
       .withSearchIndex("searchCustomerName", (q) =>
         q.search("name", args.q).eq("isDeleted", false)
       )
-      .take(LIMIT);
+      .take(10);
 
     return customers.map((c) => ({
       _id: String(c._id),
       name: c.name,
+    }));
+  },
+});
+
+export const valueList = authQuery({
+  args: { q: v.string(), group: groups },
+  handler: async (ctx, args) => {
+    console.log("ValueList search query:", args);
+
+    const options = await ctx.db
+      .query("valueLists")
+      .withSearchIndex("search", (q) =>
+        q.search("value", args.q).eq("group", args.group)
+      )
+      .take(10);
+
+    return options.map((c) => ({
+      _id: String(c._id),
+      value: c.value,
     }));
   },
 });

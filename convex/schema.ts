@@ -9,7 +9,11 @@ export const address = v.object({
   country: v.optional(v.string()),
 });
 
-export const groups = v.union(v.literal("states"), v.literal("cities"));
+export const groups = v.union(
+  v.literal("states"),
+  v.literal("cities"),
+  v.literal("jobDescriptions")
+);
 
 export const employeeType = v.union(
   v.literal("hourly"),
@@ -49,6 +53,7 @@ export default defineSchema({
     isDeleted: v.boolean(),
     searchIndex: v.optional(v.string()),
   })
+    .index("by_name", ["name"])
     .searchIndex("search", {
       searchField: "searchIndex",
       filterFields: ["isDeleted"],
@@ -132,7 +137,12 @@ export default defineSchema({
   valueLists: defineTable({
     group: groups,
     value: v.string(),
-  }).index("by_group_value", ["group", "value"]),
+  })
+    .index("by_group_value", ["group", "value"])
+    .searchIndex("search", {
+      searchField: "value",
+      filterFields: ["group"],
+    }),
 
   // Temp import tables
   fmEmployees: defineTable({

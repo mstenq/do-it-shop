@@ -1,6 +1,5 @@
 import {
-  BookUserIcon,
-  FileClockIcon,
+  CircleCheckIcon,
   House,
   IdCardIcon,
   PiggyBankIcon,
@@ -17,8 +16,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { NavEvents } from "./nav-events";
 import { ModeToggle } from "./mode-toggle";
+import { NavEvents } from "./nav-events";
 
 // This is sample data.
 const useDate = () => {
@@ -45,6 +44,11 @@ const useDate = () => {
         title: "Customers",
         url: "/customers",
         icon: UsersIcon,
+      },
+      {
+        title: "Jobs",
+        url: "/jobs",
+        icon: CircleCheckIcon,
       },
     ],
   };

@@ -3,6 +3,7 @@ import { internal } from "./_generated/api";
 import { authMutation, authQuery, joinData, NullP } from "./utils";
 import { Id } from "./_generated/dataModel";
 import { jobStage, jobStatus } from "./schema";
+import { getOrCreateCustomer } from "./customers";
 
 /**
  * Queries
@@ -58,6 +59,7 @@ export const get = authQuery({
 });
 
 const commonArgs = {
+  customerName: v.optional(v.string()),
   description: v.optional(v.string()),
   notes: v.optional(v.string()),
   employeeId: v.optional(v.id("employees")),
@@ -73,14 +75,18 @@ const commonArgs = {
 export const add = authMutation({
   args: {
     ...commonArgs,
-    customerId: v.id("customers"), // Required
+    customerName: v.string(), // Required
     description: v.string(), // Required
     status: jobStatus, // Required
     stage: jobStage, // Required
   },
   handler: async (ctx, args) => {
+    const { customerName, ...jobData } = args;
+    const customerId = await getOrCreateCustomer(ctx, customerName);
+
     return ctx.db.insert("jobs", {
-      ...args,
+      ...jobData,
+      customerId,
       isDeleted: false,
       isCompleted: args.stage === "completed",
     });
@@ -94,8 +100,13 @@ export const update = authMutation({
     customerId: v.optional(v.id("customers")),
   },
   handler: async (ctx, args) => {
-    const { id, ...updateData } = args;
-    await ctx.db.patch(id, updateData);
+    const { id, customerName, ...updateData } = args;
+    await ctx.db.patch(id, {
+      ...updateData,
+      ...(customerName
+        ? { customerId: await getOrCreateCustomer(ctx, customerName) }
+        : {}),
+    });
     return;
   },
 });

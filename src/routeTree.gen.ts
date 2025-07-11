@@ -10,14 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PayRollRouteImport } from './routes/pay-roll'
+import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as EmployeesRouteImport } from './routes/employees'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CustomersRouteImport } from './routes/customers'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PayRollIndexRouteImport } from './routes/pay-roll.index'
+import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as EmployeesIndexRouteImport } from './routes/employees.index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as PayRollIdRouteImport } from './routes/pay-roll.$id'
+import { Route as JobsIdRouteImport } from './routes/jobs.$id'
 import { Route as EmployeesIdRouteImport } from './routes/employees.$id'
 import { Route as DashboardWaitingOnRouteImport } from './routes/dashboard.waiting-on'
 import { Route as DashboardProjectsRouteImport } from './routes/dashboard.projects'
@@ -28,6 +31,11 @@ import { Route as EmployeesIdIndexRouteImport } from './routes/employees.$id.ind
 const PayRollRoute = PayRollRouteImport.update({
   id: '/pay-roll',
   path: '/pay-roll',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsRoute = JobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmployeesRoute = EmployeesRouteImport.update({
@@ -55,6 +63,11 @@ const PayRollIndexRoute = PayRollIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PayRollRoute,
 } as any)
+const JobsIndexRoute = JobsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => JobsRoute,
+} as any)
 const EmployeesIndexRoute = EmployeesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -69,6 +82,11 @@ const PayRollIdRoute = PayRollIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => PayRollRoute,
+} as any)
+const JobsIdRoute = JobsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => JobsRoute,
 } as any)
 const EmployeesIdRoute = EmployeesIdRouteImport.update({
   id: '/$id',
@@ -106,15 +124,18 @@ export interface FileRoutesByFullPath {
   '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
+  '/jobs': typeof JobsRouteWithChildren
   '/pay-roll': typeof PayRollRouteWithChildren
   '/customers/$id': typeof CustomersIdRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
+  '/jobs/$id': typeof JobsIdRoute
   '/pay-roll/$id': typeof PayRollIdRoute
   '/customers/': typeof CustomersIndexRoute
   '/employees/': typeof EmployeesIndexRoute
+  '/jobs/': typeof JobsIndexRoute
   '/pay-roll/': typeof PayRollIndexRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
 }
@@ -125,9 +146,11 @@ export interface FileRoutesByTo {
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
+  '/jobs/$id': typeof JobsIdRoute
   '/pay-roll/$id': typeof PayRollIdRoute
   '/customers': typeof CustomersIndexRoute
   '/employees': typeof EmployeesIndexRoute
+  '/jobs': typeof JobsIndexRoute
   '/pay-roll': typeof PayRollIndexRoute
   '/employees/$id': typeof EmployeesIdIndexRoute
 }
@@ -137,15 +160,18 @@ export interface FileRoutesById {
   '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/employees': typeof EmployeesRouteWithChildren
+  '/jobs': typeof JobsRouteWithChildren
   '/pay-roll': typeof PayRollRouteWithChildren
   '/customers/$id': typeof CustomersIdRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/projects': typeof DashboardProjectsRoute
   '/dashboard/waiting-on': typeof DashboardWaitingOnRoute
   '/employees/$id': typeof EmployeesIdRouteWithChildren
+  '/jobs/$id': typeof JobsIdRoute
   '/pay-roll/$id': typeof PayRollIdRoute
   '/customers/': typeof CustomersIndexRoute
   '/employees/': typeof EmployeesIndexRoute
+  '/jobs/': typeof JobsIndexRoute
   '/pay-roll/': typeof PayRollIndexRoute
   '/employees/$id/': typeof EmployeesIdIndexRoute
 }
@@ -156,15 +182,18 @@ export interface FileRouteTypes {
     | '/customers'
     | '/dashboard'
     | '/employees'
+    | '/jobs'
     | '/pay-roll'
     | '/customers/$id'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees/$id'
+    | '/jobs/$id'
     | '/pay-roll/$id'
     | '/customers/'
     | '/employees/'
+    | '/jobs/'
     | '/pay-roll/'
     | '/employees/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -175,9 +204,11 @@ export interface FileRouteTypes {
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
+    | '/jobs/$id'
     | '/pay-roll/$id'
     | '/customers'
     | '/employees'
+    | '/jobs'
     | '/pay-roll'
     | '/employees/$id'
   id:
@@ -186,15 +217,18 @@ export interface FileRouteTypes {
     | '/customers'
     | '/dashboard'
     | '/employees'
+    | '/jobs'
     | '/pay-roll'
     | '/customers/$id'
     | '/dashboard/overview'
     | '/dashboard/projects'
     | '/dashboard/waiting-on'
     | '/employees/$id'
+    | '/jobs/$id'
     | '/pay-roll/$id'
     | '/customers/'
     | '/employees/'
+    | '/jobs/'
     | '/pay-roll/'
     | '/employees/$id/'
   fileRoutesById: FileRoutesById
@@ -204,6 +238,7 @@ export interface RootRouteChildren {
   CustomersRoute: typeof CustomersRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   EmployeesRoute: typeof EmployeesRouteWithChildren
+  JobsRoute: typeof JobsRouteWithChildren
   PayRollRoute: typeof PayRollRouteWithChildren
 }
 
@@ -214,6 +249,13 @@ declare module '@tanstack/react-router' {
       path: '/pay-roll'
       fullPath: '/pay-roll'
       preLoaderRoute: typeof PayRollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs': {
+      id: '/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof JobsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/employees': {
@@ -251,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PayRollIndexRouteImport
       parentRoute: typeof PayRollRoute
     }
+    '/jobs/': {
+      id: '/jobs/'
+      path: '/'
+      fullPath: '/jobs/'
+      preLoaderRoute: typeof JobsIndexRouteImport
+      parentRoute: typeof JobsRoute
+    }
     '/employees/': {
       id: '/employees/'
       path: '/'
@@ -271,6 +320,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/pay-roll/$id'
       preLoaderRoute: typeof PayRollIdRouteImport
       parentRoute: typeof PayRollRoute
+    }
+    '/jobs/$id': {
+      id: '/jobs/$id'
+      path: '/$id'
+      fullPath: '/jobs/$id'
+      preLoaderRoute: typeof JobsIdRouteImport
+      parentRoute: typeof JobsRoute
     }
     '/employees/$id': {
       id: '/employees/$id'
@@ -373,6 +429,18 @@ const EmployeesRouteWithChildren = EmployeesRoute._addFileChildren(
   EmployeesRouteChildren,
 )
 
+interface JobsRouteChildren {
+  JobsIdRoute: typeof JobsIdRoute
+  JobsIndexRoute: typeof JobsIndexRoute
+}
+
+const JobsRouteChildren: JobsRouteChildren = {
+  JobsIdRoute: JobsIdRoute,
+  JobsIndexRoute: JobsIndexRoute,
+}
+
+const JobsRouteWithChildren = JobsRoute._addFileChildren(JobsRouteChildren)
+
 interface PayRollRouteChildren {
   PayRollIdRoute: typeof PayRollIdRoute
   PayRollIndexRoute: typeof PayRollIndexRoute
@@ -391,6 +459,7 @@ const rootRouteChildren: RootRouteChildren = {
   CustomersRoute: CustomersRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   EmployeesRoute: EmployeesRouteWithChildren,
+  JobsRoute: JobsRouteWithChildren,
   PayRollRoute: PayRollRouteWithChildren,
 }
 export const routeTree = rootRouteImport
