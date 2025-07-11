@@ -40,7 +40,7 @@ function RouteComponent() {
   return (
     <>
       <AppHeader>
-        {/* <RecordNavigation storageKey="/customers/$id" /> */}
+        <RecordNavigation storageKey="/customers/$id" />
 
         <Button variant="outline" className="" asChild>
           <Link to={location.pathname} search={{ showAdd: true }}>

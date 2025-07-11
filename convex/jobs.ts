@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { authMutation, authQuery, joinData, NullP } from "./utils";
 import { Id } from "./_generated/dataModel";
-import { jobStage, jobStatus } from "./schema";
+import { jobStatus, jobPriority } from "./schema";
 import { getOrCreateCustomer } from "./customers";
 
 /**
@@ -64,8 +64,8 @@ const commonArgs = {
   notes: v.optional(v.string()),
   employeeId: v.optional(v.id("employees")),
   dueDate: v.optional(v.number()),
+  priority: v.optional(jobPriority),
   status: v.optional(jobStatus),
-  stage: v.optional(jobStage),
   quantity: v.optional(v.string()),
 };
 
@@ -77,8 +77,8 @@ export const add = authMutation({
     ...commonArgs,
     customerName: v.string(), // Required
     description: v.string(), // Required
+    priority: jobPriority, // Required
     status: jobStatus, // Required
-    stage: jobStage, // Required
   },
   handler: async (ctx, args) => {
     const { customerName, ...jobData } = args;
@@ -88,7 +88,7 @@ export const add = authMutation({
       ...jobData,
       customerId,
       isDeleted: false,
-      isCompleted: args.stage === "completed",
+      isCompleted: args.status === "completed",
     });
   },
 });

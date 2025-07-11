@@ -95,7 +95,7 @@ triggers.register("jobs", async (ctx, change) => {
     /**
      * Handle isCompleted flag
      */
-    if (change.newDoc.stage === "completed" && !change.newDoc.isCompleted) {
+    if (change.newDoc.status === "completed" && !change.newDoc.isCompleted) {
       await ctx.db.patch(change.id, { isCompleted: true });
     }
 

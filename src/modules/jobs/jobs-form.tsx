@@ -19,14 +19,15 @@ import { useDeferredValue } from "react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-export const jobStage = z.enum([
-  "todo",
+export const jobStatus = z.enum([
+  "ready",
+  "waiting",
   "in-progress",
   "back-burner",
   "completed",
 ]);
 
-export const jobStatus = z.enum(["hot", "cold", "normal"]);
+export const jobPriority = z.enum(["high", "medium", "low"]);
 
 export const schema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -35,8 +36,8 @@ export const schema = z.object({
   employeeId: z.string().optional(),
   notes: z.string().optional(),
   quantity: z.string().optional(),
-  stage: jobStage,
   status: jobStatus,
+  priority: jobPriority,
 });
 
 export type FormData = z.infer<typeof schema>;

@@ -77,8 +77,8 @@ function EditJobForm({ job }: { job: ConvexType<"jobs.get"> }) {
       customerName: "",
       employeeId: "",
       notes: "",
-      stage: "todo",
-      status: "normal",
+      priority: "medium",
+      status: "ready",
       quantity: "",
 
       ...validatedInput,

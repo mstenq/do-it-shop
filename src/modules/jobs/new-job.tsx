@@ -24,8 +24,8 @@ const defaultValues = {
   customerName: "",
   employeeId: "",
   notes: "",
-  stage: "todo",
-  status: "normal",
+  status: "ready",
+  priority: "medium",
   quantity: "",
 } as const;
 

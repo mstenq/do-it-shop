@@ -21,14 +21,15 @@ export const employeeType = v.union(
   v.literal("piece-work")
 );
 
-export const jobStatus = v.union(
-  v.literal("hot"),
-  v.literal("cold"),
-  v.literal("normal")
+export const jobPriority = v.union(
+  v.literal("high"),
+  v.literal("medium"),
+  v.literal("low")
 );
 
-export const jobStage = v.union(
-  v.literal("todo"),
+export const jobStatus = v.union(
+  v.literal("ready"),
+  v.literal("waiting"),
   v.literal("in-progress"),
   v.literal("back-burner"),
   v.literal("completed")
@@ -119,8 +120,8 @@ export default defineSchema({
     notes: v.optional(v.string()),
     employeeId: v.optional(v.id("employees")),
     dueDate: v.optional(v.number()),
+    priority: jobPriority,
     status: jobStatus,
-    stage: jobStage,
     isCompleted: v.boolean(), // trigger will set this based on stage
     quantity: v.optional(v.string()),
 
