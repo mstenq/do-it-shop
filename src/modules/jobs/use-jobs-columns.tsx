@@ -35,14 +35,14 @@ export const useJobsColumns = () => {
 
   const columns: ColumnDef<Row>[] = [
     {
-      id: "name",
-      accessorKey: "name",
-      header: "Name",
+      id: "customer",
+      accessorFn: (row) => row.customer?.name ?? "",
+      header: "Customer",
     },
     {
-      id: "address.street",
-      accessorKey: "address.street",
-      header: "Street Address",
+      id: "description",
+      accessorKey: "description",
+      header: "Description",
     },
     {
       id: "address.city",
