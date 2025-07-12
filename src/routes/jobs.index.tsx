@@ -15,6 +15,7 @@ import { api } from "@convex/api";
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { ColumnSort } from "@tanstack/react-table";
 import { zodValidator } from "@tanstack/zod-adapter";
+import { useQuery } from "convex-helpers/react/cache";
 import { useMutation } from "convex/react";
 import { z } from "zod";
 
@@ -66,7 +67,10 @@ export const Route = createFileRoute("/jobs/")({
 function RouteComponent() {
   const navigate = Route.useNavigate();
   const search = Route.useSearch();
-  const data = useJobsData({
+  // const data = useJobsData({
+  //   includeDeleted: search.filters.showDeleted,
+  // });
+  const data = useQuery(api.jobs.all, {
     includeDeleted: search.filters.showDeleted,
   });
   const destroy = useMutation(api.jobs.destroy);

@@ -30,6 +30,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
+import { cn } from "@/lib/utils";
 
 // Action types
 export type RowActionItem<T = any> =
@@ -204,22 +205,23 @@ function renderContextMenuItem<T>(
   switch (item.type) {
     case "button":
       return (
-        <ContextMenuItem
+        <button
+          type="button"
           key={key}
           onClick={(e) => {
             e.stopPropagation();
             item.onClick(row, e);
           }}
           disabled={item.disabled?.(row)}
-          className={
-            item.variant === "destructive"
-              ? "text-destructive focus:text-destructive"
-              : ""
-          }
+          className={cn(
+            "w-full relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+            item.variant === "destructive" &&
+              "text-destructive focus:text-destructive"
+          )}
         >
           {item.icon && <span className="mr-2">{item.icon}</span>}
           {item.label}
-        </ContextMenuItem>
+        </button>
       );
 
     case "checkbox":
@@ -339,7 +341,7 @@ export function RowActionsContextMenu<T>({
   }
 
   return (
-    <ContextMenu>
+    <ContextMenu modal={false}>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent>
         {visibleItems.map((item, index) =>

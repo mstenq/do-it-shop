@@ -20,7 +20,7 @@ export const JobColumn = z.enum([
   "dueDate",
   "quantity",
   "status",
-  "stage",
+  "priority",
 ]) satisfies z.ZodType<keyof Row>;
 
 export const JobSortingSchema = z.object({
@@ -70,7 +70,7 @@ export const useJobsColumns = () => {
           onClick: (row: Row) => {
             console.log("Edit row:", row);
             navigate({
-              to: "/jobs",
+              to: ".",
               search: (prev) => ({
                 ...prev,
                 showEdit: row._id,
